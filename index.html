@@ -138,6 +138,9 @@ let ANSWERS = {};
 let EVAL_EXP = new Set();
 let AQ_IDX = 0; // current question index in wizard
 let AQ_VIEW = 'quiz'; // 'quiz' or 'results'
+let AQ_MODE = 'all'; // 'all' or 'core' - which questions to show
+let AQ_STARTED = false; // has the user started the assessment
+const IS_CLIENT = new URLSearchParams(window.location.search).get('mode') === 'assess';
 const CLR = ['#ef4444','#f97316','#f59e0b','#3b82f6','#22c55e'];
 const LBL = ['Inexistente','Informal','Definido','Gestionado','Optimizado'];
 
@@ -238,23 +241,23 @@ function render() {
   const st = getStats();
 
   // HEADER
+  var tabs = IS_CLIENT ? [['assess','🎯 Evaluar']] : [['assess','🎯 Evaluar'],['editor','✏️ Editor'],['preview','👁 Preview'],['stats','📊 Stats']];
   const hdr = el('header',{className:'hdr'},
     el('div',{style:{display:'flex',alignItems:'center',gap:'10px'}},
       el('div',{className:'logo'},'F'),
-      el('div',null,el('div',{className:'title'},'FCMA'),el('div',{className:'sub'},'Assessment Editor'))
+      el('div',null,el('div',{className:'title'},'FCMA'),el('div',{className:'sub'},IS_CLIENT?'Assessment':'Assessment Editor'))
     ),
     el('div',{className:'pills'},
-      ...[['assess','🎯 Evaluar'],['editor','✏️ Editor'],['preview','👁 Preview'],['stats','📊 Stats']].map(([v,l])=>
+      ...tabs.map(([v,l])=>
         el('button',{className:`pill${VIEW===v?' on':''}`,onClick:()=>{VIEW=v;render()}},l))
     ),
     el('div',{style:{flex:'1'}}),
     el('div',{style:{display:'flex',gap:'6px',alignItems:'center'}},
       el('span',{className:'badge badge-t'},st.pilars+'P'),
-      el('span',{className:'badge badge-t'},st.subs+'S'),
       el('span',{className:'badge badge-b'},st.comps+'C'),
       el('span',{className:'badge badge-a'},st.core+' Core'),
     ),
-    el('div',{style:{display:'flex',gap:'6px'}},
+    ...(IS_CLIENT ? [] : [el('div',{style:{display:'flex',gap:'6px'}},
       el('input',{type:'file',id:'fimport',accept:'.md,.json',style:{display:'none'},onChange:e=>{
         const f=e.target.files[0]; if(!f)return;
         const r=new FileReader();
@@ -268,7 +271,7 @@ function render() {
       el('button',{className:'btn',onClick:()=>$('#fimport').click()},'📂 Importar'),
       el('button',{className:'btn btn-t',onClick:exportMD},'📄 MD'),
       el('button',{className:'btn',onClick:exportJSON},'💾 JSON'),
-    )
+    )])
   );
   app.append(hdr);
 
@@ -298,21 +301,64 @@ function getScores() {
 }
 
 function renderAssess(main) {
-  var questions = [];
+  var allQ = [];
   DATA.forEach(function(p) { p.subs.forEach(function(s) { s.comps.forEach(function(c) {
-    questions.push({ pilar: p, sub: s, comp: c, isCore: CORE.has(c.id) });
-  })})}); 
-  if (!questions.length) { main.append(el('div',{style:{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:'var(--mute)',fontSize:'16px'}},'No hay datos. Usa el botón importar.')); return; }
-  var totalQ = questions.length, answered = Object.keys(ANSWERS).length;
+    allQ.push({ pilar: p, sub: s, comp: c, isCore: CORE.has(c.id) });
+  })})});
+  if (!allQ.length) { main.append(el('div',{style:{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:'var(--mute)',fontSize:'16px'}},'No hay datos. Usa importar.')); return; }
+  var questions = AQ_MODE === 'core' ? allQ.filter(function(q){return q.isCore}) : allQ;
+  var totalQ = questions.length, answered = 0;
+  questions.forEach(function(q){ if(ANSWERS[q.comp.id]) answered++ });
   if (AQ_VIEW === 'results') { renderResults(main); return; }
+
+  // START SCREEN
+  if (!AQ_STARTED) {
+    var start = el('div', {style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center',overflowY:'auto',padding:'24px'}});
+    var card = el('div', {style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'12px',padding:'48px',maxWidth:'640px',width:'100%',textAlign:'center'}});
+    card.append(el('div',{style:{width:'64px',height:'64px',borderRadius:'16px',background:'linear-gradient(135deg,var(--teal),var(--tealL))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'28px',fontWeight:'800',color:'var(--wh)',margin:'0 auto 24px'}},'F'));
+    card.append(el('h1',{style:{fontSize:'28px',fontWeight:'800',marginBottom:'8px',letterSpacing:'-0.5px'}},'Financial Crime Maturity Assessment'));
+    card.append(el('p',{style:{fontSize:'16px',color:'var(--dim)',marginBottom:'36px',lineHeight:'1.5'}},'Evaluación integral del programa de prevención y detección de fraude'));
+    card.append(el('p',{style:{fontSize:'14px',color:'var(--mute)',marginBottom:'16px',fontWeight:'600',textTransform:'uppercase',letterSpacing:'1px'}},'Selecciona el modo de evaluación:'));
+    var modes = el('div',{style:{display:'flex',gap:'16px',justifyContent:'center',marginBottom:'36px',flexWrap:'wrap'}});
+    // Core button
+    var coreBtn = el('div',{style:{flex:'1',minWidth:'240px',padding:'28px 24px',borderRadius:'var(--r)',border:'3px solid '+(AQ_MODE==='core'?'var(--teal)':'var(--brd)'),background:AQ_MODE==='core'?'var(--tealD)':'var(--card)',cursor:'pointer',transition:'all .2s',textAlign:'center'}});
+    coreBtn.onclick = function(){ AQ_MODE='core'; render() };
+    coreBtn.onmouseover = function(){ coreBtn.style.borderColor='var(--teal)' };
+    coreBtn.onmouseout = function(){ if(AQ_MODE!=='core') coreBtn.style.borderColor='var(--brd)' };
+    coreBtn.append(el('div',{style:{fontSize:'42px',fontWeight:'800',fontFamily:'var(--fm)',color:'var(--teal)',marginBottom:'8px'}},String(CORE.size)));
+    coreBtn.append(el('div',{style:{fontSize:'18px',fontWeight:'700',marginBottom:'6px'}},'Screening Core'));
+    coreBtn.append(el('div',{style:{fontSize:'14px',color:'var(--mute)',lineHeight:'1.5'}},'Diagnóstico rápido — 1 a 2 horas. Las preguntas más críticas de cada pilar.'));
+    modes.append(coreBtn);
+    // All button
+    var allBtn = el('div',{style:{flex:'1',minWidth:'240px',padding:'28px 24px',borderRadius:'var(--r)',border:'3px solid '+(AQ_MODE==='all'?'#3b82f6':'var(--brd)'),background:AQ_MODE==='all'?'rgba(59,130,246,.12)':'var(--card)',cursor:'pointer',transition:'all .2s',textAlign:'center'}});
+    allBtn.onclick = function(){ AQ_MODE='all'; render() };
+    allBtn.onmouseover = function(){ allBtn.style.borderColor='#3b82f6' };
+    allBtn.onmouseout = function(){ if(AQ_MODE!=='all') allBtn.style.borderColor='var(--brd)' };
+    allBtn.append(el('div',{style:{fontSize:'42px',fontWeight:'800',fontFamily:'var(--fm)',color:'#3b82f6',marginBottom:'8px'}},String(allQ.length)));
+    allBtn.append(el('div',{style:{fontSize:'18px',fontWeight:'700',marginBottom:'6px'}},'Deep Dive Completo'));
+    allBtn.append(el('div',{style:{fontSize:'14px',color:'var(--mute)',lineHeight:'1.5'}},'Assessment exhaustivo — 4 a 6 sesiones. Todos los componentes del framework.'));
+    modes.append(allBtn);
+    card.append(modes);
+    card.append(el('button',{className:'btn btn-t',style:{padding:'16px 52px',fontSize:'18px',fontWeight:'700',borderRadius:'8px'},onClick:function(){AQ_STARTED=true;AQ_IDX=0;render()}},'Iniciar Evaluación →'));
+    if(answered>0){
+      card.append(el('div',{style:{marginTop:'24px',paddingTop:'16px',borderTop:'1px solid var(--brd)'}},
+        el('p',{style:{fontSize:'14px',color:'var(--mute)',marginBottom:'10px'}},'Tienes '+Object.keys(ANSWERS).length+' respuestas guardadas.'),
+        el('button',{className:'btn',style:{marginRight:'8px',padding:'10px 20px'},onClick:function(){AQ_STARTED=true;render()}},'Continuar donde ibas'),
+        el('button',{className:'btn btn-r',onClick:function(){if(confirm('¿Borrar todas las respuestas?')){ANSWERS={};AQ_IDX=0;save();render()}}},'Reiniciar')
+      ));
+    }
+    start.append(card); main.append(start); return;
+  }
+
   if (AQ_IDX < 0) AQ_IDX = 0;
   if (AQ_IDX >= totalQ) { AQ_VIEW = 'results'; renderResults(main); return; }
   var q = questions[AQ_IDX], c = q.comp, curAns = ANSWERS[c.id] || null;
   var wrap = el('div', {style:{flex:'1',display:'flex',flexDirection:'column',overflow:'hidden'}});
+
   // TOP BAR
   var top = el('div', {style:{padding:'16px 28px 14px',flexShrink:'0',borderBottom:'1px solid var(--brd)'}});
   var info = el('div', {style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'10px'}});
-  info.append(el('span', {style:{fontSize:'15px',fontWeight:'600'}}, 'Pregunta ' + (AQ_IDX+1) + ' de ' + totalQ), el('span', {style:{fontSize:'14px',color:'var(--mute)'}}, answered + ' respondidas'), el('button', {className:'btn', onClick:function(){AQ_VIEW='results';render();}}, '📊 Resultados'));
+  info.append(el('span', {style:{fontSize:'15px',fontWeight:'600'}}, 'Pregunta ' + (AQ_IDX+1) + ' de ' + totalQ + (AQ_MODE==='core'?' (Core)':'')), el('span', {style:{fontSize:'14px',color:'var(--mute)'}}, answered + '/' + totalQ + ' respondidas'), el('button', {className:'btn', onClick:function(){AQ_VIEW='results';render();}}, '📊 Resultados'));
   top.append(info);
   var pct = (AQ_IDX+1)/totalQ*100;
   top.append(el('div', {style:{width:'100%',height:'8px',background:'var(--bg)',borderRadius:'4px',overflow:'hidden'}}, el('div', {style:{width:pct+'%',height:'100%',background:'var(--teal)',borderRadius:'4px',transition:'width .3s'}})));
@@ -320,24 +366,19 @@ function renderAssess(main) {
   ctx.append(el('span', {style:{fontSize:'13px',fontFamily:'var(--fm)',color:'var(--teal)',fontWeight:'700',background:'var(--tealD)',padding:'4px 12px',borderRadius:'14px'}}, q.pilar.id), el('span', {style:{fontSize:'14px',color:'var(--dim)'}}, q.pilar.name), el('span', {style:{color:'var(--mute)'}},'›'), el('span', {style:{fontSize:'13px',color:'var(--mute)'}}, q.sub.id + ' ' + q.sub.name));
   top.append(ctx);
   wrap.append(top);
-  // QUESTION AREA
-  var qa = el('div', {style:{flex:'1',overflowY:'auto',padding:'28px 36px',scrollbarWidth:'thin'}});
-  var qt = el('div', {style:{marginBottom:'28px'}});
-  var tr = el('div', {style:{display:'flex',alignItems:'center',gap:'12px',marginBottom:'10px'}});
-  tr.append(el('span', {style:{fontSize:'15px',fontFamily:'var(--fm)',color:'var(--mute)'}}, c.id));
-  if (q.isCore) tr.append(el('span', {style:{fontSize:'12px',fontWeight:'700',padding:'4px 14px',borderRadius:'14px',background:'var(--tealD)',color:'var(--teal)'}}, '🔷 CORE'));
-  qt.append(tr);
-  qt.append(el('h2', {style:{fontSize:'24px',fontWeight:'700',lineHeight:'1.35',letterSpacing:'-0.3px',marginBottom:'6px'}}, c.name));
-  qa.append(qt);
-  qa.append(el('p', {style:{fontSize:'15px',color:'var(--mute)',marginBottom:'24px'}}, 'Selecciona el nivel que mejor describe la situación actual de tu institución:'));
-  // 5 OPTIONS
+
+  // QUESTION
+  var qa = el('div', {style:{flex:'1',overflowY:'auto',padding:'28px 36px'}});
+  qa.append(el('div',{style:{display:'flex',alignItems:'center',gap:'12px',marginBottom:'10px'}},el('span',{style:{fontSize:'15px',fontFamily:'var(--fm)',color:'var(--mute)'}},c.id),...(q.isCore?[el('span',{style:{fontSize:'12px',fontWeight:'700',padding:'4px 14px',borderRadius:'14px',background:'var(--tealD)',color:'var(--teal)'}},'🔷 CORE')]:[])));
+  qa.append(el('h2', {style:{fontSize:'24px',fontWeight:'700',lineHeight:'1.35',marginBottom:'24px'}}, c.name));
+
   c.L.forEach(function(lv, li) {
     var isSel = curAns === li + 1;
-    var opt = el('div', {style:{display:'flex',gap:'18px',alignItems:'flex-start',padding:'18px 22px',borderRadius:'var(--r)',cursor:'pointer',border:'2px solid '+(isSel?CLR[li]:'var(--brd)'),background:isSel?CLR[li]+'15':'var(--card)',transition:'all .2s',marginBottom:'12px'}});
+    var opt = el('div', {style:{display:'flex',gap:'18px',alignItems:'flex-start',padding:'18px 22px',borderRadius:'var(--r)',cursor:'pointer',border:'2px solid '+(isSel?CLR[li]:'var(--brd)'),background:isSel?CLR[li]+'15':'var(--card)',transition:'all .15s',marginBottom:'12px'}});
     opt.onmouseover = function() { if(!isSel){opt.style.borderColor=CLR[li]+'66';opt.style.background='var(--hover)'} };
     opt.onmouseout = function() { if(!isSel){opt.style.borderColor='var(--brd)';opt.style.background='var(--card)'} };
-    opt.onclick = function() { ANSWERS[c.id]=li+1; save(); setTimeout(function(){AQ_IDX++;render()},350); };
-    opt.append(el('div', {style:{minWidth:'44px',height:'44px',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'20px',fontWeight:'800',color:'var(--wh)',background:isSel?CLR[li]:CLR[li]+'44',transition:'all .2s',flexShrink:'0'}}, String(li+1)));
+    opt.onclick = function() { ANSWERS[c.id]=li+1; save(); render(); };
+    opt.append(el('div', {style:{minWidth:'44px',height:'44px',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'20px',fontWeight:'800',color:'var(--wh)',background:isSel?CLR[li]:CLR[li]+'44',flexShrink:'0'}}, String(li+1)));
     var td = el('div', {style:{flex:'1'}});
     td.append(el('div', {style:{fontSize:'13px',fontWeight:'700',color:CLR[li],textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:'6px'}}, 'Nivel '+(li+1)+' — '+LBL[li]));
     td.append(el('div', {style:{fontSize:'16px',lineHeight:'1.65',color:isSel?'var(--text)':'var(--dim)'}}, lv || '(Sin descriptor)'));
@@ -346,7 +387,8 @@ function renderAssess(main) {
     qa.append(opt);
   });
   wrap.append(qa);
-  // BOTTOM NAV
+
+  // NAV
   var nav = el('div', {style:{padding:'16px 36px',borderTop:'1px solid var(--brd)',display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:'0',background:'var(--card)'}});
   var pb = el('button', {className:'btn',style:{padding:'12px 28px',fontSize:'15px'},onClick:function(){AQ_IDX--;render()}}); pb.textContent='← Anterior';
   if(AQ_IDX===0){pb.style.opacity='0.3';pb.style.pointerEvents='none'}
@@ -360,51 +402,98 @@ function renderAssess(main) {
   else { nb=el('button',{className:'btn btn-t',style:{padding:'12px 28px',fontSize:'15px'},onClick:function(){AQ_IDX++;render()}},'Siguiente →'); }
   var sk = el('button', {className:'btn',style:{fontSize:'13px',color:'var(--mute)',padding:'12px 16px'},onClick:function(){AQ_IDX++;render()}}, 'Saltar');
   nav.append(pb, jd, el('div',{style:{display:'flex',gap:'8px'}},sk,nb));
-  wrap.append(nav);
-  main.append(wrap);
+  wrap.append(nav); main.append(wrap);
 }
 
 function renderResults(main) {
-  var questions = [];
-  DATA.forEach(function(p){p.subs.forEach(function(s){s.comps.forEach(function(c){ questions.push({pilar:p,sub:s,comp:c,isCore:CORE.has(c.id)}); })})});
-  var scores = getScores(), totalQ = questions.length, answered = Object.keys(ANSWERS).length;
-  var wrap = el('div', {style:{flex:'1',overflowY:'auto',padding:'36px',maxWidth:'860px',margin:'0 auto'}});
-  wrap.append(el('div',{style:{marginBottom:'20px'}},el('button',{className:'btn',style:{padding:'10px 20px',fontSize:'14px'},onClick:function(){AQ_VIEW='quiz';render()}},'← Volver al cuestionario')));
+  var scores = getScores(), totalQ = 0, answered = Object.keys(ANSWERS).length;
+  DATA.forEach(function(p){p.subs.forEach(function(s){totalQ+=s.comps.length})});
+  var wrap = el('div', {style:{flex:'1',overflowY:'auto',padding:'36px',maxWidth:'880px',margin:'0 auto'}});
+  wrap.append(el('div',{style:{marginBottom:'20px',display:'flex',gap:'10px'}},
+    el('button',{className:'btn',style:{padding:'10px 20px',fontSize:'14px'},onClick:function(){AQ_VIEW='quiz';render()}},'← Volver al cuestionario'),
+    el('button',{className:'btn',style:{padding:'10px 20px',fontSize:'14px'},onClick:function(){AQ_STARTED=false;AQ_VIEW='quiz';render()}},'🏠 Inicio')
+  ));
   var tot=scores._total, totCol=tot<2?CLR[0]:tot<3?CLR[1]:tot<3.5?CLR[2]:tot<4.2?CLR[3]:CLR[4];
-  var sc=el('div',{style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'var(--r)',padding:'36px',textAlign:'center',marginBottom:'28px'}});
-  sc.append(el('div',{style:{fontSize:'14px',color:'var(--mute)',textTransform:'uppercase',letterSpacing:'1.5px',marginBottom:'10px'}},'Score Global de Madurez'));
-  sc.append(el('div',{style:{fontSize:'80px',fontWeight:'800',fontFamily:'var(--fm)',color:totCol,lineHeight:'1'}},tot>0?tot.toFixed(1):'—'));
-  sc.append(el('div',{style:{fontSize:'15px',color:'var(--dim)',marginTop:'10px'}},answered+' de '+totalQ+' evaluados ('+Math.round(answered/totalQ*100)+'%)'));
-  if(answered>0)sc.append(el('div',{style:{marginTop:'16px'}},el('button',{className:'btn btn-r',onClick:function(){if(confirm('¿Borrar todas las respuestas?')){ANSWERS={};AQ_IDX=0;AQ_VIEW='quiz';save();render()}}},'🗑 Reiniciar')));
+  // SCORE CARD
+  var sc=el('div',{style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'12px',padding:'40px',textAlign:'center',marginBottom:'28px'}});
+  sc.append(el('div',{style:{fontSize:'14px',color:'var(--mute)',textTransform:'uppercase',letterSpacing:'1.5px',marginBottom:'12px'}},'Score Global de Madurez'));
+  sc.append(el('div',{style:{fontSize:'84px',fontWeight:'800',fontFamily:'var(--fm)',color:totCol,lineHeight:'1'}},tot>0?tot.toFixed(1):'—'));
+  sc.append(el('div',{style:{fontSize:'16px',color:'var(--dim)',marginTop:'12px'}},answered+' de '+totalQ+' evaluados ('+Math.round(answered/totalQ*100)+'%)'));
+  if(answered>0)sc.append(el('div',{style:{marginTop:'16px'}},el('button',{className:'btn btn-r',onClick:function(){if(confirm('¿Borrar todas?')){ANSWERS={};AQ_IDX=0;AQ_VIEW='quiz';AQ_STARTED=false;save();render()}}},'🗑 Reiniciar')));
   wrap.append(sc);
-  // Radar
-  var rd=el('div',{style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'var(--r)',padding:'28px',marginBottom:'28px'}});
-  rd.append(el('h3',{style:{fontSize:'20px',fontWeight:'700',marginBottom:'24px'}},'Resultados por Pilar'));
+
+  // RADAR SVG
+  var rd=el('div',{style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'12px',padding:'28px',marginBottom:'28px'}});
+  rd.append(el('h3',{style:{fontSize:'20px',fontWeight:'700',marginBottom:'8px'}},'Resultados por Pilar'));
+  rd.append(el('p',{style:{fontSize:'13px',color:'var(--mute)',marginBottom:'20px'}},'Barra horizontal: score promedio de los componentes evaluados en cada pilar (escala 1–5)'));
   DATA.forEach(function(p){
     var s=scores[p.id]||0,pct=s/5*100,col=s<2?CLR[0]:s<3?CLR[1]:s<3.5?CLR[2]:s<4.2?CLR[3]:CLR[4];
+    var pAns=0,pTot=0;p.subs.forEach(function(sub){sub.comps.forEach(function(c){pTot++;if(ANSWERS[c.id])pAns++})});
     rd.append(el('div',{style:{display:'flex',alignItems:'center',gap:'14px',marginBottom:'14px'}},
-      el('div',{style:{width:'190px',textAlign:'right'}},el('div',{style:{fontSize:'14px',fontWeight:'600'}},p.name),el('div',{style:{fontSize:'12px',color:'var(--mute)',fontFamily:'var(--fm)'}},p.id)),
+      el('div',{style:{width:'200px',textAlign:'right'}},el('div',{style:{fontSize:'14px',fontWeight:'600'}},p.name),el('div',{style:{fontSize:'11px',color:'var(--mute)',fontFamily:'var(--fm)'}},p.id+' · '+pAns+'/'+pTot)),
       el('div',{style:{flex:'1',height:'32px',background:'var(--bg)',borderRadius:'8px',overflow:'hidden'}},el('div',{style:{height:'100%',borderRadius:'8px',width:pct+'%',background:col,transition:'width .5s',display:'flex',alignItems:'center',justifyContent:'flex-end',paddingRight:'12px',fontSize:'14px',fontWeight:'700',color:'var(--wh)'}},s>0?s.toFixed(1):'')),
       el('div',{style:{width:'50px',textAlign:'center',fontSize:'18px',fontWeight:'800',fontFamily:'var(--fm)',color:col}},s>0?s.toFixed(1):'—')
     ));
   });
   wrap.append(rd);
-  // Gaps
+
+  // HEAT MAP
+  var hm=el('div',{style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'12px',padding:'28px',marginBottom:'28px'}});
+  hm.append(el('h3',{style:{fontSize:'20px',fontWeight:'700',marginBottom:'8px'}},'Mapa de Calor por Sub-dimensión'));
+  hm.append(el('p',{style:{fontSize:'13px',color:'var(--mute)',marginBottom:'20px'}},'Cada celda muestra el score promedio. Rojo = crítico, Verde = óptimo.'));
+  DATA.forEach(function(p){
+    hm.append(el('div',{style:{fontSize:'14px',fontWeight:'700',color:'var(--tealL)',marginBottom:'8px',marginTop:'16px'}},p.id+': '+p.name));
+    var grid=el('div',{style:{display:'flex',flexWrap:'wrap',gap:'6px',marginBottom:'4px'}});
+    p.subs.forEach(function(s){
+      var sum=0,cnt=0;s.comps.forEach(function(c){if(ANSWERS[c.id]){sum+=ANSWERS[c.id];cnt++}});
+      var avg=cnt>0?sum/cnt:0;
+      var col=avg<1.5?CLR[0]:avg<2.5?CLR[1]:avg<3.5?CLR[2]:avg<4.2?CLR[3]:CLR[4];
+      var bg=avg>0?col+'33':'var(--bg)';
+      var cell=el('div',{style:{padding:'8px 12px',borderRadius:'6px',background:bg,border:'1px solid '+(avg>0?col+'44':'var(--brd)'),minWidth:'120px',flex:'1'}});
+      cell.append(el('div',{style:{fontSize:'11px',color:'var(--mute)',marginBottom:'4px'}},s.id+' '+s.name));
+      cell.append(el('div',{style:{fontSize:'20px',fontWeight:'800',fontFamily:'var(--fm)',color:avg>0?col:'var(--mute)'}},avg>0?avg.toFixed(1):'—'));
+      cell.append(el('div',{style:{fontSize:'10px',color:'var(--mute)'}},cnt+'/'+s.comps.length+' evaluados'));
+      grid.append(cell);
+    });
+    hm.append(grid);
+  });
+  wrap.append(hm);
+
+  // GAPS
   var gaps=[];
-  DATA.forEach(function(p){p.subs.forEach(function(s){s.comps.forEach(function(c){ if(ANSWERS[c.id]&&ANSWERS[c.id]<=2)gaps.push({comp:c,score:ANSWERS[c.id],pilar:p.id,sub:s.id+' '+s.name}) })})});
+  DATA.forEach(function(p){p.subs.forEach(function(s){s.comps.forEach(function(c){ if(ANSWERS[c.id]&&ANSWERS[c.id]<=2)gaps.push({comp:c,score:ANSWERS[c.id],pilar:p.id,pname:p.name,sub:s.id+' '+s.name}) })})});
   gaps.sort(function(a,b){return a.score-b.score});
   if(gaps.length>0){
-    var gd=el('div',{style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'var(--r)',padding:'28px',marginBottom:'28px'}});
-    gd.append(el('h3',{style:{fontSize:'20px',fontWeight:'700',marginBottom:'20px',color:CLR[0]}},'⚠ Brechas Críticas (Nivel 1–2)'));
-    gaps.slice(0,15).forEach(function(g){
+    var gd=el('div',{style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'12px',padding:'28px',marginBottom:'28px'}});
+    gd.append(el('h3',{style:{fontSize:'20px',fontWeight:'700',marginBottom:'8px',color:CLR[0]}},'⚠ Brechas Críticas (Nivel 1–2)'));
+    gd.append(el('p',{style:{fontSize:'13px',color:'var(--mute)',marginBottom:'16px'}},gaps.length+' componentes en nivel crítico que requieren atención inmediata.'));
+    gaps.slice(0,20).forEach(function(g){
       var col=g.score===1?CLR[0]:CLR[1];
-      gd.append(el('div',{style:{display:'flex',alignItems:'center',gap:'12px',padding:'10px 0',borderBottom:'1px solid var(--brd)'}},
-        el('div',{style:{minWidth:'36px',height:'36px',borderRadius:'50%',background:col,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'16px',fontWeight:'700',color:'var(--wh)'}},String(g.score)),
-        el('div',{style:{flex:'1'}},el('div',{style:{fontSize:'15px',fontWeight:'600'}},g.comp.id+' · '+g.comp.name),el('div',{style:{fontSize:'13px',color:'var(--mute)'}},g.pilar+' › '+g.sub))
+      gd.append(el('div',{style:{display:'flex',alignItems:'center',gap:'14px',padding:'12px 0',borderBottom:'1px solid var(--brd)'}},
+        el('div',{style:{minWidth:'40px',height:'40px',borderRadius:'50%',background:col,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'18px',fontWeight:'700',color:'var(--wh)'}},String(g.score)),
+        el('div',{style:{flex:'1'}},el('div',{style:{fontSize:'15px',fontWeight:'600'}},g.comp.id+' · '+g.comp.name),el('div',{style:{fontSize:'13px',color:'var(--mute)'}},g.pilar+' '+g.pname+' › '+g.sub))
       ));
     });
     wrap.append(gd);
   }
+
+  // MATURITY LEVEL SUMMARY
+  var lvls=[0,0,0,0,0];
+  Object.values(ANSWERS).forEach(function(v){if(v>=1&&v<=5)lvls[v-1]++});
+  if(answered>0){
+    var md=el('div',{style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'12px',padding:'28px',marginBottom:'28px'}});
+    md.append(el('h3',{style:{fontSize:'20px',fontWeight:'700',marginBottom:'16px'}},'Distribución de Madurez'));
+    lvls.forEach(function(cnt,i){
+      var pct2=answered>0?cnt/answered*100:0;
+      md.append(el('div',{style:{display:'flex',alignItems:'center',gap:'12px',marginBottom:'10px'}},
+        el('div',{style:{width:'140px',textAlign:'right',fontSize:'13px',color:CLR[i],fontWeight:'600'}},'Nivel '+(i+1)+' — '+LBL[i]),
+        el('div',{style:{flex:'1',height:'24px',background:'var(--bg)',borderRadius:'6px',overflow:'hidden'}},el('div',{style:{height:'100%',borderRadius:'6px',width:pct2+'%',background:CLR[i],display:'flex',alignItems:'center',justifyContent:'flex-end',paddingRight:'8px',fontSize:'11px',fontWeight:'700',color:'var(--wh)'}},cnt>0?String(cnt):'')),
+        el('div',{style:{width:'60px',textAlign:'center',fontSize:'13px',color:'var(--mute)'}},Math.round(pct2)+'%')
+      ));
+    });
+    wrap.append(md);
+  }
+
   wrap.append(el('div',{style:{textAlign:'center',marginTop:'20px'}},el('button',{className:'btn btn-t',style:{padding:'14px 36px',fontSize:'16px'},onClick:exportJSON},'💾 Exportar Resultados')));
   main.append(wrap);
 }
