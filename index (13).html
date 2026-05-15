@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FCMA Assessment Editor</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f172a;--card:#1e293b;--hover:#334155;--teal:#0d9488;--tealL:#14b8a6;--tealD:rgba(13,148,136,0.15);--text:#e2e8f0;--dim:#94a3b8;--mute:#64748b;--brd:#334155;--brdL:#475569;--red:#ef4444;--amb:#f59e0b;--grn:#22c55e;--wh:#fff;--r:8px;--rs:4px;--f:'IBM Plex Sans',system-ui,sans-serif;--fm:'IBM Plex Mono',monospace}
+body{background:var(--bg);color:var(--text);font-family:var(--f);overflow:hidden;height:100vh}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--brdL);border-radius:3px}
+::selection{background:var(--tealD);color:var(--tealL)}
+input,textarea,select{font-family:var(--f)}
+button{font-family:var(--f);cursor:pointer}
+
+.app{display:flex;flex-direction:column;height:100vh}
+.hdr{background:var(--card);border-bottom:1px solid var(--brd);padding:10px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+.hdr .logo{width:32px;height:32px;border-radius:6px;background:linear-gradient(135deg,var(--teal),var(--tealL));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--wh)}
+.hdr .title{font-size:14px;font-weight:700;letter-spacing:-0.3px}
+.hdr .sub{font-size:10px;color:var(--mute);letter-spacing:1px;text-transform:uppercase}
+.pills{display:flex;gap:4px}
+.pill{border:1px solid var(--brd);border-radius:20px;padding:5px 14px;font-size:13px;background:transparent;color:var(--dim);transition:all .15s}
+.pill.on{background:var(--teal);border-color:var(--teal);color:var(--wh);font-weight:600}
+.badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;font-family:var(--fm)}
+.badge-t{background:rgba(13,148,136,0.15);color:var(--teal)}
+.badge-b{background:rgba(59,130,246,0.15);color:#3b82f6}
+.badge-a{background:rgba(245,158,11,0.15);color:var(--amb)}
+.btn{border:1px solid var(--brd);border-radius:var(--rs);padding:5px 12px;font-size:12px;font-weight:500;background:var(--card);color:var(--text);transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn:hover{border-color:var(--brdL)}
+.btn-t{background:var(--teal);border-color:var(--teal);color:var(--wh)}
+.btn-r{background:transparent;border-color:var(--red);color:var(--red)}
+.btn-r:hover{background:rgba(239,68,68,0.1)}
+.btn-g{background:transparent;border-color:transparent;color:var(--dim)}
+.btn-sm{padding:3px 8px;font-size:11px}
+.inp{background:var(--bg);border:1px solid var(--brd);border-radius:var(--rs);color:var(--text);padding:7px 10px;font-size:13px;width:100%;outline:none;transition:border .15s}
+.inp:focus{border-color:var(--teal)}
+textarea.inp{resize:vertical;line-height:1.5}
+.main{flex:1;display:flex;overflow:hidden}
+
+/* Panels */
+.panel{overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:4px;flex-shrink:0}
+.panel-l{width:210px;border-right:1px solid var(--brd)}
+.panel-m{width:230px;border-right:1px solid var(--brd)}
+.panel-r{flex:1;padding:16px;overflow-y:auto}
+.panel-hd{font-size:10px;color:var(--mute);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600}
+.pitem{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:var(--rs);cursor:pointer;border:1px solid transparent;transition:all .1s}
+.pitem:hover{background:var(--hover)}
+.pitem.on{background:var(--tealD);border-color:var(--teal)}
+.pitem .pid{font-size:11px;font-family:var(--fm);color:var(--teal);font-weight:700;min-width:24px}
+.pitem .pn{font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Component card */
+.ccard{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;border-left:4px solid var(--brd)}
+.ccard.core{border-left-color:var(--teal);border-color:var(--teal)}
+.ccard-hd{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;user-select:none}
+.ccard-hd:hover{background:var(--hover)}
+.ccard .cid{font-size:11px;color:var(--mute);font-family:var(--fm);min-width:38px}
+.ccard .cn{flex:1;font-size:13px;font-weight:500}
+.ccard-body{padding:0 12px 12px;border-top:1px solid var(--brd)}
+.ccard .arrow{font-size:14px;color:var(--mute);transition:transform .2s}
+.ccard .arrow.open{transform:rotate(180deg)}
+
+/* Levels */
+.lvl{display:flex;gap:8px;align-items:flex-start;padding:7px;border-radius:var(--rs)}
+.lvl:nth-child(odd){background:rgba(13,148,136,0.06)}
+.lvl-n{min-width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--wh);flex-shrink:0}
+.lvl-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+
+/* Preview */
+.preview{flex:1;overflow-y:auto;padding:32px;max-width:900px;margin:0 auto}
+.preview h1{font-size:26px;font-weight:700;margin-bottom:6px;letter-spacing:-.5px}
+.preview h2{font-size:18px;font-weight:700;color:var(--tealL);margin:24px 0 4px}
+.preview h3{font-size:14px;font-weight:600;margin:16px 0 6px 16px}
+.preview .comp{margin:0 0 10px 24px;border-left:3px solid var(--brd);padding-left:12px}
+.preview .comp.core{border-left-color:var(--teal)}
+.preview .comp-hd{font-size:13px;font-weight:600;margin-bottom:4px}
+.preview table{width:100%;border-collapse:collapse;font-size:12px}
+.preview td{padding:3px 8px;border-bottom:1px solid var(--brd)}
+.preview .ln{width:30px;font-weight:700;text-align:center}
+
+/* Stats */
+.stats{flex:1;overflow-y:auto;padding:32px;max-width:800px;margin:0 auto}
+.stats h2{font-size:22px;font-weight:700;margin-bottom:20px}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.scard{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:16px;text-align:center}
+.scard .sv{font-size:30px;font-weight:800;font-family:var(--fm)}
+.scard .sl{font-size:11px;color:var(--mute);margin-top:4px}
+.stable{width:100%;border-collapse:collapse}
+.stable th{padding:8px;text-align:left;border-bottom:2px solid var(--teal);font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.5px}
+.stable td{padding:8px;border-bottom:1px solid var(--brd);font-size:13px}
+.pbar{width:100%;height:8px;background:var(--brd);border-radius:4px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:4px;transition:width .3s}
+.empty-state{margin-top:20px;padding:20px;border:1px dashed var(--brd);border-radius:var(--r);text-align:center}
+
+/* Responsive */
+@media(max-width:768px){
+  .panel-l{width:160px}.panel-m{width:180px}
+  .hdr{flex-wrap:wrap;gap:8px}
+  .sgrid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div id="app" class="app"></div>
+<script>
+// ═══════════════════════════════════════════════════════════
+// FCMA ASSESSMENT EDITOR — Vanilla JS (no React needed)
+// Deployable on GitHub Pages as single index.html
+// ═══════════════════════════════════════════════════════════
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const el = (tag, attrs, ...kids) => {
+  const e = document.createElement(tag);
+  if (attrs) Object.entries(attrs).forEach(([k, v]) => {
+    if (k === 'style' && typeof v === 'object') Object.assign(e.style, v);
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2).toLowerCase(), v);
+    else if (k === 'className') e.className = v;
+    else if (k === 'innerHTML') e.innerHTML = v;
+    else e.setAttribute(k, v);
+  });
+  kids.flat(9).forEach(c => { if (c != null) e.append(typeof c === 'string' ? document.createTextNode(c) : c); });
+  return e;
+};
+
+// ── STATE ──
+let DATA = [];
+let CORE = new Set();
+let VIEW = 'editor';
+let ACTIVE_P = null;
+let ACTIVE_S = null;
+let EXPANDED = new Set();
+let SEARCH = '';
+
+function save() {
+  try {
+    localStorage.setItem('fcma_data', JSON.stringify(DATA));
+    localStorage.setItem('fcma_core', JSON.stringify([...CORE]));
+  } catch(e) {}
+}
+
+function load() {
+  try {
+    const d = localStorage.getItem('fcma_data');
+    const c = localStorage.getItem('fcma_core');
+    if (d) { DATA = JSON.parse(d); if (c) CORE = new Set(JSON.parse(c)); return true; }
+  } catch(e) {}
+  return false;
+}
+
+// ── IMPORT MD ──
+function importMD(text) {
+  const pilars = [];
+  let curP = null, curS = null, curC = null;
+  const newCore = new Set();
+  for (const line of text.split('\n')) {
+    const pm = line.match(/^# (P\d+):\s*(.+)/);
+    if (pm) { curP = { id: pm[1], name: pm[2].trim(), desc: '', subs: [] }; pilars.push(curP); curS = curC = null; continue; }
+    if (curP && !curP.desc && line.startsWith('*') && line.endsWith('*')) { curP.desc = line.slice(1,-1); continue; }
+    const sm = line.match(/^## (\d+\.\d+)\s*[—–-]\s*(.+)/);
+    if (sm && curP) { curS = { id: sm[1], name: sm[2].trim(), comps: [] }; curP.subs.push(curS); curC = null; continue; }
+    const cm = line.match(/^### (?:🔷\s*CORE\s*·\s*)?(\d+\.\d+\.\d+)\s*·\s*(.+)/);
+    if (cm && curS) {
+      if (line.includes('🔷 CORE')) newCore.add(cm[1]);
+      curC = { id: cm[1], name: cm[2].trim(), L: [] }; curS.comps.push(curC); continue;
+    }
+    const lm = line.match(/^\|\s*\*\*(\d)\*\*\s*\|\s*(.+?)\s*\|$/);
+    if (lm && curC) { curC.L.push(lm[2]); continue; }
+  }
+  pilars.forEach(p => p.subs.forEach(s => s.comps.forEach(c => { while (c.L.length < 5) c.L.push(''); })));
+  DATA = pilars;
+  CORE = newCore;
+  ACTIVE_P = pilars.length > 0 ? 0 : null;
+  ACTIVE_S = null;
+  save();
+  render();
+}
+
+// ── EXPORT MD ──
+function exportMD() {
+  let md = '# FINANCIAL CRIME MATURITY ASSESSMENT\n\n## MÓDULO A: FRAUD RISK MANAGEMENT PROGRAM\n\n---\n\n';
+  let tC=0, tS=0;
+  DATA.forEach(p=>{tS+=p.subs.length;p.subs.forEach(s=>tC+=s.comps.length)});
+  md += `**${DATA.length} Pilares · ${tS} Sub-dimensiones · ${tC} Componentes · ${CORE.size} Core**\n\n---\n\n`;
+  DATA.forEach(p=>{
+    md += `# ${p.id}: ${p.name}\n\n`;
+    if(p.desc)md+=`*${p.desc}*\n\n`;
+    p.subs.forEach(s=>{
+      md+=`## ${s.id} — ${s.name}\n\n`;
+      s.comps.forEach(c=>{
+        md+=`### ${CORE.has(c.id)?'🔷 CORE · ':''}${c.id} · ${c.name}\n\n`;
+        md+='| Nivel | Descriptor |\n|:---:|:---|\n';
+        c.L.forEach((l,i)=>{md+=`| **${i+1}** | ${l} |\n`});
+        md+='\n';
+      });
+    });
+    md+='---\n\n';
+  });
+  downloadFile(md, 'FCMA_Assessment.md', 'text/markdown');
+}
+
+function exportJSON() {
+  downloadFile(JSON.stringify({version:'2.0',data:DATA,core:[...CORE]},null,2), 'FCMA_Assessment.json', 'application/json');
+}
+
+function downloadFile(content, name, type) {
+  const b = new Blob([content],{type});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ── STATS ──
+function getStats() {
+  let tS=0, tC=0;
+  DATA.forEach(p=>{tS+=p.subs.length;p.subs.forEach(s=>tC+=s.comps.length)});
+  return { pilars: DATA.length, subs: tS, comps: tC, core: CORE.size };
+}
+
+// ── RENDER ──
+function render() {
+  const app = $('#app');
+  app.innerHTML = '';
+  const st = getStats();
+
+  // HEADER
+  const hdr = el('header',{className:'hdr'},
+    el('div',{style:{display:'flex',alignItems:'center',gap:'10px'}},
+      el('div',{className:'logo'},'F'),
+      el('div',null,el('div',{className:'title'},'FCMA'),el('div',{className:'sub'},'Assessment Editor'))
+    ),
+    el('div',{className:'pills'},
+      ...[['editor','Editor'],['preview','Preview'],['stats','Stats']].map(([v,l])=>
+        el('button',{className:`pill${VIEW===v?' on':''}`,onClick:()=>{VIEW=v;render()}},l))
+    ),
+    el('div',{style:{flex:'1'}}),
+    el('div',{style:{display:'flex',gap:'6px',alignItems:'center'}},
+      el('span',{className:'badge badge-t'},st.pilars+'P'),
+      el('span',{className:'badge badge-t'},st.subs+'S'),
+      el('span',{className:'badge badge-b'},st.comps+'C'),
+      el('span',{className:'badge badge-a'},st.core+' Core'),
+    ),
+    el('div',{style:{display:'flex',gap:'6px'}},
+      el('input',{type:'file',id:'fimport',accept:'.md,.json',style:{display:'none'},onChange:e=>{
+        const f=e.target.files[0]; if(!f)return;
+        const r=new FileReader();
+        r.onload=ev=>{
+          const t=ev.target.result;
+          if(f.name.endsWith('.json')){try{const j=JSON.parse(t);DATA=j.data||j;CORE=new Set(j.core||[]);ACTIVE_P=DATA.length?0:null;ACTIVE_S=null;save();render()}catch(e){alert('Error: '+e.message)}}
+          else importMD(t);
+        };
+        r.readAsText(f); e.target.value='';
+      }}),
+      el('button',{className:'btn',onClick:()=>$('#fimport').click()},'📂 Importar'),
+      el('button',{className:'btn btn-t',onClick:exportMD},'📄 MD'),
+      el('button',{className:'btn',onClick:exportJSON},'💾 JSON'),
+    )
+  );
+  app.append(hdr);
+
+  const main = el('div',{className:'main'});
+  app.append(main);
+
+  if (VIEW === 'editor') renderEditor(main);
+  else if (VIEW === 'preview') renderPreview(main);
+  else renderStats(main);
+}
+
+function renderEditor(main) {
+  // LEFT PANEL - Pilars
+  const left = el('div',{className:'panel panel-l'});
+  left.append(el('div',{className:'panel-hd'},'Pilares'));
+  DATA.forEach((p,i) => {
+    const item = el('div',{className:`pitem${ACTIVE_P===i?' on':''}`,onClick:()=>{ACTIVE_P=i;ACTIVE_S=null;render()}},
+      el('span',{className:'pid'},p.id),
+      el('span',{className:'pn'},p.name),
+      el('button',{className:'btn btn-r btn-sm',onClick:e=>{e.stopPropagation();if(confirm('¿Eliminar '+p.id+'?')){DATA.splice(i,1);ACTIVE_P=Math.max(0,i-1);ACTIVE_S=null;save();render()}}},'✕')
+    );
+    left.append(item);
+  });
+  left.append(el('button',{className:'btn btn-t',style:{marginTop:'8px'},onClick:()=>{
+    DATA.push({id:'P'+DATA.length,name:'Nuevo Pilar',desc:'',subs:[]});
+    ACTIVE_P=DATA.length-1;ACTIVE_S=null;save();render();
+  }},'+ Pilar'));
+  if(!DATA.length) left.append(el('div',{className:'empty-state'},
+    el('div',{style:{fontSize:'13px',color:'var(--dim)',marginBottom:'8px'}},'Sin datos'),
+    el('div',{style:{fontSize:'11px',color:'var(--mute)'}},'Importa tu archivo .md con 📂 Importar')
+  ));
+  main.append(left);
+
+  const curP = DATA[ACTIVE_P];
+  if (!curP) return;
+
+  // MIDDLE PANEL - Subs
+  const mid = el('div',{className:'panel panel-m'});
+  // Pilar editable
+  const pidInp = el('input',{className:'inp',value:curP.id,style:{width:'60px',fontFamily:'var(--fm)',fontSize:'12px',marginBottom:'4px'}});
+  pidInp.addEventListener('input',()=>{curP.id=pidInp.value;save()});
+  const pnInp = el('input',{className:'inp',value:curP.name,style:{fontSize:'13px',fontWeight:'600',marginBottom:'4px'}});
+  pnInp.addEventListener('input',()=>{curP.name=pnInp.value;save()});
+  const pdInp = el('textarea',{className:'inp',rows:'2',value:curP.desc||'',style:{fontSize:'11px',marginBottom:'10px'},placeholder:'Descripción...'});
+  pdInp.addEventListener('input',()=>{curP.desc=pdInp.value;save()});
+  mid.append(pidInp,pnInp,pdInp);
+  mid.append(el('div',{className:'panel-hd'},'Sub-dimensiones ('+curP.subs.length+')'));
+
+  curP.subs.forEach((s,i) => {
+    const item = el('div',{className:`pitem${ACTIVE_S===i?' on':''}`,onClick:()=>{ACTIVE_S=i;render()}},
+      el('span',{style:{fontSize:'10px',fontFamily:'var(--fm)',color:'var(--tealL)',minWidth:'24px'}},s.id),
+      el('span',{className:'pn'},s.name),
+      el('span',{className:'badge badge-t'},String(s.comps.length)),
+      el('button',{className:'btn btn-r btn-sm',onClick:e=>{e.stopPropagation();if(confirm('¿Eliminar '+s.id+'?')){curP.subs.splice(i,1);ACTIVE_S=null;save();render()}}},'✕')
+    );
+    mid.append(item);
+  });
+  mid.append(el('button',{className:'btn btn-t',style:{marginTop:'8px'},onClick:()=>{
+    const sid=curP.id.replace('P','')+'.'+String(curP.subs.length+1);
+    curP.subs.push({id:sid,name:'Nueva Sub-dimensión',comps:[]});
+    ACTIVE_S=curP.subs.length-1;save();render();
+  }},'+ Sub-dimensión'));
+  main.append(mid);
+
+  // RIGHT PANEL - Components
+  const right = el('div',{className:'panel-r'});
+  const curS = curP.subs[ACTIVE_S];
+
+  if (!curS) {
+    right.append(el('div',{style:{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:'var(--mute)'}},'← Selecciona una sub-dimensión'));
+    main.append(right);
+    return;
+  }
+
+  // Sub header
+  const shdr = el('div',{style:{display:'flex',gap:'10px',alignItems:'center',marginBottom:'10px'}});
+  const sidI = el('input',{className:'inp',value:curS.id,style:{width:'60px',fontFamily:'var(--fm)'}});
+  sidI.addEventListener('input',()=>{curS.id=sidI.value;save()});
+  const snI = el('input',{className:'inp',value:curS.name,style:{flex:'1',fontWeight:'600'}});
+  snI.addEventListener('input',()=>{curS.name=snI.value;save()});
+  shdr.append(sidI,snI,el('span',{className:'badge badge-b'},curS.comps.length+' comps'));
+  right.append(shdr);
+
+  // Search
+  const srch = el('input',{className:'inp',placeholder:'🔍 Buscar componente...',value:SEARCH,style:{marginBottom:'12px'}});
+  srch.addEventListener('input',()=>{SEARCH=srch.value;render()});
+  right.append(srch);
+
+  // Components
+  const colors = ['#ef4444','#f97316','#f59e0b','#3b82f6','#22c55e'];
+  const labels = ['Inexistente','Informal','Definido','Gestionado','Optimizado'];
+
+  curS.comps.forEach((c,ci) => {
+    if (SEARCH && !c.id.toLowerCase().includes(SEARCH.toLowerCase()) && !c.name.toLowerCase().includes(SEARCH.toLowerCase())) return;
+    const isCore = CORE.has(c.id);
+    const isExp = EXPANDED.has(c.id);
+    const card = el('div',{className:`ccard${isCore?' core':''}`});
+
+    // Header
+    const chd = el('div',{className:'ccard-hd',onClick:()=>{if(EXPANDED.has(c.id))EXPANDED.delete(c.id);else EXPANDED.add(c.id);render()}},
+      el('span',{className:'cid'},c.id),
+      ...(isCore?[el('span',{className:'badge badge-t'},'CORE')]:[]),
+      el('span',{className:'cn'},c.name),
+      el('button',{className:'btn btn-g btn-sm',onClick:e=>{e.stopPropagation();if(CORE.has(c.id))CORE.delete(c.id);else CORE.add(c.id);save();render()}},isCore?'★':'☆'),
+      el('button',{className:'btn btn-r btn-sm',onClick:e=>{e.stopPropagation();if(confirm('¿Eliminar '+c.id+'?')){curS.comps.splice(ci,1);save();render()}}},'✕'),
+      el('span',{className:`arrow${isExp?' open':''}`},'▾')
+    );
+    card.append(chd);
+
+    if (isExp) {
+      const body = el('div',{className:'ccard-body'});
+      const row1 = el('div',{style:{display:'flex',gap:'10px',margin:'10px 0 12px'}});
+      const ciI = el('input',{className:'inp',value:c.id,style:{width:'90px',fontFamily:'var(--fm)'}});
+      ciI.addEventListener('input',()=>{c.id=ciI.value;save()});
+      const cnI = el('input',{className:'inp',value:c.name,style:{flex:'1'}});
+      cnI.addEventListener('input',()=>{c.name=cnI.value;save()});
+      row1.append(ciI,cnI);
+      body.append(row1);
+
+      // Levels
+      c.L.forEach((lv,li) => {
+        const lvDiv = el('div',{className:'lvl'});
+        lvDiv.append(el('div',{className:'lvl-n',style:{background:colors[li]}},String(li+1)));
+        const lvRight = el('div',{style:{flex:'1'}});
+        lvRight.append(el('div',{className:'lvl-label',style:{color:colors[li]}},'Nivel '+(li+1)+' — '+labels[li]));
+        const ta = el('textarea',{className:'inp',rows:'2',value:lv,placeholder:'Descriptor nivel '+(li+1)+'...'});
+        ta.addEventListener('input',()=>{c.L[li]=ta.value;save()});
+        lvRight.append(ta);
+        lvDiv.append(lvRight);
+        body.append(lvDiv);
+      });
+      card.append(body);
+    }
+    right.append(card);
+  });
+
+  right.append(el('button',{className:'btn btn-t',style:{marginTop:'12px'},onClick:()=>{
+    const cid=curS.id+'.'+(curS.comps.length+1);
+    curS.comps.push({id:cid,name:'Nuevo Componente',L:['','','','','']});
+    EXPANDED.add(cid);save();render();
+  }},'+ Componente'));
+
+  main.append(right);
+}
+
+function renderPreview(main) {
+  const pv = el('div',{className:'preview'});
+  pv.append(el('h1',null,'Financial Crime Maturity Assessment'));
+  const st = getStats();
+  pv.append(el('p',{style:{color:'var(--dim)',fontSize:'14px',marginBottom:'24px'}},
+    `${st.pilars} Pilares · ${st.subs} Sub-dimensiones · ${st.comps} Componentes · ${st.core} Core`));
+
+  const colors = ['#ef4444','#f97316','#f59e0b','#3b82f6','#22c55e'];
+  DATA.forEach(p => {
+    pv.append(el('h2',null,p.id+': '+p.name));
+    if(p.desc) pv.append(el('p',{style:{color:'var(--mute)',fontSize:'13px',fontStyle:'italic',margin:'0 0 12px'}},p.desc));
+    p.subs.forEach(s => {
+      pv.append(el('h3',null,s.id+' — '+s.name));
+      s.comps.forEach(c => {
+        const isCore = CORE.has(c.id);
+        const div = el('div',{className:`comp${isCore?' core':''}`});
+        div.append(el('div',{className:'comp-hd'},
+          ...(isCore?[el('span',{style:{color:'var(--teal)',marginRight:'6px'}},'🔷 CORE')]:[]),
+          el('span',{style:{fontFamily:'var(--fm)',color:'var(--mute)',marginRight:'8px'}},c.id),
+          c.name
+        ));
+        const tbl = el('table'); const tb = el('tbody');
+        c.L.forEach((l,i) => {
+          tb.append(el('tr',null,
+            el('td',{className:'ln',style:{color:colors[i]}},String(i+1)),
+            el('td',{style:{color:'var(--dim)'}},l)
+          ));
+        });
+        tbl.append(tb); div.append(tbl); pv.append(div);
+      });
+    });
+  });
+  main.append(pv);
+}
+
+function renderStats(main) {
+  const sv = el('div',{className:'stats'});
+  sv.append(el('h2',null,'Estadísticas del Assessment'));
+  const st = getStats();
+  const grid = el('div',{className:'sgrid'});
+  [['Pilares',st.pilars,'var(--teal)'],['Sub-dimensiones',st.subs,'var(--tealL)'],['Componentes',st.comps,'#3b82f6'],['Core',st.core,'var(--amb)']].forEach(([l,v,c])=>{
+    grid.append(el('div',{className:'scard',style:{borderTop:`3px solid ${c}`}},
+      el('div',{className:'sv',style:{color:c}},String(v)),
+      el('div',{className:'sl'},l)
+    ));
+  });
+  sv.append(grid);
+
+  sv.append(el('h3',{style:{fontSize:'16px',fontWeight:'600',margin:'0 0 12px'}},'Detalle por Pilar'));
+  const tbl = el('table',{className:'stable'});
+  const thead = el('thead');
+  const thr = el('tr');
+  ['Pilar','Nombre','Subs','Comps','Core','Completitud'].forEach((h,i)=>{
+    thr.append(el('th',{style:{textAlign:i>1?'center':'left'}},h));
+  });
+  thead.append(thr); tbl.append(thead);
+  const tbody = el('tbody');
+  DATA.forEach(p=>{
+    let pc=0,pcr=0,filled=0,total=0;
+    p.subs.forEach(s=>s.comps.forEach(c=>{pc++;if(CORE.has(c.id))pcr++;c.L.forEach(l=>{total++;if(l.trim())filled++})}));
+    const pct=total?Math.round(filled/total*100):0;
+    const tr=el('tr');
+    tr.append(
+      el('td',{style:{fontFamily:'var(--fm)',color:'var(--teal)',fontWeight:'700'}},p.id),
+      el('td',null,p.name),
+      el('td',{style:{textAlign:'center'}},String(p.subs.length)),
+      el('td',{style:{textAlign:'center'}},String(pc)),
+      el('td',{style:{textAlign:'center'}},el('span',{className:'badge badge-t'},String(pcr))),
+      el('td',{style:{textAlign:'center'}},
+        el('div',{className:'pbar'},el('div',{className:'pbar-fill',style:{width:pct+'%',background:pct===100?'var(--grn)':pct>80?'var(--teal)':'var(--amb)'}})),
+        el('div',{style:{fontSize:'10px',color:'var(--mute)',marginTop:'2px'}},pct+'%')
+      )
+    );
+    tbody.append(tr);
+  });
+  tbl.append(tbody); sv.append(tbl);
+
+  sv.append(el('div',{style:{marginTop:'28px',padding:'16px',background:'var(--card)',borderRadius:'var(--r)',border:'1px solid var(--brd)'}},
+    el('h4',{style:{fontSize:'14px',fontWeight:'600',marginBottom:'6px'}},'Total de Descriptores'),
+    el('p',{style:{fontSize:'13px',color:'var(--dim)'},innerHTML:
+      `${st.comps} componentes × 5 niveles = <strong style="color:var(--tealL)">${st.comps*5} descriptores únicos</strong>`
+    })
+  ));
+  main.append(sv);
+}
+
+// ── INIT ──
+load();
+render();
+</script>
+</body>
+</html>
