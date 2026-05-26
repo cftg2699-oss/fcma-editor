@@ -93,6 +93,17 @@ textarea.inp{resize:vertical;line-height:1.5}
 .pbar-fill{height:100%;border-radius:4px;transition:width .3s}
 .empty-state{margin-top:20px;padding:20px;border:1px dashed var(--brd);border-radius:var(--r);text-align:center}
 
+/* IP Protection - Client mode */
+.ip-protect{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+.ip-protect *{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+.ip-protect input,.ip-protect textarea{-webkit-user-select:text;-moz-user-select:text;user-select:text}
+.watermark{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;opacity:0.03;font-size:28px;font-weight:800;color:var(--text);display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:120px;transform:rotate(-25deg);letter-spacing:6px;font-family:var(--fm);overflow:hidden}
+.footer-legal{position:fixed;bottom:0;left:0;width:100%;background:rgba(15,23,42,0.95);border-top:1px solid var(--brd);padding:4px 20px;font-size:10px;color:var(--mute);text-align:center;z-index:9998;letter-spacing:0.3px}
+.lang-sel{display:flex;gap:2px;background:var(--bg);border-radius:14px;padding:2px;border:1px solid var(--brd)}
+.lang-btn{border:none;border-radius:12px;padding:3px 10px;font-size:11px;font-weight:600;background:transparent;color:var(--mute);cursor:pointer;transition:all .15s;font-family:var(--f)}
+.lang-btn.on{background:var(--teal);color:var(--wh)}
+@media print{body{display:none!important}}
+
 /* Responsive */
 @media(max-width:768px){
   .panel-l{width:160px}.panel-m{width:180px}
@@ -141,8 +152,124 @@ let AQ_VIEW = 'quiz'; // 'quiz' or 'results'
 let AQ_MODE = 'all'; // 'all' or 'core' - which questions to show
 let AQ_STARTED = false; // has the user started the assessment
 const IS_CLIENT = new URLSearchParams(window.location.search).get('mode') === 'assess';
+let LANG = localStorage.getItem('fcma_lang') || 'es';
 const CLR = ['#ef4444','#f97316','#f59e0b','#3b82f6','#22c55e'];
-const LBL = ['Inexistente','Informal','Definido','Gestionado','Optimizado'];
+
+// ── i18n ──
+const I18N = {
+  es: {
+    levels:['Inexistente','Informal','Definido','Gestionado','Optimizado'],
+    assess:'🎯 Evaluar', editor:'✏️ Editor', preview:'👁 Preview', stats:'📊 Stats',
+    assessment:'Assessment', assessEditor:'Assessment Editor',
+    import:'📂 Importar', results:'📊 Resultados', next:'Siguiente →', prev:'← Anterior',
+    skip:'Saltar', goTo:'Ir a:', question:'Pregunta', of:'de', core:'Core',
+    answered:'respondidas', startEval:'Iniciar Evaluación →',
+    screeningCore:'Screening Core', deepDive:'Deep Dive Completo',
+    screeningDesc:'Diagnóstico rápido — 1 a 2 horas. Las preguntas más críticas de cada pilar.',
+    deepDiveDesc:'Assessment exhaustivo — 4 a 6 sesiones. Todos los componentes del framework.',
+    selectMode:'Selecciona el modo de evaluación:',
+    savedAnswers:'Tienes {n} respuestas guardadas.', continueWhere:'Continuar donde ibas',
+    restart:'Reiniciar', deleteAll:'¿Borrar todas las respuestas?', deleteAllShort:'¿Borrar todas?',
+    noData:'No hay datos. Usa importar.', selectSub:'← Selecciona una sub-dimensión',
+    globalScore:'Score Global de Madurez', evaluated:'evaluados',
+    resultsByPillar:'Resultados por Pilar', pillarBarDesc:'Barra horizontal: score promedio de los componentes evaluados en cada pilar (escala 1–5)',
+    heatmap:'Mapa de Calor por Sub-dimensión', heatmapDesc:'Cada celda muestra el score promedio. Rojo = crítico, Verde = óptimo.',
+    criticalGaps:'⚠ Brechas Críticas (Nivel 1–2)', criticalGapsDesc:'{n} componentes en nivel crítico que requieren atención inmediata.',
+    maturityDist:'Distribución de Madurez', exportResults:'💾 Exportar Resultados',
+    backToQuiz:'← Volver al cuestionario', home:'🏠 Inicio', viewResults:'📊 Ver Resultados →',
+    noDescriptor:'(Sin descriptor)', pilars:'Pilares', subs:'Sub-dimensiones', comps:'Componentes',
+    deletePilar:'¿Eliminar {id}?', deleteSub:'¿Eliminar {id}?', deleteComp:'¿Eliminar {id}?',
+    newPilar:'Nuevo Pilar', newSub:'Nueva Sub-dimensión', newComp:'Nuevo Componente',
+    description:'Descripción...', searchComp:'🔍 Buscar componente...', descLevel:'Descriptor nivel {n}...',
+    statsTitle:'Estadísticas del Assessment', detailByPillar:'Detalle por Pilar',
+    pilar:'Pilar', name:'Nombre', completeness:'Completitud', totalDesc:'Total de Descriptores',
+    totalDescText:'{c} componentes × 5 niveles = <strong style="color:var(--tealL)">{t} descriptores únicos</strong>',
+    fullTitle:'Financial Crime Maturity Assessment', fullDesc:'Evaluación integral del programa de prevención y detección de fraude',
+    copyright:'© {y} Christian Felipe Toro G. — Todos los derechos reservados. Framework FCMA™ es propiedad intelectual exclusiva del autor. Prohibida su reproducción, distribución o uso sin autorización escrita.',
+    watermark:'FCMA™ · CONFIDENCIAL',
+    disputeRes:'Resolución de Disputas'
+  },
+  en: {
+    levels:['Non-existent','Informal','Defined','Managed','Optimized'],
+    assess:'🎯 Assess', editor:'✏️ Editor', preview:'👁 Preview', stats:'📊 Stats',
+    assessment:'Assessment', assessEditor:'Assessment Editor',
+    import:'📂 Import', results:'📊 Results', next:'Next →', prev:'← Previous',
+    skip:'Skip', goTo:'Go to:', question:'Question', of:'of', core:'Core',
+    answered:'answered', startEval:'Start Assessment →',
+    screeningCore:'Core Screening', deepDive:'Full Deep Dive',
+    screeningDesc:'Quick diagnostic — 1 to 2 hours. The most critical questions from each pillar.',
+    deepDiveDesc:'Exhaustive assessment — 4 to 6 sessions. All framework components.',
+    selectMode:'Select assessment mode:',
+    savedAnswers:'You have {n} saved answers.', continueWhere:'Continue where you left off',
+    restart:'Reset', deleteAll:'Delete all answers?', deleteAllShort:'Delete all?',
+    noData:'No data. Use import.', selectSub:'← Select a sub-dimension',
+    globalScore:'Global Maturity Score', evaluated:'evaluated',
+    resultsByPillar:'Results by Pillar', pillarBarDesc:'Horizontal bar: average score of evaluated components per pillar (scale 1–5)',
+    heatmap:'Heat Map by Sub-dimension', heatmapDesc:'Each cell shows the average score. Red = critical, Green = optimal.',
+    criticalGaps:'⚠ Critical Gaps (Level 1–2)', criticalGapsDesc:'{n} components at critical level requiring immediate attention.',
+    maturityDist:'Maturity Distribution', exportResults:'💾 Export Results',
+    backToQuiz:'← Back to questionnaire', home:'🏠 Home', viewResults:'📊 View Results →',
+    noDescriptor:'(No descriptor)', pilars:'Pillars', subs:'Sub-dimensions', comps:'Components',
+    deletePilar:'Delete {id}?', deleteSub:'Delete {id}?', deleteComp:'Delete {id}?',
+    newPilar:'New Pillar', newSub:'New Sub-dimension', newComp:'New Component',
+    description:'Description...', searchComp:'🔍 Search component...', descLevel:'Level {n} descriptor...',
+    statsTitle:'Assessment Statistics', detailByPillar:'Detail by Pillar',
+    pilar:'Pillar', name:'Name', completeness:'Completeness', totalDesc:'Total Descriptors',
+    totalDescText:'{c} components × 5 levels = <strong style="color:var(--tealL)">{t} unique descriptors</strong>',
+    fullTitle:'Financial Crime Maturity Assessment', fullDesc:'Comprehensive fraud prevention and detection program assessment',
+    copyright:'© {y} Christian Felipe Toro G. — All rights reserved. FCMA™ Framework is exclusive intellectual property of the author. Reproduction, distribution, or use without written authorization is prohibited.',
+    watermark:'FCMA™ · CONFIDENTIAL',
+    disputeRes:'Dispute Resolution'
+  },
+  pt: {
+    levels:['Inexistente','Informal','Definido','Gerenciado','Otimizado'],
+    assess:'🎯 Avaliar', editor:'✏️ Editor', preview:'👁 Preview', stats:'📊 Stats',
+    assessment:'Avaliação', assessEditor:'Editor de Avaliação',
+    import:'📂 Importar', results:'📊 Resultados', next:'Próximo →', prev:'← Anterior',
+    skip:'Pular', goTo:'Ir para:', question:'Pergunta', of:'de', core:'Core',
+    answered:'respondidas', startEval:'Iniciar Avaliação →',
+    screeningCore:'Screening Core', deepDive:'Deep Dive Completo',
+    screeningDesc:'Diagnóstico rápido — 1 a 2 horas. As perguntas mais críticas de cada pilar.',
+    deepDiveDesc:'Avaliação exaustiva — 4 a 6 sessões. Todos os componentes do framework.',
+    selectMode:'Selecione o modo de avaliação:',
+    savedAnswers:'Você tem {n} respostas salvas.', continueWhere:'Continuar de onde parou',
+    restart:'Reiniciar', deleteAll:'Apagar todas as respostas?', deleteAllShort:'Apagar todas?',
+    noData:'Sem dados. Use importar.', selectSub:'← Selecione uma sub-dimensão',
+    globalScore:'Score Global de Maturidade', evaluated:'avaliados',
+    resultsByPillar:'Resultados por Pilar', pillarBarDesc:'Barra horizontal: pontuação média dos componentes avaliados em cada pilar (escala 1–5)',
+    heatmap:'Mapa de Calor por Sub-dimensão', heatmapDesc:'Cada célula mostra a pontuação média. Vermelho = crítico, Verde = ótimo.',
+    criticalGaps:'⚠ Lacunas Críticas (Nível 1–2)', criticalGapsDesc:'{n} componentes em nível crítico que requerem atenção imediata.',
+    maturityDist:'Distribuição de Maturidade', exportResults:'💾 Exportar Resultados',
+    backToQuiz:'← Voltar ao questionário', home:'🏠 Início', viewResults:'📊 Ver Resultados →',
+    noDescriptor:'(Sem descritor)', pilars:'Pilares', subs:'Sub-dimensões', comps:'Componentes',
+    deletePilar:'Excluir {id}?', deleteSub:'Excluir {id}?', deleteComp:'Excluir {id}?',
+    newPilar:'Novo Pilar', newSub:'Nova Sub-dimensão', newComp:'Novo Componente',
+    description:'Descrição...', searchComp:'🔍 Buscar componente...', descLevel:'Descritor nível {n}...',
+    statsTitle:'Estatísticas da Avaliação', detailByPillar:'Detalhe por Pilar',
+    pilar:'Pilar', name:'Nome', completeness:'Completude', totalDesc:'Total de Descritores',
+    totalDescText:'{c} componentes × 5 níveis = <strong style="color:var(--tealL)">{t} descritores únicos</strong>',
+    fullTitle:'Financial Crime Maturity Assessment', fullDesc:'Avaliação integral do programa de prevenção e detecção de fraude',
+    copyright:'© {y} Christian Felipe Toro G. — Todos os direitos reservados. Framework FCMA™ é propriedade intelectual exclusiva do autor. Proibida a reprodução, distribuição ou uso sem autorização escrita.',
+    watermark:'FCMA™ · CONFIDENCIAL',
+    disputeRes:'Resolução de Disputas'
+  }
+};
+function t(key){ return I18N[LANG][key] || I18N['es'][key] || key; }
+function tf(key,vars){ var s=t(key); Object.entries(vars).forEach(function(kv){s=s.replace('{'+kv[0]+'}',kv[1])}); return s; }
+function getLBL(){ return I18N[LANG].levels; }
+
+// ── IP PROTECTION (client mode) ──
+if(IS_CLIENT){
+  document.addEventListener('contextmenu',function(e){e.preventDefault()});
+  document.addEventListener('keydown',function(e){
+    if((e.ctrlKey||e.metaKey)&&(e.key==='c'||e.key==='u'||e.key==='s'||e.key==='p'||e.key==='a')){e.preventDefault()}
+    if(e.key==='PrintScreen'){e.preventDefault()}
+    if(e.key==='F12'){e.preventDefault()}
+    if((e.ctrlKey||e.metaKey)&&e.shiftKey&&(e.key==='I'||e.key==='J'||e.key==='C')){e.preventDefault()}
+  });
+  document.addEventListener('copy',function(e){e.preventDefault()});
+  document.addEventListener('dragstart',function(e){e.preventDefault()});
+}
 
 function save() {
   try {
@@ -238,21 +365,37 @@ function getStats() {
 function render() {
   const app = $('#app');
   app.innerHTML = '';
+  if(IS_CLIENT) app.classList.add('ip-protect');
   const st = getStats();
 
+  // WATERMARK + FOOTER (client mode)
+  if(IS_CLIENT){
+    var wm = el('div',{className:'watermark'});
+    for(var wi=0;wi<20;wi++) wm.append(el('span',null,t('watermark')));
+    app.append(wm);
+    app.append(el('div',{className:'footer-legal'},tf('copyright',{y:new Date().getFullYear()})));
+  }
+
+  // LANG SELECTOR
+  var langSel = el('div',{className:'lang-sel'});
+  ['es','en','pt'].forEach(function(lng){
+    langSel.append(el('button',{className:'lang-btn'+(LANG===lng?' on':''),onClick:function(){LANG=lng;localStorage.setItem('fcma_lang',lng);render()}},lng.toUpperCase()));
+  });
+
   // HEADER
-  var tabs = IS_CLIENT ? [['assess','🎯 Evaluar']] : [['assess','🎯 Evaluar'],['editor','✏️ Editor'],['preview','👁 Preview'],['stats','📊 Stats']];
+  var tabs = IS_CLIENT ? [['assess',t('assess')]] : [['assess',t('assess')],['editor',t('editor')],['preview',t('preview')],['stats',t('stats')]];
   const hdr = el('header',{className:'hdr'},
     el('div',{style:{display:'flex',alignItems:'center',gap:'10px'}},
       el('div',{className:'logo'},'F'),
-      el('div',null,el('div',{className:'title'},'FCMA'),el('div',{className:'sub'},IS_CLIENT?'Assessment':'Assessment Editor'))
+      el('div',null,el('div',{className:'title'},'FCMA'),el('div',{className:'sub'},IS_CLIENT?t('assessment'):t('assessEditor')))
     ),
     el('div',{className:'pills'},
       ...tabs.map(([v,l])=>
         el('button',{className:`pill${VIEW===v?' on':''}`,onClick:()=>{VIEW=v;render()}},l))
     ),
     el('div',{style:{flex:'1'}}),
-    el('div',{style:{display:'flex',gap:'6px',alignItems:'center'}},
+    langSel,
+    el('div',{style:{display:'flex',gap:'6px',alignItems:'center',marginLeft:'10px'}},
       el('span',{className:'badge badge-t'},st.pilars+'P'),
       el('span',{className:'badge badge-b'},st.comps+'C'),
       el('span',{className:'badge badge-a'},st.core+' Core'),
@@ -262,25 +405,26 @@ function render() {
         const f=e.target.files[0]; if(!f)return;
         const r=new FileReader();
         r.onload=ev=>{
-          const t=ev.target.result;
-          if(f.name.endsWith('.json')){try{const j=JSON.parse(t);DATA=j.data||j;CORE=new Set(j.core||[]);ACTIVE_P=DATA.length?0:null;ACTIVE_S=null;save();render()}catch(e){alert('Error: '+e.message)}}
-          else importMD(t);
+          const tx=ev.target.result;
+          if(f.name.endsWith('.json')){try{const j=JSON.parse(tx);DATA=j.data||j;CORE=new Set(j.core||[]);ACTIVE_P=DATA.length?0:null;ACTIVE_S=null;save();render()}catch(e){alert('Error: '+e.message)}}
+          else importMD(tx);
         };
         r.readAsText(f); e.target.value='';
       }}),
-      el('button',{className:'btn',onClick:()=>$('#fimport').click()},'📂 Importar'),
+      el('button',{className:'btn',onClick:()=>$('#fimport').click()},t('import')),
       el('button',{className:'btn btn-t',onClick:exportMD},'📄 MD'),
       el('button',{className:'btn',onClick:exportJSON},'💾 JSON'),
     )])
   );
   app.append(hdr);
 
-  const main = el('div',{className:'main'});
+  const main = el('div',{className:'main',style:IS_CLIENT?{paddingBottom:'24px'}:{}});
   app.append(main);
 
   if (VIEW === 'assess') renderAssess(main);
   else if (VIEW === 'editor') renderEditor(main);
   else if (VIEW === 'preview') renderPreview(main);
+
   else renderStats(main);
 }
 
@@ -305,7 +449,7 @@ function renderAssess(main) {
   DATA.forEach(function(p) { p.subs.forEach(function(s) { s.comps.forEach(function(c) {
     allQ.push({ pilar: p, sub: s, comp: c, isCore: CORE.has(c.id) });
   })})});
-  if (!allQ.length) { main.append(el('div',{style:{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:'var(--mute)',fontSize:'16px'}},'No hay datos. Usa importar.')); return; }
+  if (!allQ.length) { main.append(el('div',{style:{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:'var(--mute)',fontSize:'16px'}},t('noData'))); return; }
   var questions = AQ_MODE === 'core' ? allQ.filter(function(q){return q.isCore}) : allQ;
   var totalQ = questions.length, answered = 0;
   questions.forEach(function(q){ if(ANSWERS[q.comp.id]) answered++ });
@@ -316,9 +460,9 @@ function renderAssess(main) {
     var start = el('div', {style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center',overflowY:'auto',padding:'24px'}});
     var card = el('div', {style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'12px',padding:'48px',maxWidth:'640px',width:'100%',textAlign:'center'}});
     card.append(el('div',{style:{width:'64px',height:'64px',borderRadius:'16px',background:'linear-gradient(135deg,var(--teal),var(--tealL))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'28px',fontWeight:'800',color:'var(--wh)',margin:'0 auto 24px'}},'F'));
-    card.append(el('h1',{style:{fontSize:'28px',fontWeight:'800',marginBottom:'8px',letterSpacing:'-0.5px'}},'Financial Crime Maturity Assessment'));
-    card.append(el('p',{style:{fontSize:'16px',color:'var(--dim)',marginBottom:'36px',lineHeight:'1.5'}},'Evaluación integral del programa de prevención y detección de fraude'));
-    card.append(el('p',{style:{fontSize:'14px',color:'var(--mute)',marginBottom:'16px',fontWeight:'600',textTransform:'uppercase',letterSpacing:'1px'}},'Selecciona el modo de evaluación:'));
+    card.append(el('h1',{style:{fontSize:'28px',fontWeight:'800',marginBottom:'8px',letterSpacing:'-0.5px'}},t('fullTitle')));
+    card.append(el('p',{style:{fontSize:'16px',color:'var(--dim)',marginBottom:'36px',lineHeight:'1.5'}},t('fullDesc')));
+    card.append(el('p',{style:{fontSize:'14px',color:'var(--mute)',marginBottom:'16px',fontWeight:'600',textTransform:'uppercase',letterSpacing:'1px'}},t('selectMode')));
     var modes = el('div',{style:{display:'flex',gap:'16px',justifyContent:'center',marginBottom:'36px',flexWrap:'wrap'}});
     // Core button
     var coreBtn = el('div',{style:{flex:'1',minWidth:'240px',padding:'28px 24px',borderRadius:'var(--r)',border:'3px solid '+(AQ_MODE==='core'?'var(--teal)':'var(--brd)'),background:AQ_MODE==='core'?'var(--tealD)':'var(--card)',cursor:'pointer',transition:'all .2s',textAlign:'center'}});
@@ -326,8 +470,8 @@ function renderAssess(main) {
     coreBtn.onmouseover = function(){ coreBtn.style.borderColor='var(--teal)' };
     coreBtn.onmouseout = function(){ if(AQ_MODE!=='core') coreBtn.style.borderColor='var(--brd)' };
     coreBtn.append(el('div',{style:{fontSize:'42px',fontWeight:'800',fontFamily:'var(--fm)',color:'var(--teal)',marginBottom:'8px'}},String(CORE.size)));
-    coreBtn.append(el('div',{style:{fontSize:'18px',fontWeight:'700',marginBottom:'6px'}},'Screening Core'));
-    coreBtn.append(el('div',{style:{fontSize:'14px',color:'var(--mute)',lineHeight:'1.5'}},'Diagnóstico rápido — 1 a 2 horas. Las preguntas más críticas de cada pilar.'));
+    coreBtn.append(el('div',{style:{fontSize:'18px',fontWeight:'700',marginBottom:'6px'}},t('screeningCore')));
+    coreBtn.append(el('div',{style:{fontSize:'14px',color:'var(--mute)',lineHeight:'1.5'}},t('screeningDesc')));
     modes.append(coreBtn);
     // All button
     var allBtn = el('div',{style:{flex:'1',minWidth:'240px',padding:'28px 24px',borderRadius:'var(--r)',border:'3px solid '+(AQ_MODE==='all'?'#3b82f6':'var(--brd)'),background:AQ_MODE==='all'?'rgba(59,130,246,.12)':'var(--card)',cursor:'pointer',transition:'all .2s',textAlign:'center'}});
@@ -335,16 +479,16 @@ function renderAssess(main) {
     allBtn.onmouseover = function(){ allBtn.style.borderColor='#3b82f6' };
     allBtn.onmouseout = function(){ if(AQ_MODE!=='all') allBtn.style.borderColor='var(--brd)' };
     allBtn.append(el('div',{style:{fontSize:'42px',fontWeight:'800',fontFamily:'var(--fm)',color:'#3b82f6',marginBottom:'8px'}},String(allQ.length)));
-    allBtn.append(el('div',{style:{fontSize:'18px',fontWeight:'700',marginBottom:'6px'}},'Deep Dive Completo'));
-    allBtn.append(el('div',{style:{fontSize:'14px',color:'var(--mute)',lineHeight:'1.5'}},'Assessment exhaustivo — 4 a 6 sesiones. Todos los componentes del framework.'));
+    allBtn.append(el('div',{style:{fontSize:'18px',fontWeight:'700',marginBottom:'6px'}},t('deepDive')));
+    allBtn.append(el('div',{style:{fontSize:'14px',color:'var(--mute)',lineHeight:'1.5'}},t('deepDiveDesc')));
     modes.append(allBtn);
     card.append(modes);
-    card.append(el('button',{className:'btn btn-t',style:{padding:'16px 52px',fontSize:'18px',fontWeight:'700',borderRadius:'8px'},onClick:function(){AQ_STARTED=true;AQ_IDX=0;render()}},'Iniciar Evaluación →'));
+    card.append(el('button',{className:'btn btn-t',style:{padding:'16px 52px',fontSize:'18px',fontWeight:'700',borderRadius:'8px'},onClick:function(){AQ_STARTED=true;AQ_IDX=0;render()}},t('startEval')));
     if(answered>0){
       card.append(el('div',{style:{marginTop:'24px',paddingTop:'16px',borderTop:'1px solid var(--brd)'}},
-        el('p',{style:{fontSize:'14px',color:'var(--mute)',marginBottom:'10px'}},'Tienes '+Object.keys(ANSWERS).length+' respuestas guardadas.'),
-        el('button',{className:'btn',style:{marginRight:'8px',padding:'10px 20px'},onClick:function(){AQ_STARTED=true;render()}},'Continuar donde ibas'),
-        el('button',{className:'btn btn-r',onClick:function(){if(confirm('¿Borrar todas las respuestas?')){ANSWERS={};AQ_IDX=0;save();render()}}},'Reiniciar')
+        el('p',{style:{fontSize:'14px',color:'var(--mute)',marginBottom:'10px'}},tf('savedAnswers',{n:Object.keys(ANSWERS).length})),
+        el('button',{className:'btn',style:{marginRight:'8px',padding:'10px 20px'},onClick:function(){AQ_STARTED=true;render()}},t('continueWhere')),
+        el('button',{className:'btn btn-r',onClick:function(){if(confirm(t('deleteAll'))){ANSWERS={};AQ_IDX=0;save();render()}}},t('restart'))
       ));
     }
     start.append(card); main.append(start); return;
@@ -358,7 +502,7 @@ function renderAssess(main) {
   // TOP BAR
   var top = el('div', {style:{padding:'16px 28px 14px',flexShrink:'0',borderBottom:'1px solid var(--brd)'}});
   var info = el('div', {style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'10px'}});
-  info.append(el('span', {style:{fontSize:'15px',fontWeight:'600'}}, 'Pregunta ' + (AQ_IDX+1) + ' de ' + totalQ + (AQ_MODE==='core'?' (Core)':'')), el('span', {style:{fontSize:'14px',color:'var(--mute)'}}, answered + '/' + totalQ + ' respondidas'), el('button', {className:'btn', onClick:function(){AQ_VIEW='results';render();}}, '📊 Resultados'));
+  info.append(el('span', {style:{fontSize:'15px',fontWeight:'600'}}, t('question') + ' ' + (AQ_IDX+1) + ' ' + t('of') + ' ' + totalQ + (AQ_MODE==='core'?' ('+t('core')+')':'')), el('span', {style:{fontSize:'14px',color:'var(--mute)'}}, answered + '/' + totalQ + ' ' + t('answered')), el('button', {className:'btn', onClick:function(){AQ_VIEW='results';render();}}, t('results')));
   top.append(info);
   var pct = (AQ_IDX+1)/totalQ*100;
   top.append(el('div', {style:{width:'100%',height:'8px',background:'var(--bg)',borderRadius:'4px',overflow:'hidden'}}, el('div', {style:{width:pct+'%',height:'100%',background:'var(--teal)',borderRadius:'4px',transition:'width .3s'}})));
@@ -380,8 +524,8 @@ function renderAssess(main) {
     opt.onclick = function() { ANSWERS[c.id]=li+1; save(); render(); };
     opt.append(el('div', {style:{minWidth:'44px',height:'44px',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'20px',fontWeight:'800',color:'var(--wh)',background:isSel?CLR[li]:CLR[li]+'44',flexShrink:'0'}}, String(li+1)));
     var td = el('div', {style:{flex:'1'}});
-    td.append(el('div', {style:{fontSize:'13px',fontWeight:'700',color:CLR[li],textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:'6px'}}, 'Nivel '+(li+1)+' — '+LBL[li]));
-    td.append(el('div', {style:{fontSize:'16px',lineHeight:'1.65',color:isSel?'var(--text)':'var(--dim)'}}, lv || '(Sin descriptor)'));
+    td.append(el('div', {style:{fontSize:'13px',fontWeight:'700',color:CLR[li],textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:'6px'}}, 'Nivel '+(li+1)+' — '+getLBL()[li]));
+    td.append(el('div', {style:{fontSize:'16px',lineHeight:'1.65',color:isSel?'var(--text)':'var(--dim)'}}, lv || t('noDescriptor')));
     opt.append(td);
     if (isSel) opt.append(el('div', {style:{fontSize:'24px',color:CLR[li],flexShrink:'0',alignSelf:'center'}}, '✓'));
     qa.append(opt);
@@ -390,17 +534,17 @@ function renderAssess(main) {
 
   // NAV
   var nav = el('div', {style:{padding:'16px 36px',borderTop:'1px solid var(--brd)',display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:'0',background:'var(--card)'}});
-  var pb = el('button', {className:'btn',style:{padding:'12px 28px',fontSize:'15px'},onClick:function(){AQ_IDX--;render()}}); pb.textContent='← Anterior';
+  var pb = el('button', {className:'btn',style:{padding:'12px 28px',fontSize:'15px'},onClick:function(){AQ_IDX--;render()}}); pb.textContent=t('prev');
   if(AQ_IDX===0){pb.style.opacity='0.3';pb.style.pointerEvents='none'}
   var jd = el('div', {style:{display:'flex',gap:'6px',alignItems:'center'}});
-  jd.append(el('span', {style:{fontSize:'14px',color:'var(--mute)'}},'Ir a:'));
+  jd.append(el('span', {style:{fontSize:'14px',color:'var(--mute)'}},t('goTo')));
   var ji = el('input', {className:'inp',type:'number',min:'1',max:String(totalQ),value:String(AQ_IDX+1),style:{width:'75px',textAlign:'center',fontSize:'15px',padding:'10px'}});
   ji.onchange = function(){ var v=parseInt(ji.value); if(v>=1&&v<=totalQ){AQ_IDX=v-1;render()} };
   jd.append(ji);
   var nb;
-  if(AQ_IDX>=totalQ-1){ nb=el('button',{className:'btn btn-t',style:{padding:'12px 28px',fontSize:'15px'},onClick:function(){AQ_VIEW='results';render()}},'📊 Ver Resultados →'); }
-  else { nb=el('button',{className:'btn btn-t',style:{padding:'12px 28px',fontSize:'15px'},onClick:function(){AQ_IDX++;render()}},'Siguiente →'); }
-  var sk = el('button', {className:'btn',style:{fontSize:'13px',color:'var(--mute)',padding:'12px 16px'},onClick:function(){AQ_IDX++;render()}}, 'Saltar');
+  if(AQ_IDX>=totalQ-1){ nb=el('button',{className:'btn btn-t',style:{padding:'12px 28px',fontSize:'15px'},onClick:function(){AQ_VIEW='results';render()}},t('viewResults')); }
+  else { nb=el('button',{className:'btn btn-t',style:{padding:'12px 28px',fontSize:'15px'},onClick:function(){AQ_IDX++;render()}},t('next')); }
+  var sk = el('button', {className:'btn',style:{fontSize:'13px',color:'var(--mute)',padding:'12px 16px'},onClick:function(){AQ_IDX++;render()}}, t('skip'));
   nav.append(pb, jd, el('div',{style:{display:'flex',gap:'8px'}},sk,nb));
   wrap.append(nav); main.append(wrap);
 }
@@ -410,22 +554,22 @@ function renderResults(main) {
   DATA.forEach(function(p){p.subs.forEach(function(s){totalQ+=s.comps.length})});
   var wrap = el('div', {style:{flex:'1',overflowY:'auto',padding:'36px',maxWidth:'880px',margin:'0 auto'}});
   wrap.append(el('div',{style:{marginBottom:'20px',display:'flex',gap:'10px'}},
-    el('button',{className:'btn',style:{padding:'10px 20px',fontSize:'14px'},onClick:function(){AQ_VIEW='quiz';render()}},'← Volver al cuestionario'),
-    el('button',{className:'btn',style:{padding:'10px 20px',fontSize:'14px'},onClick:function(){AQ_STARTED=false;AQ_VIEW='quiz';render()}},'🏠 Inicio')
+    el('button',{className:'btn',style:{padding:'10px 20px',fontSize:'14px'},onClick:function(){AQ_VIEW='quiz';render()}},t('backToQuiz')),
+    el('button',{className:'btn',style:{padding:'10px 20px',fontSize:'14px'},onClick:function(){AQ_STARTED=false;AQ_VIEW='quiz';render()}},t('home'))
   ));
   var tot=scores._total, totCol=tot<2?CLR[0]:tot<3?CLR[1]:tot<3.5?CLR[2]:tot<4.2?CLR[3]:CLR[4];
   // SCORE CARD
   var sc=el('div',{style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'12px',padding:'40px',textAlign:'center',marginBottom:'28px'}});
-  sc.append(el('div',{style:{fontSize:'14px',color:'var(--mute)',textTransform:'uppercase',letterSpacing:'1.5px',marginBottom:'12px'}},'Score Global de Madurez'));
+  sc.append(el('div',{style:{fontSize:'14px',color:'var(--mute)',textTransform:'uppercase',letterSpacing:'1.5px',marginBottom:'12px'}},t('globalScore')));
   sc.append(el('div',{style:{fontSize:'84px',fontWeight:'800',fontFamily:'var(--fm)',color:totCol,lineHeight:'1'}},tot>0?tot.toFixed(1):'—'));
-  sc.append(el('div',{style:{fontSize:'16px',color:'var(--dim)',marginTop:'12px'}},answered+' de '+totalQ+' evaluados ('+Math.round(answered/totalQ*100)+'%)'));
-  if(answered>0)sc.append(el('div',{style:{marginTop:'16px'}},el('button',{className:'btn btn-r',onClick:function(){if(confirm('¿Borrar todas?')){ANSWERS={};AQ_IDX=0;AQ_VIEW='quiz';AQ_STARTED=false;save();render()}}},'🗑 Reiniciar')));
+  sc.append(el('div',{style:{fontSize:'16px',color:'var(--dim)',marginTop:'12px'}},answered+' '+t('of')+' '+totalQ+' '+t('evaluated')+' ('+Math.round(answered/totalQ*100)+'%)'));
+  if(answered>0)sc.append(el('div',{style:{marginTop:'16px'}},el('button',{className:'btn btn-r',onClick:function(){if(confirm(t('deleteAllShort'))){ANSWERS={};AQ_IDX=0;AQ_VIEW='quiz';AQ_STARTED=false;save();render()}}},'🗑 '+t('restart'))));
   wrap.append(sc);
 
   // RADAR SVG
   var rd=el('div',{style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'12px',padding:'28px',marginBottom:'28px'}});
-  rd.append(el('h3',{style:{fontSize:'20px',fontWeight:'700',marginBottom:'8px'}},'Resultados por Pilar'));
-  rd.append(el('p',{style:{fontSize:'13px',color:'var(--mute)',marginBottom:'20px'}},'Barra horizontal: score promedio de los componentes evaluados en cada pilar (escala 1–5)'));
+  rd.append(el('h3',{style:{fontSize:'20px',fontWeight:'700',marginBottom:'8px'}},t('resultsByPillar')));
+  rd.append(el('p',{style:{fontSize:'13px',color:'var(--mute)',marginBottom:'20px'}},t('pillarBarDesc')));
   DATA.forEach(function(p){
     var s=scores[p.id]||0,pct=s/5*100,col=s<2?CLR[0]:s<3?CLR[1]:s<3.5?CLR[2]:s<4.2?CLR[3]:CLR[4];
     var pAns=0,pTot=0;p.subs.forEach(function(sub){sub.comps.forEach(function(c){pTot++;if(ANSWERS[c.id])pAns++})});
@@ -439,8 +583,8 @@ function renderResults(main) {
 
   // HEAT MAP
   var hm=el('div',{style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'12px',padding:'28px',marginBottom:'28px'}});
-  hm.append(el('h3',{style:{fontSize:'20px',fontWeight:'700',marginBottom:'8px'}},'Mapa de Calor por Sub-dimensión'));
-  hm.append(el('p',{style:{fontSize:'13px',color:'var(--mute)',marginBottom:'20px'}},'Cada celda muestra el score promedio. Rojo = crítico, Verde = óptimo.'));
+  hm.append(el('h3',{style:{fontSize:'20px',fontWeight:'700',marginBottom:'8px'}},t('heatmap')));
+  hm.append(el('p',{style:{fontSize:'13px',color:'var(--mute)',marginBottom:'20px'}},t('heatmapDesc')));
   DATA.forEach(function(p){
     hm.append(el('div',{style:{fontSize:'14px',fontWeight:'700',color:'var(--tealL)',marginBottom:'8px',marginTop:'16px'}},p.id+': '+p.name));
     var grid=el('div',{style:{display:'flex',flexWrap:'wrap',gap:'6px',marginBottom:'4px'}});
@@ -452,7 +596,7 @@ function renderResults(main) {
       var cell=el('div',{style:{padding:'8px 12px',borderRadius:'6px',background:bg,border:'1px solid '+(avg>0?col+'44':'var(--brd)'),minWidth:'120px',flex:'1'}});
       cell.append(el('div',{style:{fontSize:'11px',color:'var(--mute)',marginBottom:'4px'}},s.id+' '+s.name));
       cell.append(el('div',{style:{fontSize:'20px',fontWeight:'800',fontFamily:'var(--fm)',color:avg>0?col:'var(--mute)'}},avg>0?avg.toFixed(1):'—'));
-      cell.append(el('div',{style:{fontSize:'10px',color:'var(--mute)'}},cnt+'/'+s.comps.length+' evaluados'));
+      cell.append(el('div',{style:{fontSize:'10px',color:'var(--mute)'}},cnt+'/'+s.comps.length+' '+t('evaluated')));
       grid.append(cell);
     });
     hm.append(grid);
@@ -465,8 +609,8 @@ function renderResults(main) {
   gaps.sort(function(a,b){return a.score-b.score});
   if(gaps.length>0){
     var gd=el('div',{style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'12px',padding:'28px',marginBottom:'28px'}});
-    gd.append(el('h3',{style:{fontSize:'20px',fontWeight:'700',marginBottom:'8px',color:CLR[0]}},'⚠ Brechas Críticas (Nivel 1–2)'));
-    gd.append(el('p',{style:{fontSize:'13px',color:'var(--mute)',marginBottom:'16px'}},gaps.length+' componentes en nivel crítico que requieren atención inmediata.'));
+    gd.append(el('h3',{style:{fontSize:'20px',fontWeight:'700',marginBottom:'8px',color:CLR[0]}},t('criticalGaps')));
+    gd.append(el('p',{style:{fontSize:'13px',color:'var(--mute)',marginBottom:'16px'}},tf('criticalGapsDesc',{n:gaps.length})));
     gaps.slice(0,20).forEach(function(g){
       var col=g.score===1?CLR[0]:CLR[1];
       gd.append(el('div',{style:{display:'flex',alignItems:'center',gap:'14px',padding:'12px 0',borderBottom:'1px solid var(--brd)'}},
@@ -482,11 +626,11 @@ function renderResults(main) {
   Object.values(ANSWERS).forEach(function(v){if(v>=1&&v<=5)lvls[v-1]++});
   if(answered>0){
     var md=el('div',{style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'12px',padding:'28px',marginBottom:'28px'}});
-    md.append(el('h3',{style:{fontSize:'20px',fontWeight:'700',marginBottom:'16px'}},'Distribución de Madurez'));
+    md.append(el('h3',{style:{fontSize:'20px',fontWeight:'700',marginBottom:'16px'}},t('maturityDist')));
     lvls.forEach(function(cnt,i){
       var pct2=answered>0?cnt/answered*100:0;
       md.append(el('div',{style:{display:'flex',alignItems:'center',gap:'12px',marginBottom:'10px'}},
-        el('div',{style:{width:'140px',textAlign:'right',fontSize:'13px',color:CLR[i],fontWeight:'600'}},'Nivel '+(i+1)+' — '+LBL[i]),
+        el('div',{style:{width:'140px',textAlign:'right',fontSize:'13px',color:CLR[i],fontWeight:'600'}},'Nivel '+(i+1)+' — '+getLBL()[i]),
         el('div',{style:{flex:'1',height:'24px',background:'var(--bg)',borderRadius:'6px',overflow:'hidden'}},el('div',{style:{height:'100%',borderRadius:'6px',width:pct2+'%',background:CLR[i],display:'flex',alignItems:'center',justifyContent:'flex-end',paddingRight:'8px',fontSize:'11px',fontWeight:'700',color:'var(--wh)'}},cnt>0?String(cnt):'')),
         el('div',{style:{width:'60px',textAlign:'center',fontSize:'13px',color:'var(--mute)'}},Math.round(pct2)+'%')
       ));
@@ -494,29 +638,31 @@ function renderResults(main) {
     wrap.append(md);
   }
 
-  wrap.append(el('div',{style:{textAlign:'center',marginTop:'20px'}},el('button',{className:'btn btn-t',style:{padding:'14px 36px',fontSize:'16px'},onClick:exportJSON},'💾 Exportar Resultados')));
+  wrap.append(el('div',{style:{textAlign:'center',marginTop:'20px'}},el('button',{className:'btn btn-t',style:{padding:'14px 36px',fontSize:'16px'},onClick:exportJSON},t('exportResults'))));
+  // Copyright footer in results
+  wrap.append(el('div',{style:{textAlign:'center',marginTop:'28px',padding:'16px',fontSize:'10px',color:'var(--mute)',borderTop:'1px solid var(--brd)'}},tf('copyright',{y:new Date().getFullYear()})));
   main.append(wrap);
 }
 
 function renderEditor(main) {
   // LEFT PANEL - Pilars
   const left = el('div',{className:'panel panel-l'});
-  left.append(el('div',{className:'panel-hd'},'Pilares'));
+  left.append(el('div',{className:'panel-hd'},t('pilars')));
   DATA.forEach((p,i) => {
     const item = el('div',{className:`pitem${ACTIVE_P===i?' on':''}`,onClick:()=>{ACTIVE_P=i;ACTIVE_S=null;render()}},
       el('span',{className:'pid'},p.id),
       el('span',{className:'pn'},p.name),
-      el('button',{className:'btn btn-r btn-sm',onClick:e=>{e.stopPropagation();if(confirm('¿Eliminar '+p.id+'?')){DATA.splice(i,1);ACTIVE_P=Math.max(0,i-1);ACTIVE_S=null;save();render()}}},'✕')
+      el('button',{className:'btn btn-r btn-sm',onClick:e=>{e.stopPropagation();if(confirm(tf('deletePilar',{id:p.id}))){DATA.splice(i,1);ACTIVE_P=Math.max(0,i-1);ACTIVE_S=null;save();render()}}},'✕')
     );
     left.append(item);
   });
   left.append(el('button',{className:'btn btn-t',style:{marginTop:'8px'},onClick:()=>{
-    DATA.push({id:'P'+DATA.length,name:'Nuevo Pilar',desc:'',subs:[]});
+    DATA.push({id:'P'+DATA.length,name:t('newPilar'),desc:'',subs:[]});
     ACTIVE_P=DATA.length-1;ACTIVE_S=null;save();render();
   }},'+ Pilar'));
   if(!DATA.length) left.append(el('div',{className:'empty-state'},
-    el('div',{style:{fontSize:'13px',color:'var(--dim)',marginBottom:'8px'}},'Sin datos'),
-    el('div',{style:{fontSize:'11px',color:'var(--mute)'}},'Importa tu archivo .md con 📂 Importar')
+    el('div',{style:{fontSize:'13px',color:'var(--dim)',marginBottom:'8px'}},t('noData')),
+    el('div',{style:{fontSize:'11px',color:'var(--mute)'}},t('import'))
   ));
   main.append(left);
 
@@ -530,7 +676,7 @@ function renderEditor(main) {
   pidInp.addEventListener('input',()=>{curP.id=pidInp.value;save()});
   const pnInp = el('input',{className:'inp',value:curP.name,style:{fontSize:'13px',fontWeight:'600',marginBottom:'4px'}});
   pnInp.addEventListener('input',()=>{curP.name=pnInp.value;save()});
-  const pdInp = el('textarea',{className:'inp',rows:'2',value:curP.desc||'',style:{fontSize:'11px',marginBottom:'10px'},placeholder:'Descripción...'});
+  const pdInp = el('textarea',{className:'inp',rows:'2',value:curP.desc||'',style:{fontSize:'11px',marginBottom:'10px'},placeholder:t('description')});
   pdInp.addEventListener('input',()=>{curP.desc=pdInp.value;save()});
   mid.append(pidInp,pnInp,pdInp);
   mid.append(el('div',{className:'panel-hd'},'Sub-dimensiones ('+curP.subs.length+')'));
@@ -540,13 +686,13 @@ function renderEditor(main) {
       el('span',{style:{fontSize:'10px',fontFamily:'var(--fm)',color:'var(--tealL)',minWidth:'24px'}},s.id),
       el('span',{className:'pn'},s.name),
       el('span',{className:'badge badge-t'},String(s.comps.length)),
-      el('button',{className:'btn btn-r btn-sm',onClick:e=>{e.stopPropagation();if(confirm('¿Eliminar '+s.id+'?')){curP.subs.splice(i,1);ACTIVE_S=null;save();render()}}},'✕')
+      el('button',{className:'btn btn-r btn-sm',onClick:e=>{e.stopPropagation();if(confirm(tf('deleteSub',{id:s.id}))){curP.subs.splice(i,1);ACTIVE_S=null;save();render()}}},'✕')
     );
     mid.append(item);
   });
   mid.append(el('button',{className:'btn btn-t',style:{marginTop:'8px'},onClick:()=>{
     const sid=curP.id.replace('P','')+'.'+String(curP.subs.length+1);
-    curP.subs.push({id:sid,name:'Nueva Sub-dimensión',comps:[]});
+    curP.subs.push({id:sid,name:t('newSub'),comps:[]});
     ACTIVE_S=curP.subs.length-1;save();render();
   }},'+ Sub-dimensión'));
   main.append(mid);
@@ -556,7 +702,7 @@ function renderEditor(main) {
   const curS = curP.subs[ACTIVE_S];
 
   if (!curS) {
-    right.append(el('div',{style:{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:'var(--mute)'}},'← Selecciona una sub-dimensión'));
+    right.append(el('div',{style:{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:'var(--mute)'}},t('selectSub')));
     main.append(right);
     return;
   }
@@ -571,13 +717,13 @@ function renderEditor(main) {
   right.append(shdr);
 
   // Search
-  const srch = el('input',{className:'inp',placeholder:'🔍 Buscar componente...',value:SEARCH,style:{marginBottom:'12px'}});
+  const srch = el('input',{className:'inp',placeholder:t('searchComp'),value:SEARCH,style:{marginBottom:'12px'}});
   srch.addEventListener('input',()=>{SEARCH=srch.value;render()});
   right.append(srch);
 
   // Components
   const colors = ['#ef4444','#f97316','#f59e0b','#3b82f6','#22c55e'];
-  const labels = ['Inexistente','Informal','Definido','Gestionado','Optimizado'];
+  const labels = getLBL();
 
   curS.comps.forEach((c,ci) => {
     if (SEARCH && !c.id.toLowerCase().includes(SEARCH.toLowerCase()) && !c.name.toLowerCase().includes(SEARCH.toLowerCase())) return;
@@ -591,7 +737,7 @@ function renderEditor(main) {
       ...(isCore?[el('span',{className:'badge badge-t'},'CORE')]:[]),
       el('span',{className:'cn'},c.name),
       el('button',{className:'btn btn-g btn-sm',onClick:e=>{e.stopPropagation();if(CORE.has(c.id))CORE.delete(c.id);else CORE.add(c.id);save();render()}},isCore?'★':'☆'),
-      el('button',{className:'btn btn-r btn-sm',onClick:e=>{e.stopPropagation();if(confirm('¿Eliminar '+c.id+'?')){curS.comps.splice(ci,1);save();render()}}},'✕'),
+      el('button',{className:'btn btn-r btn-sm',onClick:e=>{e.stopPropagation();if(confirm(tf('deleteComp',{id:c.id}))){curS.comps.splice(ci,1);save();render()}}},'✕'),
       el('span',{className:`arrow${isExp?' open':''}`},'▾')
     );
     card.append(chd);
@@ -612,7 +758,7 @@ function renderEditor(main) {
         lvDiv.append(el('div',{className:'lvl-n',style:{background:colors[li]}},String(li+1)));
         const lvRight = el('div',{style:{flex:'1'}});
         lvRight.append(el('div',{className:'lvl-label',style:{color:colors[li]}},'Nivel '+(li+1)+' — '+labels[li]));
-        const ta = el('textarea',{className:'inp',rows:'2',value:lv,placeholder:'Descriptor nivel '+(li+1)+'...'});
+        const ta = el('textarea',{className:'inp',rows:'2',value:lv,placeholder:tf('descLevel',{n:li+1})});
         ta.addEventListener('input',()=>{c.L[li]=ta.value;save()});
         lvRight.append(ta);
         lvDiv.append(lvRight);
@@ -625,7 +771,7 @@ function renderEditor(main) {
 
   right.append(el('button',{className:'btn btn-t',style:{marginTop:'12px'},onClick:()=>{
     const cid=curS.id+'.'+(curS.comps.length+1);
-    curS.comps.push({id:cid,name:'Nuevo Componente',L:['','','','','']});
+    curS.comps.push({id:cid,name:t('newComp'),L:['','','','','']});
     EXPANDED.add(cid);save();render();
   }},'+ Componente'));
 
@@ -669,10 +815,10 @@ function renderPreview(main) {
 
 function renderStats(main) {
   const sv = el('div',{className:'stats'});
-  sv.append(el('h2',null,'Estadísticas del Assessment'));
+  sv.append(el('h2',null,t('statsTitle')));
   const st = getStats();
   const grid = el('div',{className:'sgrid'});
-  [['Pilares',st.pilars,'var(--teal)'],['Sub-dimensiones',st.subs,'var(--tealL)'],['Componentes',st.comps,'#3b82f6'],['Core',st.core,'var(--amb)']].forEach(([l,v,c])=>{
+  [[t('pilars'),st.pilars,'var(--teal)'],[t('subs'),st.subs,'var(--tealL)'],[t('comps'),st.comps,'#3b82f6'],[t('core'),st.core,'var(--amb)']].forEach(([l,v,c])=>{
     grid.append(el('div',{className:'scard',style:{borderTop:`3px solid ${c}`}},
       el('div',{className:'sv',style:{color:c}},String(v)),
       el('div',{className:'sl'},l)
@@ -680,11 +826,11 @@ function renderStats(main) {
   });
   sv.append(grid);
 
-  sv.append(el('h3',{style:{fontSize:'16px',fontWeight:'600',margin:'0 0 12px'}},'Detalle por Pilar'));
+  sv.append(el('h3',{style:{fontSize:'16px',fontWeight:'600',margin:'0 0 12px'}},t('detailByPillar')));
   const tbl = el('table',{className:'stable'});
   const thead = el('thead');
   const thr = el('tr');
-  ['Pilar','Nombre','Subs','Comps','Core','Completitud'].forEach((h,i)=>{
+  [t('pilar'),t('name'),t('subs'),t('comps'),t('core'),t('completeness')].forEach((h,i)=>{
     thr.append(el('th',{style:{textAlign:i>1?'center':'left'}},h));
   });
   thead.append(thr); tbl.append(thead);
@@ -710,9 +856,9 @@ function renderStats(main) {
   tbl.append(tbody); sv.append(tbl);
 
   sv.append(el('div',{style:{marginTop:'28px',padding:'16px',background:'var(--card)',borderRadius:'var(--r)',border:'1px solid var(--brd)'}},
-    el('h4',{style:{fontSize:'14px',fontWeight:'600',marginBottom:'6px'}},'Total de Descriptores'),
+    el('h4',{style:{fontSize:'14px',fontWeight:'600',marginBottom:'6px'}},t('totalDesc')),
     el('p',{style:{fontSize:'13px',color:'var(--dim)'},innerHTML:
-      `${st.comps} componentes × 5 niveles = <strong style="color:var(--tealL)">${st.comps*5} descriptores únicos</strong>`
+      tf('totalDescText',{c:st.comps,t:st.comps*5})
     })
   ));
   main.append(sv);
