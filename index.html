@@ -175,45 +175,15 @@ let AQ_MODE = 'all'; // 'all' or 'core' - which questions to show
 let AQ_STARTED = false; // has the user started the assessment
 let AQ_ADVANCE_TIMER = null; // auto-advance timer
 let AQ_HIGHEST = 0; // highest question reached (for back-nav limit)
+let REG_DATA = JSON.parse(localStorage.getItem('fcma_reg')||'null'); // {company,contact,email,role,country,sector,ndaAccepted,ts}
+const COUNTRIES = ['Argentina','Bolivia','Brazil','Chile','Colombia','Costa Rica','Dominican Republic','Ecuador','El Salvador','Guatemala','Honduras','Mexico','Nicaragua','Panama','Paraguay','Peru','Puerto Rico','United States','Uruguay','Venezuela','Spain','Portugal','Other'];
 const IS_CLIENT = new URLSearchParams(window.location.search).get('mode') === 'assess';
-let LANG = localStorage.getItem('fcma_lang') || 'es';
+let LANG = localStorage.getItem('fcma_lang') || 'en';
 const CLR = ['#ef4444','#f97316','#f59e0b','#3b82f6','#22c55e'];
 const PILAR_CLR = ['#0d9488','#3b82f6','#8b5cf6','#ec4899','#f59e0b','#ef4444','#22c55e','#06b6d4','#6366f1'];
 
-// ── i18n ──
+// ── i18n ── (EN = source language, ES/PT = translations)
 const I18N = {
-  es: {
-    levels:['Inexistente','Informal','Definido','Gestionado','Optimizado'],
-    assess:'🎯 Evaluar', editor:'✏️ Editor', preview:'👁 Preview', stats:'📊 Stats',
-    assessment:'Assessment', assessEditor:'Assessment Editor',
-    import:'📂 Importar', results:'📊 Resultados', next:'Siguiente →', prev:'← Anterior',
-    skip:'Saltar', goTo:'Ir a:', question:'Pregunta', of:'de', core:'Core',
-    answered:'respondidas', startEval:'Iniciar Evaluación →',
-    screeningCore:'Screening Core', deepDive:'Deep Dive Completo',
-    screeningDesc:'Diagnóstico rápido — 1 a 2 horas. Las preguntas más críticas de cada pilar.',
-    deepDiveDesc:'Assessment exhaustivo — 4 a 6 sesiones. Todos los componentes del framework.',
-    selectMode:'Selecciona el modo de evaluación:',
-    savedAnswers:'Tienes {n} respuestas guardadas.', continueWhere:'Continuar donde ibas',
-    restart:'Reiniciar', deleteAll:'¿Borrar todas las respuestas?', deleteAllShort:'¿Borrar todas?',
-    noData:'No hay datos. Usa importar.', selectSub:'← Selecciona una sub-dimensión',
-    globalScore:'Score Global de Madurez', evaluated:'evaluados',
-    resultsByPillar:'Resultados por Pilar', pillarBarDesc:'Barra horizontal: score promedio de los componentes evaluados en cada pilar (escala 1–5)',
-    heatmap:'Mapa de Calor por Sub-dimensión', heatmapDesc:'Cada celda muestra el score promedio. Rojo = crítico, Verde = óptimo.',
-    criticalGaps:'⚠ Brechas Críticas (Nivel 1–2)', criticalGapsDesc:'{n} componentes en nivel crítico que requieren atención inmediata.',
-    maturityDist:'Distribución de Madurez', exportResults:'💾 Exportar Resultados',
-    backToQuiz:'← Volver al cuestionario', home:'🏠 Inicio', viewResults:'📊 Ver Resultados →',
-    noDescriptor:'(Sin descriptor)', pilars:'Pilares', subs:'Sub-dimensiones', comps:'Componentes',
-    deletePilar:'¿Eliminar {id}?', deleteSub:'¿Eliminar {id}?', deleteComp:'¿Eliminar {id}?',
-    newPilar:'Nuevo Pilar', newSub:'Nueva Sub-dimensión', newComp:'Nuevo Componente',
-    description:'Descripción...', searchComp:'🔍 Buscar componente...', descLevel:'Descriptor nivel {n}...',
-    statsTitle:'Estadísticas del Assessment', detailByPillar:'Detalle por Pilar',
-    pilar:'Pilar', name:'Nombre', completeness:'Completitud', totalDesc:'Total de Descriptores',
-    totalDescText:'{c} componentes × 5 niveles = <strong style="color:var(--tealL)">{t} descriptores únicos</strong>',
-    fullTitle:'Financial Crime Maturity Assessment', fullDesc:'Evaluación integral del programa de prevención y detección de fraude',
-    copyright:'© {y} Christian Felipe Toro G. — Todos los derechos reservados. Framework FCMA™ es propiedad intelectual exclusiva del autor. Prohibida su reproducción, distribución o uso sin autorización escrita.',
-    watermark:'FCMA™ · CONFIDENCIAL',
-    disputeRes:'Resolución de Disputas'
-  },
   en: {
     levels:['Non-existent','Informal','Defined','Managed','Optimized'],
     assess:'🎯 Assess', editor:'✏️ Editor', preview:'👁 Preview', stats:'📊 Stats',
@@ -241,10 +211,88 @@ const I18N = {
     statsTitle:'Assessment Statistics', detailByPillar:'Detail by Pillar',
     pilar:'Pillar', name:'Name', completeness:'Completeness', totalDesc:'Total Descriptors',
     totalDescText:'{c} components × 5 levels = <strong style="color:var(--tealL)">{t} unique descriptors</strong>',
-    fullTitle:'Financial Crime Maturity Assessment', fullDesc:'Comprehensive fraud prevention and detection program assessment',
+    fullTitle:'Financial Crime Maturity Assessment', fullDesc:'Comprehensive assessment of the fraud prevention, detection, and financial crime management program',
     copyright:'© {y} Christian Felipe Toro G. — All rights reserved. FCMA™ Framework is exclusive intellectual property of the author. Reproduction, distribution, or use without written authorization is prohibited.',
     watermark:'FCMA™ · CONFIDENTIAL',
-    disputeRes:'Dispute Resolution'
+    disputeRes:'Dispute Resolution',
+    undo:'Undo',
+    levelSelected:'Level {n} selected — ',
+    // Registration
+    regTitle:'Organization Registration',
+    regDesc:'Please provide your organization details before starting the assessment. This information is confidential and protected under NDA.',
+    regCompany:'Company / Organization',
+    regCompanyPh:'Enter company name',
+    regContact:'Contact Name',
+    regContactPh:'Full name',
+    regEmail:'Corporate Email',
+    regEmailPh:'name@company.com',
+    regRole:'Role / Position',
+    regRolePh:'e.g. Chief Risk Officer',
+    regCountry:'Country',
+    regCountryPh:'Select country',
+    regSector:'Industry Sector',
+    regSectorPh:'Select sector',
+    regNda:'I acknowledge that this assessment contains proprietary and confidential information owned by Christian Felipe Toro G. (FCMA™ Framework). I agree not to reproduce, distribute, share, or disclose any part of this assessment, its methodology, descriptors, or results to any third party without prior written authorization from the author.',
+    regNdaShort:'Confidentiality & Non-Disclosure Agreement',
+    regStart:'Begin Assessment →',
+    regRequired:'Please complete all fields and accept the NDA to continue.',
+    regStoredAs:'Assessment registered to: {company}',
+    // Sectors
+    sectors:'Banking,Insurance,Fintech,Payment Gateway,Marketplace / E-commerce,Cryptocurrency / Blockchain,Gaming / Betting,Microfinance,Credit Union / Cooperative,Government / Public Sector,Telecommunications,Other'
+  },
+  es: {
+    levels:['Inexistente','Informal','Definido','Gestionado','Optimizado'],
+    assess:'🎯 Evaluar', editor:'✏️ Editor', preview:'👁 Preview', stats:'📊 Stats',
+    assessment:'Evaluación', assessEditor:'Editor de Evaluación',
+    import:'📂 Importar', results:'📊 Resultados', next:'Siguiente →', prev:'← Anterior',
+    skip:'Saltar', goTo:'Ir a:', question:'Pregunta', of:'de', core:'Core',
+    answered:'respondidas', startEval:'Iniciar Evaluación →',
+    screeningCore:'Screening Core', deepDive:'Deep Dive Completo',
+    screeningDesc:'Diagnóstico rápido — 1 a 2 horas. Las preguntas más críticas de cada pilar.',
+    deepDiveDesc:'Assessment exhaustivo — 4 a 6 sesiones. Todos los componentes del framework.',
+    selectMode:'Selecciona el modo de evaluación:',
+    savedAnswers:'Tienes {n} respuestas guardadas.', continueWhere:'Continuar donde ibas',
+    restart:'Reiniciar', deleteAll:'¿Borrar todas las respuestas?', deleteAllShort:'¿Borrar todas?',
+    noData:'No hay datos. Usa importar.', selectSub:'← Selecciona una sub-dimensión',
+    globalScore:'Score Global de Madurez', evaluated:'evaluados',
+    resultsByPillar:'Resultados por Pilar', pillarBarDesc:'Barra horizontal: score promedio de los componentes evaluados en cada pilar (escala 1–5)',
+    heatmap:'Mapa de Calor por Sub-dimensión', heatmapDesc:'Cada celda muestra el score promedio. Rojo = crítico, Verde = óptimo.',
+    criticalGaps:'⚠ Brechas Críticas (Nivel 1–2)', criticalGapsDesc:'{n} componentes en nivel crítico que requieren atención inmediata.',
+    maturityDist:'Distribución de Madurez', exportResults:'💾 Exportar Resultados',
+    backToQuiz:'← Volver al cuestionario', home:'🏠 Inicio', viewResults:'📊 Ver Resultados →',
+    noDescriptor:'(Sin descriptor)', pilars:'Pilares', subs:'Sub-dimensiones', comps:'Componentes',
+    deletePilar:'¿Eliminar {id}?', deleteSub:'¿Eliminar {id}?', deleteComp:'¿Eliminar {id}?',
+    newPilar:'Nuevo Pilar', newSub:'Nueva Sub-dimensión', newComp:'Nuevo Componente',
+    description:'Descripción...', searchComp:'🔍 Buscar componente...', descLevel:'Descriptor nivel {n}...',
+    statsTitle:'Estadísticas del Assessment', detailByPillar:'Detalle por Pilar',
+    pilar:'Pilar', name:'Nombre', completeness:'Completitud', totalDesc:'Total de Descriptores',
+    totalDescText:'{c} componentes × 5 niveles = <strong style="color:var(--tealL)">{t} descriptores únicos</strong>',
+    fullTitle:'Financial Crime Maturity Assessment', fullDesc:'Evaluación integral del programa de prevención, detección y gestión de crimen financiero',
+    copyright:'© {y} Christian Felipe Toro G. — Todos los derechos reservados. Framework FCMA™ es propiedad intelectual exclusiva del autor. Prohibida su reproducción, distribución o uso sin autorización escrita.',
+    watermark:'FCMA™ · CONFIDENCIAL',
+    disputeRes:'Resolución de Disputas',
+    undo:'Deshacer',
+    levelSelected:'Nivel {n} seleccionado — ',
+    regTitle:'Registro de Organización',
+    regDesc:'Por favor proporcione los datos de su organización antes de iniciar la evaluación. Esta información es confidencial y está protegida bajo acuerdo de no divulgación.',
+    regCompany:'Empresa / Organización',
+    regCompanyPh:'Nombre de la empresa',
+    regContact:'Nombre de Contacto',
+    regContactPh:'Nombre completo',
+    regEmail:'Correo Corporativo',
+    regEmailPh:'nombre@empresa.com',
+    regRole:'Cargo / Posición',
+    regRolePh:'ej. Director de Riesgos',
+    regCountry:'País',
+    regCountryPh:'Seleccionar país',
+    regSector:'Sector Industrial',
+    regSectorPh:'Seleccionar sector',
+    regNda:'Reconozco que esta evaluación contiene información propietaria y confidencial propiedad de Christian Felipe Toro G. (Framework FCMA™). Me comprometo a no reproducir, distribuir, compartir ni divulgar ninguna parte de esta evaluación, su metodología, descriptores o resultados a terceros sin autorización escrita previa del autor.',
+    regNdaShort:'Acuerdo de Confidencialidad y No Divulgación',
+    regStart:'Iniciar Evaluación →',
+    regRequired:'Por favor complete todos los campos y acepte el NDA para continuar.',
+    regStoredAs:'Evaluación registrada para: {company}',
+    sectors:'Banca,Seguros,Fintech,Pasarela de Pagos,Marketplace / E-commerce,Criptomonedas / Blockchain,Gaming / Apuestas,Microfinanzas,Cooperativa de Ahorro y Crédito,Gobierno / Sector Público,Telecomunicaciones,Otro'
   },
   pt: {
     levels:['Inexistente','Informal','Definido','Gerenciado','Otimizado'],
@@ -273,13 +321,35 @@ const I18N = {
     statsTitle:'Estatísticas da Avaliação', detailByPillar:'Detalhe por Pilar',
     pilar:'Pilar', name:'Nome', completeness:'Completude', totalDesc:'Total de Descritores',
     totalDescText:'{c} componentes × 5 níveis = <strong style="color:var(--tealL)">{t} descritores únicos</strong>',
-    fullTitle:'Financial Crime Maturity Assessment', fullDesc:'Avaliação integral do programa de prevenção e detecção de fraude',
+    fullTitle:'Financial Crime Maturity Assessment', fullDesc:'Avaliação integral do programa de prevenção, detecção e gestão de crime financeiro',
     copyright:'© {y} Christian Felipe Toro G. — Todos os direitos reservados. Framework FCMA™ é propriedade intelectual exclusiva do autor. Proibida a reprodução, distribuição ou uso sem autorização escrita.',
     watermark:'FCMA™ · CONFIDENCIAL',
-    disputeRes:'Resolução de Disputas'
+    disputeRes:'Resolução de Disputas',
+    undo:'Desfazer',
+    levelSelected:'Nível {n} selecionado — ',
+    regTitle:'Registro da Organização',
+    regDesc:'Por favor, forneça os dados da sua organização antes de iniciar a avaliação. Essas informações são confidenciais e protegidas por acordo de não divulgação.',
+    regCompany:'Empresa / Organização',
+    regCompanyPh:'Nome da empresa',
+    regContact:'Nome do Contato',
+    regContactPh:'Nome completo',
+    regEmail:'E-mail Corporativo',
+    regEmailPh:'nome@empresa.com',
+    regRole:'Cargo / Posição',
+    regRolePh:'ex. Diretor de Riscos',
+    regCountry:'País',
+    regCountryPh:'Selecionar país',
+    regSector:'Setor Industrial',
+    regSectorPh:'Selecionar setor',
+    regNda:'Reconheço que esta avaliação contém informações proprietárias e confidenciais de propriedade de Christian Felipe Toro G. (Framework FCMA™). Comprometo-me a não reproduzir, distribuir, compartilhar ou divulgar qualquer parte desta avaliação, sua metodologia, descritores ou resultados a terceiros sem autorização prévia por escrito do autor.',
+    regNdaShort:'Acordo de Confidencialidade e Não Divulgação',
+    regStart:'Iniciar Avaliação →',
+    regRequired:'Por favor, preencha todos os campos e aceite o NDA para continuar.',
+    regStoredAs:'Avaliação registrada para: {company}',
+    sectors:'Bancos,Seguros,Fintech,Gateway de Pagamento,Marketplace / E-commerce,Criptomoedas / Blockchain,Gaming / Apostas,Microfinanças,Cooperativa de Crédito,Governo / Setor Público,Telecomunicações,Outro'
   }
 };
-function t(key){ return I18N[LANG][key] || I18N['es'][key] || key; }
+function t(key){ return I18N[LANG][key] || I18N['en'][key] || key; }
 function tf(key,vars){ var s=t(key); Object.entries(vars).forEach(function(kv){s=s.replace('{'+kv[0]+'}',kv[1])}); return s; }
 function getLBL(){ return I18N[LANG].levels; }
 
@@ -370,7 +440,9 @@ function exportMD() {
 }
 
 function exportJSON() {
-  downloadFile(JSON.stringify({version:'2.0',data:DATA,core:[...CORE]},null,2), 'FCMA_Assessment.json', 'application/json');
+  var payload = {version:'2.0',data:DATA,core:[...CORE],answers:ANSWERS};
+  if(REG_DATA) payload.registration = REG_DATA;
+  downloadFile(JSON.stringify(payload,null,2), 'FCMA_Assessment.json', 'application/json');
 }
 
 function downloadFile(content, name, type) {
@@ -480,6 +552,99 @@ function renderAssess(main) {
   var totalQ = questions.length, answered = 0;
   questions.forEach(function(q){ if(ANSWERS[q.comp.id]) answered++ });
   if (AQ_VIEW === 'results') { renderResults(main); return; }
+
+  // REGISTRATION SCREEN (client mode only, before anything else)
+  if(IS_CLIENT && !REG_DATA){
+    var rWrap = el('div',{style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center',overflowY:'auto',padding:'24px'}});
+    var rCard = el('div',{className:'quiz-slide',style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'16px',padding:'48px',maxWidth:'600px',width:'100%',boxShadow:'0 20px 60px rgba(0,0,0,0.4)'}});
+    // Header
+    rCard.append(el('div',{style:{display:'flex',alignItems:'center',gap:'14px',marginBottom:'28px'}},
+      el('div',{style:{width:'52px',height:'52px',borderRadius:'14px',background:'linear-gradient(135deg,var(--teal),var(--tealL))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'24px',fontWeight:'800',color:'var(--wh)'}},'F'),
+      el('div',null,
+        el('div',{style:{fontSize:'22px',fontWeight:'800',letterSpacing:'-0.5px'}},t('regTitle')),
+        el('div',{style:{fontSize:'13px',color:'var(--mute)',marginTop:'2px'}},'FCMA™ Framework')
+      )
+    ));
+    rCard.append(el('p',{style:{fontSize:'14px',color:'var(--dim)',lineHeight:'1.6',marginBottom:'28px',padding:'14px 16px',background:'var(--bg)',borderRadius:'8px',borderLeft:'3px solid var(--teal)'}},t('regDesc')));
+    // Error message placeholder
+    var rErr = el('div',{id:'reg-err',style:{display:'none',padding:'10px 14px',borderRadius:'8px',background:'rgba(239,68,68,0.12)',border:'1px solid rgba(239,68,68,0.3)',color:'#ef4444',fontSize:'13px',marginBottom:'16px'}});
+    rCard.append(rErr);
+    // Fields
+    var fieldStyle = {width:'100%',padding:'12px 16px',borderRadius:'8px',border:'1px solid var(--brd)',background:'var(--bg)',color:'var(--text)',fontFamily:'var(--f)',fontSize:'14px',outline:'none',transition:'border-color .2s'};
+    var labelStyle = {fontSize:'12px',fontWeight:'700',color:'var(--dim)',textTransform:'uppercase',letterSpacing:'0.8px',marginBottom:'6px',display:'block'};
+    var groupStyle = {marginBottom:'16px'};
+
+    function regField(label,type,id,ph){
+      var g=el('div',{style:groupStyle});
+      g.append(el('label',{style:labelStyle},label));
+      var inp=el('input',{type:type,id:'reg-'+id,placeholder:ph,style:fieldStyle});
+      inp.onfocus=function(){inp.style.borderColor='var(--teal)'};
+      inp.onblur=function(){inp.style.borderColor='var(--brd)'};
+      g.append(inp);
+      return g;
+    }
+    function regSelect(label,id,ph,options){
+      var g=el('div',{style:groupStyle});
+      g.append(el('label',{style:labelStyle},label));
+      var sel=el('select',{id:'reg-'+id,style:Object.assign({},fieldStyle,{cursor:'pointer'})});
+      sel.append(el('option',{value:'',disabled:'',selected:''},ph));
+      options.forEach(function(o){ sel.append(el('option',{value:o},o)) });
+      sel.onfocus=function(){sel.style.borderColor='var(--teal)'};
+      sel.onblur=function(){sel.style.borderColor='var(--brd)'};
+      g.append(sel);
+      return g;
+    }
+
+    // 2-col grid for some fields
+    var row1 = el('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}});
+    row1.append(regField(t('regCompany'),'text','company',t('regCompanyPh')));
+    row1.append(regField(t('regContact'),'text','contact',t('regContactPh')));
+    rCard.append(row1);
+
+    var row2 = el('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}});
+    row2.append(regField(t('regEmail'),'email','email',t('regEmailPh')));
+    row2.append(regField(t('regRole'),'text','role',t('regRolePh')));
+    rCard.append(row2);
+
+    var row3 = el('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}});
+    row3.append(regSelect(t('regCountry'),'country',t('regCountryPh'),COUNTRIES));
+    row3.append(regSelect(t('regSector'),'sector',t('regSectorPh'),t('sectors').split(',')));
+    rCard.append(row3);
+
+    // NDA Checkbox
+    var ndaGroup = el('div',{style:{marginTop:'24px',padding:'20px',background:'var(--bg)',borderRadius:'10px',border:'1px solid var(--brd)'}});
+    ndaGroup.append(el('div',{style:{fontSize:'13px',fontWeight:'700',color:'var(--teal)',marginBottom:'10px',textTransform:'uppercase',letterSpacing:'0.8px'}},'🔒 '+t('regNdaShort')));
+    var ndaLabel = el('label',{style:{display:'flex',gap:'12px',cursor:'pointer',fontSize:'13px',color:'var(--dim)',lineHeight:'1.6'}});
+    var ndaCb = el('input',{type:'checkbox',id:'reg-nda',style:{marginTop:'4px',accentColor:'var(--teal)',width:'18px',height:'18px',flexShrink:'0',cursor:'pointer'}});
+    ndaLabel.append(ndaCb);
+    ndaLabel.append(el('span',null,t('regNda')));
+    ndaGroup.append(ndaLabel);
+    rCard.append(ndaGroup);
+
+    // Submit button
+    var rSubmit = el('button',{className:'btn btn-t',style:{width:'100%',padding:'18px',fontSize:'17px',fontWeight:'700',borderRadius:'10px',marginTop:'24px',boxShadow:'0 4px 20px rgba(13,148,136,0.3)'},onClick:function(){
+      var company = document.getElementById('reg-company').value.trim();
+      var contact = document.getElementById('reg-contact').value.trim();
+      var email = document.getElementById('reg-email').value.trim();
+      var role = document.getElementById('reg-role').value.trim();
+      var country = document.getElementById('reg-country').value;
+      var sector = document.getElementById('reg-sector').value;
+      var nda = document.getElementById('reg-nda').checked;
+      if(!company||!contact||!email||!role||!country||!sector||!nda){
+        var errEl = document.getElementById('reg-err');
+        errEl.style.display='block';
+        errEl.textContent=t('regRequired');
+        return;
+      }
+      REG_DATA = {company:company,contact:contact,email:email,role:role,country:country,sector:sector,ndaAccepted:true,ts:new Date().toISOString(),lang:LANG};
+      localStorage.setItem('fcma_reg',JSON.stringify(REG_DATA));
+      render();
+    }},t('regStart'));
+    rCard.append(rSubmit);
+
+    rCard.append(el('div',{style:{textAlign:'center',marginTop:'20px',fontSize:'10px',color:'var(--mute)'}},tf('copyright',{y:new Date().getFullYear()})));
+    rWrap.append(rCard); main.append(rWrap); return;
+  }
 
   // Track highest reached
   if(AQ_IDX > AQ_HIGHEST) AQ_HIGHEST = AQ_IDX;
@@ -648,7 +813,7 @@ function renderAssess(main) {
         AQ_ADVANCE_TIMER = null;
         if(AQ_IDX < totalQ-1){ AQ_IDX++; render(); }
         else { AQ_VIEW='results'; render(); }
-      }, 3000);
+      }, 1000);
     };
 
     qa.append(card2);
@@ -657,11 +822,11 @@ function renderAssess(main) {
   // Undo banner (shows briefly after selection)
   if(curAns){
     var undo = el('div',{style:{marginTop:'12px',textAlign:'center',fontSize:'13px',color:'var(--mute)',opacity:'0.7'}},
-      el('span',null,'✓ Nivel '+curAns+' — '),
+      el('span',null,'✓ '+tf('levelSelected',{n:curAns})),
       el('button',{style:{background:'none',border:'none',color:'var(--tealL)',cursor:'pointer',fontFamily:'var(--f)',fontSize:'13px',textDecoration:'underline'},onClick:function(){
         if(AQ_ADVANCE_TIMER){clearTimeout(AQ_ADVANCE_TIMER);AQ_ADVANCE_TIMER=null}
         delete ANSWERS[c.id];save();render();
-      }},'Deshacer')
+      }},t('undo'))
     );
     qa.append(undo);
   }
@@ -717,6 +882,18 @@ function renderResults(main) {
     el('button',{className:'btn',style:{padding:'10px 22px',fontSize:'14px'},onClick:function(){AQ_VIEW='quiz';render()}},t('backToQuiz')),
     el('button',{className:'btn',style:{padding:'10px 22px',fontSize:'14px'},onClick:function(){AQ_STARTED=false;AQ_VIEW='quiz';render()}},t('home'))
   ));
+
+  // Registration info banner
+  if(REG_DATA){
+    var regBanner=el('div',{style:{display:'flex',alignItems:'center',gap:'14px',padding:'16px 20px',borderRadius:'12px',background:'var(--tealD)',border:'1px solid var(--teal)33',marginBottom:'20px'}});
+    regBanner.append(el('div',{style:{fontSize:'20px'}},'🏢'));
+    regBanner.append(el('div',{style:{flex:'1'}},
+      el('div',{style:{fontSize:'15px',fontWeight:'700',color:'var(--teal)'}},REG_DATA.company),
+      el('div',{style:{fontSize:'12px',color:'var(--mute)',marginTop:'2px'}},REG_DATA.contact+' · '+REG_DATA.role+' · '+REG_DATA.country)
+    ));
+    regBanner.append(el('div',{style:{fontSize:'11px',color:'var(--mute)',textAlign:'right',fontFamily:'var(--fm)'}},new Date(REG_DATA.ts).toLocaleDateString()));
+    wrap.append(regBanner);
+  }
 
   var tot=scores._total, totCol=tot<2?CLR[0]:tot<3?CLR[1]:tot<3.5?CLR[2]:tot<4.2?CLR[3]:CLR[4];
 
@@ -808,7 +985,7 @@ function renderResults(main) {
     lvls.forEach(function(cnt,i){
       var pct2=answered>0?cnt/answered*100:0;
       md2.append(el('div',{style:{display:'flex',alignItems:'center',gap:'14px',marginBottom:'12px'}},
-        el('div',{style:{width:'140px',textAlign:'right',fontSize:'13px',color:CLR[i],fontWeight:'700'}},'Nivel '+(i+1)+' — '+getLBL()[i]),
+        el('div',{style:{width:'140px',textAlign:'right',fontSize:'13px',color:CLR[i],fontWeight:'700'}},'L'+(i+1)+' — '+getLBL()[i]),
         el('div',{style:{flex:'1',height:'28px',background:'var(--bg)',borderRadius:'8px',overflow:'hidden'}},el('div',{style:{height:'100%',borderRadius:'8px',width:pct2+'%',background:CLR[i],display:'flex',alignItems:'center',justifyContent:'flex-end',paddingRight:'10px',fontSize:'12px',fontWeight:'700',color:'var(--wh)'}},cnt>0?String(cnt):'')),
         el('div',{style:{width:'55px',textAlign:'center',fontSize:'14px',color:'var(--mute)',fontWeight:'600'}},Math.round(pct2)+'%')
       ));
@@ -934,7 +1111,7 @@ function renderEditor(main) {
         const lvDiv = el('div',{className:'lvl'});
         lvDiv.append(el('div',{className:'lvl-n',style:{background:colors[li]}},String(li+1)));
         const lvRight = el('div',{style:{flex:'1'}});
-        lvRight.append(el('div',{className:'lvl-label',style:{color:colors[li]}},'Nivel '+(li+1)+' — '+labels[li]));
+        lvRight.append(el('div',{className:'lvl-label',style:{color:colors[li]}},'L'+(li+1)+' — '+labels[li]));
         const ta = el('textarea',{className:'inp',rows:'2',value:lv,placeholder:tf('descLevel',{n:li+1})});
         ta.addEventListener('input',()=>{c.L[li]=ta.value;save()});
         lvRight.append(ta);
