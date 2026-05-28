@@ -353,6 +353,45 @@ function t(key){ return I18N[LANG][key] || I18N['en'][key] || key; }
 function tf(key,vars){ var s=t(key); Object.entries(vars).forEach(function(kv){s=s.replace('{'+kv[0]+'}',kv[1])}); return s; }
 function getLBL(){ return I18N[LANG].levels; }
 
+// ── LANGUAGE-AWARE CONTENT LOADING ──
+var LOADED_LANG = null; // tracks which language content is currently loaded
+var BASE_URL = window.location.href.replace(/\/[^\/]*$/,'/'); // base URL for fetching .md files
+
+function loadLangContent(lang, callback) {
+  // In editor mode (?mode != assess), don't auto-fetch — use whatever is loaded
+  if(!IS_CLIENT) { if(callback) callback(); return; }
+  // If already loaded for this lang, skip
+  if(LOADED_LANG === lang) { if(callback) callback(); return; }
+  // Try to fetch the .md for this language from the repo
+  var mdFile = lang === 'en' ? 'fcma_en.md' : lang === 'pt' ? 'fcma_pt.md' : 'fcma_es.md';
+  fetch(BASE_URL + mdFile)
+    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.text(); })
+    .then(function(text){
+      importMD(text);
+      LOADED_LANG = lang;
+      if(callback) callback();
+    })
+    .catch(function(){
+      // Fallback: if no translated .md exists, use INIT_DATA (Spanish)
+      if(LOADED_LANG !== 'es') {
+        DATA = JSON.parse(JSON.stringify(INIT_DATA));
+        CORE = new Set(INIT_CORE_ARR);
+        LOADED_LANG = 'es';
+      }
+      if(callback) callback();
+    });
+}
+
+function switchLang(lng) {
+  LANG = lng;
+  localStorage.setItem('fcma_lang', lng);
+  if(IS_CLIENT) {
+    loadLangContent(lng, function(){ render(); });
+  } else {
+    render();
+  }
+}
+
 // ── IP PROTECTION (client mode) ──
 if(IS_CLIENT){
   document.addEventListener('contextmenu',function(e){e.preventDefault()});
@@ -476,7 +515,7 @@ function render() {
   // LANG SELECTOR
   var langSel = el('div',{className:'lang-sel'});
   ['es','en','pt'].forEach(function(lng){
-    langSel.append(el('button',{className:'lang-btn'+(LANG===lng?' on':''),onClick:function(){LANG=lng;localStorage.setItem('fcma_lang',lng);render()}},lng.toUpperCase()));
+    langSel.append(el('button',{className:'lang-btn'+(LANG===lng?' on':''),onClick:function(){switchLang(lng)}},lng.toUpperCase()));
   });
 
   // HEADER
@@ -1220,7 +1259,11 @@ function renderStats(main) {
 
 // ── INIT ──
 load();
-render();
+if(IS_CLIENT) {
+  loadLangContent(LANG, function(){ render(); });
+} else {
+  render();
+}
 </script>
 </body>
 </html>
