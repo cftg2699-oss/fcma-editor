@@ -178,6 +178,54 @@ let AQ_HIGHEST = 0; // highest question reached (for back-nav limit)
 let REG_DATA = JSON.parse(localStorage.getItem('fcma_reg')||'null'); // {company,contact,email,role,country,sector,ndaAccepted,ts}
 const COUNTRIES = ['Argentina','Bolivia','Brazil','Chile','Colombia','Costa Rica','Dominican Republic','Ecuador','El Salvador','Guatemala','Honduras','Mexico','Nicaragua','Panama','Paraguay','Peru','Puerto Rico','United States','Uruguay','Venezuela','Spain','Portugal','Other'];
 const IS_CLIENT = new URLSearchParams(window.location.search).get('mode') === 'assess';
+
+// ── GOOGLE SHEETS BACKEND ──
+// Paste your Google Apps Script deployment URL here:
+const SHEET_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+
+function postToSheets(payload) {
+  if (!SHEET_URL || SHEET_URL.includes('YOUR_GOOGLE')) return Promise.resolve(null);
+  return fetch(SHEET_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  }).catch(function(e) { console.warn('Sheets sync failed:', e); });
+}
+
+function sendRegistration(regData) {
+  return postToSheets({
+    type: 'registration',
+    company: regData.company,
+    contact: regData.contact,
+    email: regData.email,
+    role: regData.role,
+    country: regData.country,
+    sector: regData.sector,
+    lang: regData.lang,
+    ndaAccepted: regData.ndaAccepted,
+    ts: regData.ts
+  });
+}
+
+function sendAnswers() {
+  var scores = getScores();
+  var totalQ = 0;
+  DATA.forEach(function(p){p.subs.forEach(function(s){totalQ+=s.comps.length})});
+  var pillarScores = {};
+  DATA.forEach(function(p){ pillarScores[p.id] = scores[p.id] || 0; });
+  return postToSheets({
+    type: 'answers',
+    registration: REG_DATA,
+    answers: ANSWERS,
+    totalQuestions: totalQ,
+    globalScore: scores._total,
+    pillarScores: pillarScores,
+    mode: AQ_MODE,
+    lang: LANG
+  });
+}
+
 let LANG = localStorage.getItem('fcma_lang') || 'en';
 const CLR = ['#ef4444','#f97316','#f59e0b','#3b82f6','#22c55e'];
 const PILAR_CLR = ['#0d9488','#3b82f6','#8b5cf6','#ec4899','#f59e0b','#ef4444','#22c55e','#06b6d4','#6366f1'];
@@ -677,6 +725,7 @@ function renderAssess(main) {
       }
       REG_DATA = {company:company,contact:contact,email:email,role:role,country:country,sector:sector,ndaAccepted:true,ts:new Date().toISOString(),lang:LANG};
       localStorage.setItem('fcma_reg',JSON.stringify(REG_DATA));
+      sendRegistration(REG_DATA);
       render();
     }},t('regStart'));
     rCard.append(rSubmit);
@@ -914,6 +963,13 @@ function renderAssess(main) {
 function renderResults(main) {
   var scores = getScores(), totalQ = 0, answered = Object.keys(ANSWERS).length;
   DATA.forEach(function(p){p.subs.forEach(function(s){totalQ+=s.comps.length})});
+
+  // Auto-sync answers to Google Sheets (once per session)
+  if(IS_CLIENT && answered > 0 && !window._answersSynced) {
+    window._answersSynced = true;
+    sendAnswers();
+  }
+
   var wrap = el('div', {className:'quiz-slide',style:{flex:'1',overflowY:'auto',padding:'36px',maxWidth:'920px',margin:'0 auto'}});
 
   // Nav buttons
@@ -1032,7 +1088,7 @@ function renderResults(main) {
     wrap.append(md2);
   }
 
-  wrap.append(el('div',{style:{textAlign:'center',marginTop:'24px'}},el('button',{className:'btn btn-t',style:{padding:'16px 40px',fontSize:'16px',fontWeight:'700',borderRadius:'10px',boxShadow:'0 4px 20px rgba(13,148,136,0.2)'},onClick:exportJSON},t('exportResults'))));
+  wrap.append(el('div',{style:{textAlign:'center',marginTop:'24px'}},el('button',{className:'btn btn-t',style:{padding:'16px 40px',fontSize:'16px',fontWeight:'700',borderRadius:'10px',boxShadow:'0 4px 20px rgba(13,148,136,0.2)'},onClick:function(){sendAnswers();exportJSON()}},t('exportResults'))));
   wrap.append(el('div',{style:{textAlign:'center',marginTop:'28px',padding:'16px',fontSize:'10px',color:'var(--mute)',borderTop:'1px solid var(--brd)'}},tf('copyright',{y:new Date().getFullYear()})));
   main.append(wrap);
 }
