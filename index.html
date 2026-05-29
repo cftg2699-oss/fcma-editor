@@ -180,8 +180,8 @@ const COUNTRIES = ['Argentina','Bolivia','Brazil','Chile','Colombia','Costa Rica
 const IS_CLIENT = new URLSearchParams(window.location.search).get('mode') === 'assess';
 
 // ── GOOGLE SHEETS BACKEND ──
-// Paste your Google Apps Script deployment URL here:
-const SHEET_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+// Paste your Google Apps Script deployment URL here: 
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycby9TIKH3QfaCeM7Ur9hhayOnubZUikN_ETUfU13bx2TErP4E2bqZgz4jmwwOnRE324p/exec';
 
 function postToSheets(payload) {
   if (!SHEET_URL || SHEET_URL.includes('YOUR_GOOGLE')) return Promise.resolve(null);
