@@ -177,11 +177,60 @@ let AQ_ADVANCE_TIMER = null; // auto-advance timer
 let AQ_HIGHEST = 0; // highest question reached (for back-nav limit)
 let REG_DATA = JSON.parse(localStorage.getItem('fcma_reg')||'null'); // {company,contact,email,role,country,sector,ndaAccepted,ts}
 const COUNTRIES = ['Argentina','Bolivia','Brazil','Chile','Colombia','Costa Rica','Dominican Republic','Ecuador','El Salvador','Guatemala','Honduras','Mexico','Nicaragua','Panama','Paraguay','Peru','Puerto Rico','United States','Uruguay','Venezuela','Spain','Portugal','Other'];
-const IS_CLIENT = new URLSearchParams(window.location.search).get('mode') === 'assess';
+const _params = new URLSearchParams(window.location.search);
+const ACCESS_CODE = _params.get('code') || null;
+const IS_CLIENT = !!ACCESS_CODE;
+let CODE_VALID = null; // null=checking, true=valid, false=invalid
+let CODE_COMPANY = ''; // company name from validated code
+
+// ── EDITOR PASSWORD ──
+const EDITOR_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'; // SHA-256 of 'password' — CHANGE THIS
+function sha256(str){
+  const buf = new TextEncoder().encode(str);
+  return crypto.subtle.digest('SHA-256',buf).then(function(h){
+    return Array.from(new Uint8Array(h)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
+  });
+}
+function checkEditorAuth(){
+  if(IS_CLIENT) return; // clients don't need editor auth
+  var stored = sessionStorage.getItem('fcma_editor_auth');
+  if(stored === 'ok') return;
+  var pwd = prompt('FCMA Editor — Enter password:');
+  if(!pwd){ document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#64748b;font-family:system-ui">Access denied</div>'; return; }
+  sha256(pwd).then(function(hash){
+    if(hash === EDITOR_HASH){
+      sessionStorage.setItem('fcma_editor_auth','ok');
+      load(); render();
+    } else {
+      document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#ef4444;font-family:system-ui">Invalid password</div>';
+    }
+  });
+}
 
 // ── GOOGLE SHEETS BACKEND ──
-// Paste your Google Apps Script deployment URL here: 
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycby9TIKH3QfaCeM7Ur9hhayOnubZUikN_ETUfU13bx2TErP4E2bqZgz4jmwwOnRE324p/exec';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwH3iTpHO9qrKsvxyyqpr_YwpRor3JRfKdgTcOxeZ7sTcd_GBvgyVzW2n7pBnwKXiic/exec';
+
+// Validate access code against Google Sheet
+function validateCode(code, callback) {
+  if(!code){ callback(false,''); return; }
+  fetch(SHEET_URL + '?action=validate&code=' + encodeURIComponent(code))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data.valid){
+        CODE_VALID = true;
+        CODE_COMPANY = data.company || '';
+        callback(true, data.company);
+      } else {
+        CODE_VALID = false;
+        callback(false, '');
+      }
+    })
+    .catch(function(){
+      // If validation fails (network error), allow access with warning
+      CODE_VALID = true;
+      callback(true, '');
+    });
+}
 
 function postToSheets(payload) {
   if (!SHEET_URL || SHEET_URL.includes('YOUR_GOOGLE')) return Promise.resolve(null);
@@ -196,6 +245,7 @@ function postToSheets(payload) {
 function sendRegistration(regData) {
   return postToSheets({
     type: 'registration',
+    accessCode: regData.accessCode || ACCESS_CODE || '',
     company: regData.company,
     contact: regData.contact,
     email: regData.email,
@@ -640,6 +690,27 @@ function renderAssess(main) {
   questions.forEach(function(q){ if(ANSWERS[q.comp.id]) answered++ });
   if (AQ_VIEW === 'results') { renderResults(main); return; }
 
+  // ACCESS CODE VALIDATION (client mode)
+  if(IS_CLIENT && CODE_VALID === null){
+    main.append(el('div',{style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center'}},
+      el('div',{style:{textAlign:'center',color:'var(--mute)'}},
+        el('div',{style:{fontSize:'32px',marginBottom:'16px',animation:'pulseCheck 1s infinite'}},'🔒'),
+        el('div',{style:{fontSize:'16px'}},'Validating access code...')
+      )
+    )); return;
+  }
+  if(IS_CLIENT && CODE_VALID === false){
+    main.append(el('div',{style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center'}},
+      el('div',{className:'quiz-slide',style:{textAlign:'center',maxWidth:'480px',padding:'48px',background:'var(--card)',borderRadius:'16px',border:'1px solid var(--brd)',boxShadow:'0 20px 60px rgba(0,0,0,0.4)'}},
+        el('div',{style:{fontSize:'48px',marginBottom:'16px'}},'🚫'),
+        el('div',{style:{fontSize:'24px',fontWeight:'800',marginBottom:'12px',color:'var(--red)'}},'Access Denied'),
+        el('div',{style:{fontSize:'15px',color:'var(--dim)',lineHeight:'1.6',marginBottom:'24px'}},'This access code is invalid, expired, or has already been used. Please contact your assessment coordinator for a valid code.'),
+        el('div',{style:{fontSize:'13px',color:'var(--mute)',fontFamily:'var(--fm)',padding:'12px',background:'var(--bg)',borderRadius:'8px'}},'Code: '+ACCESS_CODE),
+        el('div',{style:{marginTop:'24px',fontSize:'12px',color:'var(--mute)'}},'Contact: assessment@fcma.co')
+      )
+    )); return;
+  }
+
   // REGISTRATION SCREEN (client mode only, before anything else)
   if(IS_CLIENT && !REG_DATA){
     var rWrap = el('div',{style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center',overflowY:'auto',padding:'24px'}});
@@ -723,7 +794,7 @@ function renderAssess(main) {
         errEl.textContent=t('regRequired');
         return;
       }
-      REG_DATA = {company:company,contact:contact,email:email,role:role,country:country,sector:sector,ndaAccepted:true,ts:new Date().toISOString(),lang:LANG};
+      REG_DATA = {company:company,contact:contact,email:email,role:role,country:country,sector:sector,ndaAccepted:true,ts:new Date().toISOString(),lang:LANG,accessCode:ACCESS_CODE||''};
       localStorage.setItem('fcma_reg',JSON.stringify(REG_DATA));
       sendRegistration(REG_DATA);
       render();
@@ -1316,9 +1387,17 @@ function renderStats(main) {
 // ── INIT ──
 load();
 if(IS_CLIENT) {
-  loadLangContent(LANG, function(){ render(); });
+  // Validate access code, then load content
+  render(); // show "validating..." screen
+  validateCode(ACCESS_CODE, function(valid){
+    if(valid){
+      loadLangContent(LANG, function(){ render(); });
+    } else {
+      render(); // show "access denied" screen
+    }
+  });
 } else {
-  render();
+  checkEditorAuth();
 }
 </script>
 </body>
