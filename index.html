@@ -613,7 +613,8 @@ function renderResults(main) {
   btnRow.append(
     el('button',{className:'btn',style:{padding:'12px 28px',fontSize:'14px'},onClick:function(){AQ_VIEW='quiz';render();}},'← Back to Assessment'),
     el('button',{className:'btn',style:{padding:'12px 28px',fontSize:'14px'},onClick:function(){AQ_STARTED=false;AQ_VIEW='quiz';render();}},'🏠 Home'),
-    el('button',{className:'btn btn-t',style:{padding:'12px 28px',fontSize:'14px',fontWeight:'700',boxShadow:'0 4px 20px rgba(13,148,136,0.25)'},onClick:function(){sendAnswers();exportJSON();}},'💾 Export Results JSON')
+    el('button',{className:'btn btn-t',style:{padding:'12px 28px',fontSize:'14px',fontWeight:'700',boxShadow:'0 4px 20px rgba(13,148,136,0.25)'},onClick:function(){sendAnswers();exportJSON();}},'💾 Export Results JSON'),
+    el('button',{className:'btn btn-t',style:{padding:'12px 28px',fontSize:'14px',fontWeight:'700',background:'linear-gradient(135deg,#0d9488,#0891b2)',borderColor:'#0d9488',boxShadow:'0 4px 20px rgba(13,148,136,0.35)'},onClick:function(){window.open('fcma_report.html','_blank');}},'📊 Open Executive Report')
   );
   if(answered>0){
     btnRow.append(el('button',{className:'btn btn-r',style:{padding:'12px 28px',fontSize:'14px'},onClick:function(){
