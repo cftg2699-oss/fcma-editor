@@ -7,62 +7,152 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0f172a;--card:#1e293b;--hover:#334155;--teal:#0d9488;--tealL:#14b8a6;--tealD:rgba(13,148,136,0.15);--text:#e2e8f0;--dim:#94a3b8;--mute:#64748b;--brd:#334155;--brdL:#475569;--red:#ef4444;--amb:#f59e0b;--grn:#22c55e;--wh:#fff;--r:8px;--rs:4px;--f:'IBM Plex Sans',system-ui,sans-serif;--fm:'IBM Plex Mono',monospace}
-body{background:var(--bg);color:var(--text);font-family:var(--f);overflow:hidden;height:100vh}
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--brdL);border-radius:3px}
-::selection{background:var(--tealD);color:var(--tealL)}
+:root{
+  --bg:#f8fafc;--card:#ffffff;--hover:#f1f5f9;--hover2:#ecfdf5;
+  --teal:#059669;--tealL:#10b981;--tealD:rgba(5,150,105,0.08);--tealBrd:rgba(5,150,105,0.2);
+  --text:#0f172a;--dim:#475569;--mute:#94a3b8;
+  --brd:#e2e8f0;--brdL:#cbd5e1;
+  --red:#dc2626;--redL:#ef4444;--amb:#d97706;--grn:#059669;--wh:#fff;
+  --r:10px;--rs:7px;
+  --sh1:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --sh2:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);
+  --sh3:0 12px 32px rgba(0,0,0,0.1),0 4px 8px rgba(0,0,0,0.05);
+  --f:'IBM Plex Sans',system-ui,sans-serif;--fm:'IBM Plex Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--f);overflow:hidden;height:100vh;-webkit-font-smoothing:antialiased}
 input,textarea,select{font-family:var(--f)}button{font-family:var(--f);cursor:pointer}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--brdL);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--mute)}
+::selection{background:var(--tealD);color:var(--teal)}
 .app{display:flex;flex-direction:column;height:100vh}
-.hdr{background:var(--card);border-bottom:1px solid var(--brd);padding:10px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0}
-.hdr .logo{width:32px;height:32px;border-radius:6px;background:linear-gradient(135deg,var(--teal),var(--tealL));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--wh)}
-.hdr .title{font-size:14px;font-weight:700;letter-spacing:-0.3px}.hdr .sub{font-size:10px;color:var(--mute);letter-spacing:1px;text-transform:uppercase}
-.pills{display:flex;gap:4px}.pill{border:1px solid var(--brd);border-radius:20px;padding:5px 14px;font-size:13px;background:transparent;color:var(--dim);transition:all .15s}.pill.on{background:var(--teal);border-color:var(--teal);color:var(--wh);font-weight:600}
-.badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;font-family:var(--fm)}.badge-t{background:rgba(13,148,136,0.15);color:var(--teal)}.badge-b{background:rgba(59,130,246,0.15);color:#3b82f6}.badge-a{background:rgba(245,158,11,0.15);color:var(--amb)}
-.btn{border:1px solid var(--brd);border-radius:var(--rs);padding:5px 12px;font-size:12px;font-weight:500;background:var(--card);color:var(--text);transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}.btn:hover{border-color:var(--brdL)}.btn-t{background:var(--teal);border-color:var(--teal);color:var(--wh)}.btn-r{background:transparent;border-color:var(--red);color:var(--red)}.btn-r:hover{background:rgba(239,68,68,0.1)}.btn-g{background:transparent;border-color:transparent;color:var(--dim)}.btn-sm{padding:3px 8px;font-size:11px}
-.inp{background:var(--bg);border:1px solid var(--brd);border-radius:var(--rs);color:var(--text);padding:7px 10px;font-size:13px;width:100%;outline:none;transition:border .15s}.inp:focus{border-color:var(--teal)}textarea.inp{resize:vertical;line-height:1.5}
 .main{flex:1;display:flex;overflow:hidden}
-.panel{overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:4px;flex-shrink:0}.panel-l{width:210px;border-right:1px solid var(--brd)}.panel-m{width:230px;border-right:1px solid var(--brd)}.panel-r{flex:1;padding:16px;overflow-y:auto}
-.panel-hd{font-size:10px;color:var(--mute);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600}
-.pitem{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:var(--rs);cursor:pointer;border:1px solid transparent;transition:all .1s}.pitem:hover{background:var(--hover)}.pitem.on{background:var(--tealD);border-color:var(--teal)}.pitem .pid{font-size:11px;font-family:var(--fm);color:var(--teal);font-weight:700;min-width:24px}.pitem .pn{font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ccard{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;border-left:4px solid var(--brd)}.ccard.core{border-left-color:var(--teal);border-color:var(--teal)}.ccard-hd{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;user-select:none}.ccard-hd:hover{background:var(--hover)}.ccard .cid{font-size:11px;color:var(--mute);font-family:var(--fm);min-width:38px}.ccard .cn{flex:1;font-size:13px;font-weight:500}.ccard-body{padding:0 12px 12px;border-top:1px solid var(--brd)}.ccard .arrow{font-size:14px;color:var(--mute);transition:transform .2s}.ccard .arrow.open{transform:rotate(180deg)}
-.lvl{display:flex;gap:8px;align-items:flex-start;padding:7px;border-radius:var(--rs)}.lvl:nth-child(odd){background:rgba(13,148,136,0.06)}.lvl-n{min-width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--wh);flex-shrink:0}.lvl-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
-.preview{flex:1;overflow-y:auto;padding:32px;max-width:900px;margin:0 auto}.preview h1{font-size:26px;font-weight:700;margin-bottom:6px;letter-spacing:-.5px}.preview h2{font-size:18px;font-weight:700;color:var(--tealL);margin:24px 0 4px}.preview h3{font-size:14px;font-weight:600;margin:16px 0 6px 16px}.preview .comp{margin:0 0 10px 24px;border-left:3px solid var(--brd);padding-left:12px}.preview .comp.core{border-left-color:var(--teal)}.preview .comp-hd{font-size:13px;font-weight:600;margin-bottom:4px}.preview table{width:100%;border-collapse:collapse;font-size:12px}.preview td{padding:3px 8px;border-bottom:1px solid var(--brd)}.preview .ln{width:30px;font-weight:700;text-align:center}
-.stats{flex:1;overflow-y:auto;padding:32px;max-width:800px;margin:0 auto}.stats h2{font-size:22px;font-weight:700;margin-bottom:20px}.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}.scard{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:16px;text-align:center}.scard .sv{font-size:30px;font-weight:800;font-family:var(--fm)}.scard .sl{font-size:11px;color:var(--mute);margin-top:4px}.stable{width:100%;border-collapse:collapse}.stable th{padding:8px;text-align:left;border-bottom:2px solid var(--teal);font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.5px}.stable td{padding:8px;border-bottom:1px solid var(--brd);font-size:13px}.pbar{width:100%;height:8px;background:var(--brd);border-radius:4px;overflow:hidden}.pbar-fill{height:100%;border-radius:4px;transition:width .3s}.empty-state{margin-top:20px;padding:20px;border:1px dashed var(--brd);border-radius:var(--r);text-align:center}
-.ip-protect{-webkit-user-select:none;-moz-user-select:none;user-select:none}.ip-protect *{-webkit-user-select:none;-moz-user-select:none;user-select:none}.ip-protect input,.ip-protect textarea{-webkit-user-select:text;user-select:text}
-.watermark{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;opacity:0.03;font-size:28px;font-weight:800;color:var(--text);display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:120px;transform:rotate(-25deg);letter-spacing:6px;font-family:var(--fm);overflow:hidden}
-.footer-legal{position:fixed;bottom:0;left:0;width:100%;background:rgba(15,23,42,0.95);border-top:1px solid var(--brd);padding:4px 20px;font-size:10px;color:var(--mute);text-align:center;z-index:9998;letter-spacing:0.3px}
-.lang-sel{display:flex;gap:2px;background:var(--bg);border-radius:14px;padding:2px;border:1px solid var(--brd)}.lang-btn{border:none;border-radius:12px;padding:3px 10px;font-size:11px;font-weight:600;background:transparent;color:var(--mute);cursor:pointer;transition:all .15s;font-family:var(--f)}.lang-btn.on{background:var(--teal);color:var(--wh)}
-@media print{body{display:none!important}}
-@keyframes fadeSlideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+.hdr{background:var(--wh);border-bottom:1px solid var(--brd);padding:10px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0;box-shadow:var(--sh1);position:relative;z-index:50}
+.hdr .logo{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--teal),var(--tealL));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--wh);box-shadow:0 2px 8px rgba(5,150,105,0.3)}
+.hdr .title{font-size:14px;font-weight:700;letter-spacing:-0.3px;color:var(--text)}
+.hdr .sub{font-size:10px;color:var(--mute);letter-spacing:1px;text-transform:uppercase;font-weight:600;margin-top:1px}
+.pills{display:flex;gap:4px}
+.pill{border:1px solid var(--brd);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;background:transparent;color:var(--dim);transition:all .15s;cursor:pointer}
+.pill:hover{background:var(--hover);border-color:var(--brdL)}
+.pill.on{background:var(--teal);border-color:var(--teal);color:var(--wh);font-weight:700;box-shadow:0 2px 6px rgba(5,150,105,0.25)}
+.badge{font-size:11px;font-weight:600;padding:2px 9px;border-radius:10px;font-family:var(--fm)}
+.badge-t{background:rgba(5,150,105,0.1);color:var(--teal);border:1px solid rgba(5,150,105,0.15)}
+.badge-b{background:rgba(59,130,246,0.1);color:#2563eb;border:1px solid rgba(59,130,246,0.15)}
+.badge-a{background:rgba(217,119,6,0.1);color:var(--amb);border:1px solid rgba(217,119,6,0.15)}
+.btn{border:1px solid var(--brd);border-radius:var(--rs);padding:5px 12px;font-size:12px;font-weight:500;background:var(--wh);color:var(--text);transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;box-shadow:var(--sh1)}
+.btn:hover{border-color:var(--brdL);background:var(--hover)}
+.btn-t{background:var(--teal);border-color:var(--teal);color:var(--wh);box-shadow:0 2px 8px rgba(5,150,105,0.2)}
+.btn-t:hover{background:#047857;border-color:#047857}
+.btn-r{background:var(--wh);border-color:rgba(220,38,38,0.3);color:var(--red)}
+.btn-r:hover{background:rgba(220,38,38,0.05);border-color:var(--red)}
+.btn-g{background:transparent;border-color:transparent;color:var(--mute);box-shadow:none}
+.btn-g:hover{background:var(--hover)}
+.btn-sm{padding:3px 8px;font-size:11px}
+.inp{background:var(--bg);border:1px solid var(--brd);border-radius:var(--rs);color:var(--text);padding:8px 11px;font-size:13px;width:100%;outline:none;transition:border .15s,box-shadow .15s}
+.inp:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(5,150,105,0.08);background:var(--wh)}
+textarea.inp{resize:vertical;line-height:1.5}
+.panel{overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:4px;flex-shrink:0;background:var(--wh)}
+.panel-l{width:210px;border-right:1px solid var(--brd)}
+.panel-m{width:230px;border-right:1px solid var(--brd)}
+.panel-r{flex:1;padding:16px;overflow-y:auto;background:var(--bg)}
+.panel-hd{font-size:10px;color:var(--mute);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:700}
+.pitem{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:var(--rs);cursor:pointer;border:1px solid transparent;transition:all .1s}
+.pitem:hover{background:var(--hover)}
+.pitem.on{background:var(--hover2);border-color:var(--tealBrd)}
+.pitem .pid{font-size:11px;font-family:var(--fm);color:var(--teal);font-weight:700;min-width:24px}
+.pitem .pn{font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.ccard{background:var(--wh);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;border-left:3px solid var(--brdL);box-shadow:var(--sh1)}
+.ccard.core{border-left-color:var(--teal);border-color:rgba(5,150,105,0.2);box-shadow:0 0 0 1px rgba(5,150,105,0.06),var(--sh1)}
+.ccard-hd{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;user-select:none;transition:background .15s}
+.ccard-hd:hover{background:var(--hover)}
+.ccard .cid{font-size:11px;color:var(--mute);font-family:var(--fm);min-width:38px}
+.ccard .cn{flex:1;font-size:13px;font-weight:500;color:var(--text)}
+.ccard-body{padding:0 12px 12px;border-top:1px solid var(--brd);background:var(--bg)}
+.ccard .arrow{font-size:14px;color:var(--mute);transition:transform .2s}
+.ccard .arrow.open{transform:rotate(180deg)}
+.lvl{display:flex;gap:8px;align-items:flex-start;padding:7px;border-radius:var(--rs)}
+.lvl:nth-child(odd){background:rgba(5,150,105,0.03)}
+.lvl-n{min-width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--wh);flex-shrink:0}
+.lvl-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.preview{flex:1;overflow-y:auto;padding:32px;max-width:900px;margin:0 auto}
+.preview h1{font-size:26px;font-weight:700;margin-bottom:6px;letter-spacing:-.5px}
+.preview h2{font-size:18px;font-weight:700;color:var(--teal);margin:24px 0 4px}
+.preview h3{font-size:14px;font-weight:600;margin:16px 0 6px 16px}
+.preview .comp{margin:0 0 10px 24px;border-left:3px solid var(--brd);padding-left:12px}
+.preview .comp.core{border-left-color:var(--teal)}
+.preview .comp-hd{font-size:13px;font-weight:600;margin-bottom:4px}
+.preview table{width:100%;border-collapse:collapse;font-size:12px}
+.preview td{padding:3px 8px;border-bottom:1px solid var(--brd)}
+.preview .ln{width:30px;font-weight:700;text-align:center}
+.stats{flex:1;overflow-y:auto;padding:32px;max-width:800px;margin:0 auto}
+.stats h2{font-size:22px;font-weight:700;margin-bottom:20px}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.scard{background:var(--wh);border:1px solid var(--brd);border-radius:var(--r);padding:16px;text-align:center;box-shadow:var(--sh1)}
+.scard .sv{font-size:30px;font-weight:800;font-family:var(--fm)}
+.scard .sl{font-size:11px;color:var(--mute);margin-top:4px}
+.stable{width:100%;border-collapse:collapse}
+.stable th{padding:8px;text-align:left;border-bottom:2px solid var(--teal);font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.5px}
+.stable td{padding:8px;border-bottom:1px solid var(--brd);font-size:13px}
+.pbar{width:100%;height:8px;background:var(--brd);border-radius:4px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:4px;transition:width .3s}
+.empty-state{margin-top:20px;padding:20px;border:1px dashed var(--brd);border-radius:var(--r);text-align:center;color:var(--mute);font-size:13px}
+.ip-protect{-webkit-user-select:none;-moz-user-select:none;user-select:none}
+.ip-protect *{-webkit-user-select:none;-moz-user-select:none;user-select:none}
+.ip-protect input,.ip-protect textarea{-webkit-user-select:text;user-select:text}
+.watermark{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;opacity:0.035;font-size:28px;font-weight:700;color:#0f172a;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:120px;transform:rotate(-25deg);letter-spacing:6px;font-family:var(--fm);overflow:hidden}
+.footer-legal{position:fixed;bottom:0;left:0;width:100%;background:rgba(248,250,252,0.97);border-top:1px solid var(--brd);box-shadow:0 -1px 8px rgba(0,0,0,0.06);padding:4px 20px;font-size:10px;color:var(--mute);text-align:center;z-index:9998;letter-spacing:0.3px}
+.lang-sel{display:flex;gap:2px;background:var(--hover);border-radius:14px;padding:2px;border:1px solid var(--brd)}
+.lang-btn{border:none;border-radius:12px;padding:3px 10px;font-size:11px;font-weight:600;background:transparent;color:var(--mute);cursor:pointer;transition:all .15s;font-family:var(--f)}
+.lang-btn.on{background:var(--wh);color:var(--teal);box-shadow:var(--sh1)}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}
 @keyframes pulseCheck{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.quiz-slide{animation:fadeSlideIn .35s ease-out}
-.lvl-card{transition:all .2s ease;cursor:pointer;position:relative;overflow:hidden}.lvl-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.3)}.lvl-card.selected{transform:scale(1.02)}.lvl-card.selected .check-anim{animation:pulseCheck .4s ease}
-.lvl-expand{max-height:0;overflow:hidden;transition:max-height .3s ease,opacity .3s ease;opacity:0}.lvl-expand.open{max-height:400px;opacity:1}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.quiz-slide{animation:fadeSlideIn .3s ease-out}
+.lvl-card{transition:all .2s ease;cursor:pointer;position:relative;overflow:hidden;background:var(--wh)}
+.lvl-card:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.lvl-card.selected{transform:scale(1.01);box-shadow:var(--sh2)}
+.lvl-card.selected .check-anim{animation:pulseCheck .4s ease}
+.lvl-expand{max-height:0;overflow:hidden;transition:max-height .3s ease,opacity .3s ease;opacity:0}
+.lvl-expand.open{max-height:400px;opacity:1}
 .auto-timer{height:3px;background:var(--tealL);border-radius:2px;transition:width .05s linear}
-.progress-ring{transition:stroke-dashoffset .5s ease}
-.stat-card-anim{animation:fadeIn .4s ease backwards}
-/* ═══ FCMA EXECUTIVE DASHBOARD CSS ═══ */
-.rpt-root{flex:1;overflow-y:auto;padding:0 0 80px;background:var(--bg)}
-.rpt-hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;background:var(--card);border-bottom:2px solid var(--teal);position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,0.3)}
-.rpt-logo{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--tealL));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--wh);box-shadow:0 4px 16px rgba(13,148,136,0.35)}
-.rpt-hero{display:flex;align-items:flex-start;gap:40px;padding:40px 40px 32px;background:linear-gradient(135deg,rgba(13,148,136,0.06) 0%,rgba(15,23,42,0) 60%);border-bottom:1px solid var(--brd);max-width:1000px;margin:0 auto}
-.rpt-hero-donut{flex-shrink:0}.rpt-hero-info{flex:1;padding-top:16px}
-.rpt-maturity-badge{display:inline-flex;align-items:center;padding:10px 20px;border-radius:40px;border:2px solid;font-weight:700}
-.rpt-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.rpt-stat-card{background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:14px 10px;text-align:center}
-.rpt-card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:32px 36px;margin:20px auto;max-width:960px}
-.rpt-card-title{font-size:20px;font-weight:800;letter-spacing:-0.4px;margin-bottom:6px}
-.rpt-pillar-card{border:1px solid var(--brd);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}.rpt-pillar-card.expanded{border-color:var(--teal)}
-.rpt-pillar-hrow{display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;transition:background .15s}.rpt-pillar-hrow:hover{background:var(--hover)}
-.rpt-pillar-idx{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;font-family:var(--fm);flex-shrink:0}
-.rpt-sub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;padding:16px;background:var(--bg);border-top:1px solid var(--brd)}
-.rpt-sub-card{border:1px solid var(--brd);border-radius:8px;padding:12px 14px;transition:transform .15s}.rpt-sub-card:hover{transform:translateY(-2px)}
-.rpt-gap-card{border:1px solid var(--brd);border-left:4px solid;border-radius:8px;margin-bottom:8px;overflow:hidden}
-.rpt-gap-hrow{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;transition:background .15s}.rpt-gap-hrow:hover{background:var(--hover)}
-.rpt-gap-chip{width:36px;height:36px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;font-family:var(--fm);flex-shrink:0}
-.rpt-gap-expand{padding:16px;background:var(--bg);border-top:1px solid var(--brd)}.rpt-gap-desc{border:1px solid;border-radius:8px;padding:14px}
-@media(max-width:768px){.rpt-hdr{padding:14px 20px}.rpt-hero{flex-direction:column;padding:24px 20px;gap:24px}.rpt-stats-grid{grid-template-columns:repeat(2,1fr)}.rpt-card{padding:20px;margin:12px}.rpt-pillar-hrow{flex-wrap:wrap}}
+.db-sidebar{width:186px;flex-shrink:0;background:var(--wh);border-right:1px solid var(--brd);display:flex;flex-direction:column;overflow-y:auto;padding:12px 8px;gap:2px;box-shadow:1px 0 4px rgba(0,0,0,0.04)}
+.db-sidebar-hdr{padding:8px 10px 12px;border-bottom:1px solid var(--brd);margin-bottom:8px}
+.db-sidebar-brand{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1.2px}
+.db-sidebar-org{font-size:10px;color:var(--mute);margin-top:3px}
+.db-nav-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:7px;cursor:pointer;border:1px solid transparent;font-size:12px;font-weight:500;transition:all .15s;color:var(--dim);user-select:none}
+.db-nav-item:hover{background:var(--hover);color:var(--text)}
+.db-nav-item.active{background:var(--hover2);border-color:var(--tealBrd);color:var(--teal);font-weight:700}
+.db-nav-icon{font-size:14px;min-width:18px;text-align:center}
+.db-nav-badge{font-size:10px;font-weight:800;padding:1px 7px;border-radius:8px;background:rgba(220,38,38,0.1);color:var(--red);border:1px solid rgba(220,38,38,0.15);font-family:var(--fm)}
+.db-content{flex:1;overflow-y:auto;padding:28px 32px 60px;background:var(--bg)}
+.db-sec-title{font-size:20px;font-weight:800;letter-spacing:-0.4px;color:var(--text);margin-bottom:4px}
+.db-sec-sub{font-size:12px;color:var(--mute);margin-bottom:22px}
+.db-reg-banner{background:var(--wh);border:1px solid var(--brd);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:var(--sh1)}
+.db-reg-label{font-size:9px;color:var(--mute);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:2px}
+.db-reg-val{font-size:12px;color:var(--text);font-weight:600}
+.db-donut-card{background:var(--wh);border:1px solid var(--brd);border-radius:14px;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:220px;box-shadow:var(--sh2)}
+.db-maturity-card{flex:1;background:var(--wh);border:1px solid var(--brd);border-radius:14px;padding:24px;box-shadow:var(--sh1);min-width:240px}
+.db-summary-card{background:var(--wh);border:1px solid var(--brd);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:box-shadow .15s,border-color .15s;box-shadow:var(--sh1)}
+.db-summary-card:hover{box-shadow:var(--sh2);border-color:var(--brdL)}
+.db-radar-card{background:var(--wh);border:1px solid var(--brd);border-radius:12px;padding:22px 24px;margin-bottom:20px;box-shadow:var(--sh1)}
+.db-pillar-card{background:var(--wh);border:1px solid var(--brd);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s;box-shadow:var(--sh1);margin-bottom:10px}
+.db-pillar-card:hover{box-shadow:var(--sh2)}
+.db-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.35);backdrop-filter:blur(4px);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px}
+.db-modal-box{background:var(--wh);border:1px solid var(--brd);border-radius:16px;width:100%;max-width:700px;max-height:84vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.12)}
+.db-modal-hdr{padding:16px 20px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:12px;background:var(--wh)}
+.db-hm-cell{border-radius:8px;padding:10px 10px 8px;cursor:default;transition:all .15s;position:relative;border:1px solid var(--brd);background:var(--wh)}
+.db-hm-cell:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.db-tooltip{display:none;position:absolute;z-index:200;background:var(--wh);border:1px solid var(--brdL);border-radius:10px;padding:10px 13px;bottom:calc(100% + 8px);left:0;min-width:210px;max-width:270px;box-shadow:var(--sh3);font-size:11px;line-height:1.5;color:var(--dim);pointer-events:none}
+.db-hm-cell:hover .db-tooltip{display:block}
+.db-gap-card{border:1px solid var(--brd);border-left:4px solid;border-radius:9px;margin-bottom:8px;overflow:hidden;background:var(--wh);box-shadow:var(--sh1)}
+.db-gap-expand{padding:16px;background:var(--bg);border-top:1px solid var(--brd)}
+.db-dist-row{background:var(--wh);border:1px solid var(--brd);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:14px;box-shadow:var(--sh1);margin-bottom:10px}
+.db-stat-mini{background:var(--wh);border:1px solid var(--brd);border-radius:10px;padding:14px;text-align:center;box-shadow:var(--sh1)}
+.db-footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--brd);font-size:10px;color:var(--mute);text-align:center;line-height:1.8}
+.ps-card{background:var(--wh);border:2px solid var(--brd);border-radius:14px;padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;box-shadow:var(--sh1)}
+.quiz-top{padding:16px 32px 14px;flex-shrink:0;border-bottom:1px solid var(--brd);background:var(--wh);box-shadow:var(--sh1)}
+.quiz-nav{padding:14px 32px;border-top:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:var(--wh);box-shadow:0 -1px 0 var(--brd)}
+@media print{body{display:none!important}}
 </style>
 </head>
 <body>
@@ -91,7 +181,7 @@ let EXPANDED = new Set();
 let SEARCH = '';
 let ANSWERS = {};
 let AQ_IDX = 0, AQ_VIEW = 'quiz', AQ_MODE = 'all', AQ_STARTED = false;
-let DASHBOARD_VIEW = 'overview';  
+let DASHBOARD_VIEW = 'overview';
 let AQ_ADVANCE_TIMER = null, AQ_HIGHEST = 0, AQ_PILAR = null;
 let REG_DATA = JSON.parse(localStorage.getItem('fcma_reg')||'null');
 const COUNTRIES = ['Argentina','Bolivia','Brazil','Chile','Colombia','Costa Rica','Dominican Republic','Ecuador','El Salvador','Guatemala','Honduras','Mexico','Nicaragua','Panama','Paraguay','Peru','Puerto Rico','United States','Uruguay','Venezuela','Spain','Portugal','Other'];
@@ -101,37 +191,31 @@ const IS_CLIENT = !!ACCESS_CODE;
 let CODE_VALID = null, CODE_COMPANY = '';
 const EDITOR_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8';
 
-function sha256(str){ const buf=new TextEncoder().encode(str); return crypto.subtle.digest('SHA-256',buf).then(h=>Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')); }
+/* ── LIGHT THEME COLOR SYSTEM ── */
+const CLR     = ['#dc2626','#f97316','#d97706','#2563eb','#059669'];
+const CLR_BG  = ['rgba(220,38,38,0.07)','rgba(249,115,22,0.07)','rgba(217,119,6,0.07)','rgba(37,99,235,0.07)','rgba(5,150,105,0.07)'];
+const CLR_BRD = ['rgba(220,38,38,0.22)','rgba(249,115,22,0.22)','rgba(217,119,6,0.22)','rgba(37,99,235,0.22)','rgba(5,150,105,0.22)'];
+const PILAR_CLR = ['#059669','#2563eb','#7c3aed','#db2777','#d97706','#dc2626','#0891b2','#06b6d4','#4f46e5'];
+
+function sha256(str){const buf=new TextEncoder().encode(str);return crypto.subtle.digest('SHA-256',buf).then(h=>Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join(''));}
 function checkEditorAuth(){
-  if(IS_CLIENT) return;
-  var stored=sessionStorage.getItem('fcma_editor_auth'); if(stored==='ok') return;
+  if(IS_CLIENT)return;
+  var stored=sessionStorage.getItem('fcma_editor_auth');if(stored==='ok')return;
   var pwd=prompt('FCMA Editor — Enter password:');
-  if(!pwd){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#64748b;font-family:system-ui">Access denied</div>';return;}
-  sha256(pwd).then(hash=>{if(hash===EDITOR_HASH){sessionStorage.setItem('fcma_editor_auth','ok');load();render();}else{document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#ef4444;font-family:system-ui">Invalid password</div>';}});
+  if(!pwd){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#94a3b8;font-family:system-ui">Access denied</div>';return;}
+  sha256(pwd).then(hash=>{if(hash===EDITOR_HASH){sessionStorage.setItem('fcma_editor_auth','ok');load();render();}else{document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#dc2626;font-family:system-ui">Invalid password</div>';}});
 }
 
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwH3iTpHO9qrKsvxyyqpr_YwpRor3JRfKdgTcOxeZ7sTcd_GBvgyVzW2n7pBnwKXiic/exec';
-function validateCode(code,callback){
-  if(!code){callback(false,'');return;}
-  fetch(SHEET_URL+'?action=validate&code='+encodeURIComponent(code)).then(r=>r.json()).then(data=>{if(data.valid){CODE_VALID=true;CODE_COMPANY=data.company||'';callback(true,data.company);}else{CODE_VALID=false;callback(false,'');}}).catch(()=>{CODE_VALID=true;callback(true,'');});
-}
+const SHEET_URL='https://script.google.com/macros/s/AKfycbwH3iTpHO9qrKsvxyyqpr_YwpRor3JRfKdgTcOxeZ7sTcd_GBvgyVzW2n7pBnwKXiic/exec';
+function validateCode(code,callback){if(!code){callback(false,'');return;}fetch(SHEET_URL+'?action=validate&code='+encodeURIComponent(code)).then(r=>r.json()).then(data=>{if(data.valid){CODE_VALID=true;CODE_COMPANY=data.company||'';callback(true,data.company);}else{CODE_VALID=false;callback(false,'');}}).catch(()=>{CODE_VALID=true;callback(true,'');});}
 function postToSheets(payload){return fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)}).catch(e=>console.warn('Sheets:',e));}
 function sendRegistration(r){return postToSheets({type:'registration',accessCode:r.accessCode||ACCESS_CODE||'',company:r.company,contact:r.contact,email:r.email,role:r.role,country:r.country,sector:r.sector,lang:r.lang,ndaAccepted:r.ndaAccepted,ts:r.ts});}
-function sendAnswers(){
-  var sc=getScores(),totalQ=0,pillarScores={};
-  DATA.forEach(p=>{p.subs.forEach(s=>{totalQ+=s.comps.length});pillarScores[p.id]=sc[p.id]||0;});
-  return postToSheets({type:'answers',registration:REG_DATA,answers:ANSWERS,totalQuestions:totalQ,globalScore:sc._total,pillarScores,mode:AQ_MODE,lang:LANG});
-}
+function sendAnswers(){var sc=getScores(),totalQ=0,pillarScores={};DATA.forEach(p=>{p.subs.forEach(s=>{totalQ+=s.comps.length});pillarScores[p.id]=sc[p.id]||0;});return postToSheets({type:'answers',registration:REG_DATA,answers:ANSWERS,totalQuestions:totalQ,globalScore:sc._total,pillarScores,mode:AQ_MODE,lang:LANG});}
 
-let LANG = localStorage.getItem('fcma_lang')||'en';
-const CLR = ['#ef4444','#f97316','#f59e0b','#3b82f6','#22c55e'];
-const PILAR_CLR = ['#0d9488','#3b82f6','#8b5cf6','#ec4899','#f59e0b','#ef4444','#22c55e','#06b6d4','#6366f1'];
+let LANG=localStorage.getItem('fcma_lang')||'en';
 
-const I18N = {
-  en:{levels:['Non-existent','Informal','Defined','Managed','Optimized'],assess:'🎯 Assess',editor:'✏️ Editor',preview:'👁 Preview',stats:'📊 Stats',assessment:'Assessment',assessEditor:'Assessment Editor',import:'📂 Import',results:'📊 Results',next:'Next →',prev:'← Previous',skip:'Skip',goTo:'Go to:',question:'Question',of:'of',core:'Core',answered:'answered',startEval:'Start Assessment →',screeningCore:'Core Screening',deepDive:'Full Deep Dive',screeningDesc:'Quick diagnostic — 1 to 2 hours. The most critical questions from each pillar.',deepDiveDesc:'Exhaustive assessment — 4 to 6 sessions. All framework components.',selectMode:'Select assessment mode:',savedAnswers:'You have {n} saved answers.',continueWhere:'Continue where you left off',restart:'Reset',deleteAll:'Delete all answers?',deleteAllShort:'Delete all?',noData:'No data. Use import.',selectSub:'← Select a sub-dimension',globalScore:'Global Maturity Score',evaluated:'evaluated',resultsByPillar:'Results by Pillar',pillarBarDesc:'',heatmap:'',heatmapDesc:'',criticalGaps:'',criticalGapsDesc:'{n} components at critical level.',maturityDist:'',exportResults:'💾 Export Results',backToQuiz:'← Back',home:'🏠 Home',viewResults:'📊 View Results →',noDescriptor:'(No descriptor)',pilars:'Pillars',subs:'Sub-dimensions',comps:'Components',deletePilar:'Delete {id}?',deleteSub:'Delete {id}?',deleteComp:'Delete {id}?',newPilar:'New Pillar',newSub:'New Sub-dimension',newComp:'New Component',description:'Description...',searchComp:'🔍 Search component...',descLevel:'Level {n} descriptor...',statsTitle:'Assessment Statistics',detailByPillar:'Detail by Pillar',pilar:'Pillar',name:'Name',completeness:'Completeness',totalDesc:'Total Descriptors',totalDescText:'{c} components × 5 levels = <strong style="color:var(--tealL)">{t} unique descriptors</strong>',fullTitle:'Financial Crime Maturity Assessment',fullDesc:'Comprehensive assessment of the fraud prevention, detection, and financial crime management program',copyright:'© {y} Continental Risk Partners — All rights reserved. FCMA™ Framework is exclusive intellectual property of the author.',watermark:'FCMA™ · CONFIDENTIAL',undo:'Undo',levelSelected:'Level {n} selected — ',selectPilar:'Select a Pillar to Evaluate',selectPilarDesc:'Choose which pillar to evaluate. Each pillar can be answered independently by different teams.',backToPilars:'← Back to Pillars',pilarComplete:'Complete',pilarOf:'{n} of {t}',regTitle:'Organization Registration',regDesc:'Please provide your organization details before starting the assessment. This information is confidential and protected under NDA.',regCompany:'Company / Organization',regCompanyPh:'Enter company name',regContact:'Contact Name',regContactPh:'Full name',regEmail:'Corporate Email',regEmailPh:'name@company.com',regRole:'Role / Position',regRolePh:'e.g. Chief Risk Officer',regCountry:'Country',regCountryPh:'Select country',regSector:'Industry Sector',regSectorPh:'Select sector',regNda:'I acknowledge that this assessment contains proprietary and confidential information owned by Continental Risk Partners (FCMA™ Framework). I agree not to reproduce, distribute, share, or disclose any part of this assessment, its methodology, descriptors, or results to any third party without prior written authorization from the author.',regNdaShort:'Confidentiality & Non-Disclosure Agreement',regStart:'Begin Assessment →',regRequired:'Please complete all fields and accept the NDA to continue.',regStoredAs:'Assessment registered to: {company}',sectors:'Banking,Insurance,Fintech,Payment Gateway,Marketplace / E-commerce,Cryptocurrency / Blockchain,Gaming / Betting,Microfinance,Credit Union / Cooperative,Government / Public Sector,Telecommunications,Other'},
-  es:{levels:['Inexistente','Informal','Definido','Gestionado','Optimizado'],assess:'🎯 Evaluar',editor:'✏️ Editor',preview:'👁 Preview',stats:'📊 Stats',assessment:'Evaluación',assessEditor:'Editor',import:'📂 Importar',results:'📊 Resultados',next:'Siguiente →',prev:'← Anterior',skip:'Saltar',goTo:'Ir a:',question:'Pregunta',of:'de',core:'Core',answered:'respondidas',startEval:'Iniciar →',screeningCore:'Screening Core',deepDive:'Deep Dive',screeningDesc:'Diagnóstico rápido — 1 a 2 horas.',deepDiveDesc:'Assessment exhaustivo — 4 a 6 sesiones.',selectMode:'Selecciona el modo:',savedAnswers:'Tienes {n} respuestas.',continueWhere:'Continuar',restart:'Reiniciar',deleteAll:'¿Borrar todo?',deleteAllShort:'¿Borrar?',noData:'Sin datos.',selectSub:'← Selecciona sub-dimensión',globalScore:'Score Global',evaluated:'evaluados',resultsByPillar:'Por Pilar',pillarBarDesc:'',heatmap:'',heatmapDesc:'',criticalGaps:'',criticalGapsDesc:'{n} componentes críticos.',maturityDist:'',exportResults:'💾 Exportar',backToQuiz:'← Volver',home:'🏠 Inicio',viewResults:'📊 Ver Resultados →',noDescriptor:'(Sin descriptor)',pilars:'Pilares',subs:'Sub-dimensiones',comps:'Componentes',deletePilar:'¿Eliminar {id}?',deleteSub:'¿Eliminar {id}?',deleteComp:'¿Eliminar {id}?',newPilar:'Nuevo Pilar',newSub:'Nueva Sub-dimensión',newComp:'Nuevo Componente',description:'Descripción...',searchComp:'🔍 Buscar...',descLevel:'Nivel {n}...',statsTitle:'Estadísticas',detailByPillar:'Por Pilar',pilar:'Pilar',name:'Nombre',completeness:'Completitud',totalDesc:'Total',totalDescText:'{c} × 5 = <strong style="color:var(--tealL)">{t}</strong>',fullTitle:'Financial Crime Maturity Assessment',fullDesc:'Evaluación integral del programa antifraude',copyright:'© {y} Continental Risk Partners — FCMA™.',watermark:'FCMA™ · CONFIDENCIAL',undo:'Deshacer',levelSelected:'Nivel {n} — ',selectPilar:'Selecciona un Pilar',selectPilarDesc:'Elige qué pilar evaluar. Cada pilar puede responderse por equipos diferentes en sesiones separadas.',backToPilars:'← Volver a Pilares',pilarComplete:'Completo',pilarOf:'{n} de {t}',regTitle:'Registro',regDesc:'Datos de su organización.',regCompany:'Empresa',regCompanyPh:'Nombre',regContact:'Contacto',regContactPh:'Nombre completo',regEmail:'Correo',regEmailPh:'nombre@empresa.com',regRole:'Cargo',regRolePh:'Director de Riesgos',regCountry:'País',regCountryPh:'Seleccionar',regSector:'Sector',regSectorPh:'Seleccionar',regNda:'Acepto los términos de confidencialidad del Framework FCMA™.',regNdaShort:'Acuerdo de Confidencialidad',regStart:'Iniciar →',regRequired:'Complete todos los campos.',regStoredAs:'Registrado: {company}',sectors:'Banca,Seguros,Fintech,Pasarela de Pagos,Marketplace,Criptomonedas,Gaming,Microfinanzas,Cooperativa,Gobierno,Telecomunicaciones,Otro'},
-  pt:{levels:['Inexistente','Informal','Definido','Gerenciado','Otimizado'],assess:'🎯 Avaliar',editor:'✏️ Editor',preview:'👁 Preview',stats:'📊 Stats',assessment:'Avaliação',assessEditor:'Editor',import:'📂 Importar',results:'📊 Resultados',next:'Próximo →',prev:'← Anterior',skip:'Pular',goTo:'Ir para:',question:'Pergunta',of:'de',core:'Core',answered:'respondidas',startEval:'Iniciar →',screeningCore:'Screening Core',deepDive:'Deep Dive',screeningDesc:'Diagnóstico rápido — 1 a 2 horas.',deepDiveDesc:'Avaliação exaustiva — 4 a 6 sessões.',selectMode:'Selecionar modo:',savedAnswers:'Você tem {n} respostas.',continueWhere:'Continuar',restart:'Reiniciar',deleteAll:'Apagar tudo?',deleteAllShort:'Apagar?',noData:'Sem dados.',selectSub:'← Selecionar',globalScore:'Score',evaluated:'avaliados',resultsByPillar:'Por Pilar',pillarBarDesc:'',heatmap:'',heatmapDesc:'',criticalGaps:'',criticalGapsDesc:'{n} críticos.',maturityDist:'',exportResults:'💾 Exportar',backToQuiz:'← Voltar',home:'🏠 Início',viewResults:'📊 Ver →',noDescriptor:'(Sem descritor)',pilars:'Pilares',subs:'Sub-dimensões',comps:'Componentes',deletePilar:'Excluir {id}?',deleteSub:'Excluir {id}?',deleteComp:'Excluir {id}?',newPilar:'Novo Pilar',newSub:'Nova Sub-dimensão',newComp:'Novo Componente',description:'Descrição...',searchComp:'🔍 Buscar...',descLevel:'Nível {n}...',statsTitle:'Estatísticas',detailByPillar:'Por Pilar',pilar:'Pilar',name:'Nome',completeness:'Completude',totalDesc:'Total',totalDescText:'{c} × 5 = <strong style="color:var(--tealL)">{t}</strong>',fullTitle:'Financial Crime Maturity Assessment',fullDesc:'Avaliação do programa antifraude',copyright:'© {y} Continental Risk Partners — FCMA™.',watermark:'FCMA™ · CONFIDENCIAL',undo:'Desfazer',levelSelected:'Nível {n} — ',selectPilar:'Selecione um Pilar',selectPilarDesc:'Escolha qual pilar avaliar. Cada pilar pode ser respondido por equipes diferentes.',backToPilars:'← Voltar aos Pilares',pilarComplete:'Completo',pilarOf:'{n} de {t}',regTitle:'Registro',regDesc:'Dados da organização.',regCompany:'Empresa',regCompanyPh:'Nome',regContact:'Contato',regContactPh:'Nome completo',regEmail:'E-mail',regEmailPh:'nome@empresa.com',regRole:'Cargo',regRolePh:'Diretor de Riscos',regCountry:'País',regCountryPh:'Selecionar',regSector:'Setor',regSectorPh:'Selecionar',regNda:'Aceito os termos de confidencialidade do Framework FCMA™.',regNdaShort:'Acordo de Confidencialidade',regStart:'Iniciar →',regRequired:'Preencha todos os campos.',regStoredAs:'Registrado: {company}',sectors:'Bancos,Seguros,Fintech,Gateway,Marketplace,Criptomoedas,Gaming,Microfinanças,Cooperativa,Governo,Telecomunicações,Outro'}
-};
+
+const I18N={en:{levels:['Non-existent','Informal','Defined','Managed','Optimized'],assess:'🎯 Assess',editor:'✏️ Editor',preview:'👁 Preview',stats:'📊 Stats',assessment:'Assessment',assessEditor:'Assessment Editor',import:'📂 Import',results:'📊 Results',next:'Next →',prev:'← Previous',skip:'Skip',goTo:'Go to:',question:'Question',of:'of',core:'Core',answered:'answered',startEval:'Start Assessment →',screeningCore:'Core Screening',deepDive:'Full Deep Dive',screeningDesc:'Quick diagnostic — 1 to 2 hours. The most critical questions from each pillar.',deepDiveDesc:'Exhaustive assessment — 4 to 6 sessions. All framework components.',selectMode:'Select assessment mode:',savedAnswers:'You have {n} saved answers.',continueWhere:'Continue where you left off',restart:'Reset',deleteAll:'Delete all answers?',deleteAllShort:'Delete all?',noData:'No data. Use import.',selectSub:'← Select a sub-dimension',globalScore:'Global Maturity Score',evaluated:'evaluated',resultsByPillar:'Results by Pillar',exportResults:'💾 Export Results',backToQuiz:'← Back',home:'🏠 Home',viewResults:'📊 View Results →',noDescriptor:'(No descriptor)',pilars:'Pillars',subs:'Sub-dimensions',comps:'Components',deletePilar:'Delete {id}?',deleteSub:'Delete {id}?',deleteComp:'Delete {id}?',newPilar:'New Pillar',newSub:'New Sub-dimension',newComp:'New Component',description:'Description...',searchComp:'🔍 Search component...',descLevel:'Level {n} descriptor...',statsTitle:'Assessment Statistics',detailByPillar:'Detail by Pillar',pilar:'Pillar',name:'Name',completeness:'Completeness',totalDesc:'Total Descriptors',totalDescText:'{c} components × 5 levels = <strong style="color:var(--teal)">{t} unique descriptors</strong>',fullTitle:'Financial Crime Maturity Assessment',fullDesc:'Comprehensive assessment of the fraud prevention, detection, and financial crime management program',copyright:'© {y} Continental Risk Partners — All rights reserved. FCMA™ Framework is exclusive intellectual property of the author.',watermark:'FCMA™ · CONFIDENTIAL',undo:'Undo',levelSelected:'Level {n} selected — ',selectPilar:'Select a Pillar to Evaluate',selectPilarDesc:'Choose which pillar to evaluate. Each pillar can be answered independently by different teams.',backToPilars:'← Back to Pillars',pilarComplete:'Complete',pilarOf:'{n} of {t}',regTitle:'Organization Registration',regDesc:'Please provide your organization details before starting the assessment. This information is confidential and protected under NDA.',regCompany:'Company / Organization',regCompanyPh:'Enter company name',regContact:'Contact Name',regContactPh:'Full name',regEmail:'Corporate Email',regEmailPh:'name@company.com',regRole:'Role / Position',regRolePh:'e.g. Chief Risk Officer',regCountry:'Country',regCountryPh:'Select country',regSector:'Industry Sector',regSectorPh:'Select sector',regNda:'I acknowledge that this assessment contains proprietary and confidential information owned by Continental Risk Partners (FCMA™ Framework). I agree not to reproduce, distribute, share, or disclose any part of this assessment, its methodology, descriptors, or results to any third party without prior written authorization from the author.',regNdaShort:'Confidentiality & Non-Disclosure Agreement',regStart:'Begin Assessment →',regRequired:'Please complete all fields and accept the NDA to continue.',regStoredAs:'Assessment registered to: {company}',sectors:'Banking,Insurance,Fintech,Payment Gateway,Marketplace / E-commerce,Cryptocurrency / Blockchain,Gaming / Betting,Microfinance,Credit Union / Cooperative,Government / Public Sector,Telecommunications,Other'},es:{levels:['Inexistente','Informal','Definido','Gestionado','Optimizado'],assess:'🎯 Evaluar',editor:'✏️ Editor',preview:'👁 Preview',stats:'📊 Stats',assessment:'Evaluación',assessEditor:'Editor',import:'📂 Importar',results:'📊 Resultados',next:'Siguiente →',prev:'← Anterior',skip:'Saltar',goTo:'Ir a:',question:'Pregunta',of:'de',core:'Core',answered:'respondidas',startEval:'Iniciar →',screeningCore:'Screening Core',deepDive:'Deep Dive',screeningDesc:'Diagnóstico rápido — 1 a 2 horas.',deepDiveDesc:'Assessment exhaustivo — 4 a 6 sesiones.',selectMode:'Selecciona el modo:',savedAnswers:'Tienes {n} respuestas.',continueWhere:'Continuar',restart:'Reiniciar',deleteAll:'¿Borrar todo?',deleteAllShort:'¿Borrar?',noData:'Sin datos.',selectSub:'← Selecciona sub-dimensión',globalScore:'Score Global',evaluated:'evaluados',resultsByPillar:'Por Pilar',exportResults:'💾 Exportar',backToQuiz:'← Volver',home:'🏠 Inicio',viewResults:'📊 Ver Resultados →',noDescriptor:'(Sin descriptor)',pilars:'Pilares',subs:'Sub-dimensiones',comps:'Componentes',deletePilar:'¿Eliminar {id}?',deleteSub:'¿Eliminar {id}?',deleteComp:'¿Eliminar {id}?',newPilar:'Nuevo Pilar',newSub:'Nueva Sub-dimensión',newComp:'Nuevo Componente',description:'Descripción...',searchComp:'🔍 Buscar...',descLevel:'Nivel {n}...',statsTitle:'Estadísticas',detailByPillar:'Por Pilar',pilar:'Pilar',name:'Nombre',completeness:'Completitud',totalDesc:'Total',totalDescText:'{c} × 5 = <strong style="color:var(--teal)">{t}</strong>',fullTitle:'Financial Crime Maturity Assessment',fullDesc:'Evaluación integral del programa antifraude',copyright:'© {y} Continental Risk Partners — FCMA™.',watermark:'FCMA™ · CONFIDENCIAL',undo:'Deshacer',levelSelected:'Nivel {n} — ',selectPilar:'Selecciona un Pilar',selectPilarDesc:'Elige qué pilar evaluar. Cada pilar puede responderse por equipos diferentes en sesiones separadas.',backToPilars:'← Volver a Pilares',pilarComplete:'Completo',pilarOf:'{n} de {t}',regTitle:'Registro',regDesc:'Datos de su organización.',regCompany:'Empresa',regCompanyPh:'Nombre',regContact:'Contacto',regContactPh:'Nombre completo',regEmail:'Correo',regEmailPh:'nombre@empresa.com',regRole:'Cargo',regRolePh:'Director de Riesgos',regCountry:'País',regCountryPh:'Seleccionar',regSector:'Sector',regSectorPh:'Seleccionar',regNda:'Acepto los términos de confidencialidad del Framework FCMA™.',regNdaShort:'Acuerdo de Confidencialidad',regStart:'Iniciar →',regRequired:'Complete todos los campos.',regStoredAs:'Registrado: {company}',sectors:'Banca,Seguros,Fintech,Pasarela de Pagos,Marketplace,Criptomonedas,Gaming,Microfinanzas,Cooperativa,Gobierno,Telecomunicaciones,Otro'},pt:{levels:['Inexistente','Informal','Definido','Gerenciado','Otimizado'],assess:'🎯 Avaliar',editor:'✏️ Editor',preview:'👁 Preview',stats:'📊 Stats',assessment:'Avaliação',assessEditor:'Editor',import:'📂 Importar',results:'📊 Resultados',next:'Próximo →',prev:'← Anterior',skip:'Pular',goTo:'Ir para:',question:'Pergunta',of:'de',core:'Core',answered:'respondidas',startEval:'Iniciar →',screeningCore:'Screening Core',deepDive:'Deep Dive',screeningDesc:'Diagnóstico rápido — 1 a 2 horas.',deepDiveDesc:'Avaliação exaustiva — 4 a 6 sessões.',selectMode:'Selecionar modo:',savedAnswers:'Você tem {n} respostas.',continueWhere:'Continuar',restart:'Reiniciar',deleteAll:'Apagar tudo?',deleteAllShort:'Apagar?',noData:'Sem dados.',selectSub:'← Selecionar',globalScore:'Score',evaluated:'avaliados',resultsByPillar:'Por Pilar',exportResults:'💾 Exportar',backToQuiz:'← Voltar',home:'🏠 Início',viewResults:'📊 Ver →',noDescriptor:'(Sem descritor)',pilars:'Pilares',subs:'Sub-dimensões',comps:'Componentes',deletePilar:'Excluir {id}?',deleteSub:'Excluir {id}?',deleteComp:'Excluir {id}?',newPilar:'Novo Pilar',newSub:'Nova Sub-dimensão',newComp:'Novo Componente',description:'Descrição...',searchComp:'🔍 Buscar...',descLevel:'Nível {n}...',statsTitle:'Estatísticas',detailByPillar:'Por Pilar',pilar:'Pilar',name:'Nome',completeness:'Completude',totalDesc:'Total',totalDescText:'{c} × 5 = <strong style="color:var(--teal)">{t}</strong>',fullTitle:'Financial Crime Maturity Assessment',fullDesc:'Avaliação do programa antifraude',copyright:'© {y} Continental Risk Partners — FCMA™.',watermark:'FCMA™ · CONFIDENCIAL',undo:'Desfazer',levelSelected:'Nível {n} — ',selectPilar:'Selecione um Pilar',selectPilarDesc:'Escolha qual pilar avaliar. Cada pilar pode ser respondido por equipes diferentes.',backToPilars:'← Voltar aos Pilares',pilarComplete:'Completo',pilarOf:'{n} de {t}',regTitle:'Registro',regDesc:'Dados da organização.',regCompany:'Empresa',regCompanyPh:'Nome',regContact:'Contato',regContactPh:'Nome completo',regEmail:'E-mail',regEmailPh:'nome@empresa.com',regRole:'Cargo',regRolePh:'Diretor de Riscos',regCountry:'País',regCountryPh:'Selecionar',regSector:'Setor',regSectorPh:'Selecionar',regNda:'Aceito os termos de confidencialidade do Framework FCMA™.',regNdaShort:'Acordo de Confidencialidade',regStart:'Iniciar →',regRequired:'Preencha todos os campos.',regStoredAs:'Registrado: {company}',sectors:'Bancos,Seguros,Fintech,Gateway,Marketplace,Criptomoedas,Gaming,Microfinanças,Cooperativa,Governo,Telecomunicações,Outro'}};
 function t(key){return I18N[LANG][key]||I18N['en'][key]||key;}
 function tf(key,vars){var s=t(key);Object.entries(vars).forEach(([k,v])=>{s=s.replace('{'+k+'}',v)});return s;}
 function getLBL(){return I18N[LANG].levels;}
@@ -154,13 +238,7 @@ if(IS_CLIENT){
 }
 
 function save(){try{localStorage.setItem('fcma_data',JSON.stringify(DATA));localStorage.setItem('fcma_answers',JSON.stringify(ANSWERS));localStorage.setItem('fcma_core',JSON.stringify([...CORE]));}catch(e){}}
-function load(){
-  try{const d=localStorage.getItem('fcma_data');const c=localStorage.getItem('fcma_core');
-    if(d){DATA=JSON.parse(d);if(c)CORE=new Set(JSON.parse(c));try{const a=localStorage.getItem('fcma_answers');if(a)ANSWERS=JSON.parse(a);}catch(e){}return true;}
-  }catch(e){}
-  DATA=[];CORE=new Set(INIT_CORE_ARR);return true;
-}
-
+function load(){try{const d=localStorage.getItem('fcma_data');const c=localStorage.getItem('fcma_core');if(d){DATA=JSON.parse(d);if(c)CORE=new Set(JSON.parse(c));try{const a=localStorage.getItem('fcma_answers');if(a)ANSWERS=JSON.parse(a);}catch(e){}return true;}}catch(e){}DATA=[];CORE=new Set(INIT_CORE_ARR);return true;}
 function importMD(text){
   const pilars=[];let curP=null,curS=null,curC=null;const newCore=new Set();
   for(const line of text.split('\n')){
@@ -173,28 +251,39 @@ function importMD(text){
   pilars.forEach(p=>p.subs.forEach(s=>s.comps.forEach(c=>{while(c.L.length<5)c.L.push('');})));
   DATA=pilars;CORE=newCore;ACTIVE_P=pilars.length>0?0:null;ACTIVE_S=null;save();render();
 }
-
-function exportMD(){
-  let md='# FINANCIAL CRIME MATURITY ASSESSMENT\n\n';
-  DATA.forEach(p=>{md+=`# ${p.id}: ${p.name}\n\n`;if(p.desc)md+=`*${p.desc}*\n\n`;p.subs.forEach(s=>{md+=`## ${s.id} — ${s.name}\n\n`;s.comps.forEach(c=>{md+=`### ${CORE.has(c.id)?'🔷 CORE · ':''}${c.id} · ${c.name}\n\n`;md+='| Level | Descriptor |\n|:---:|:---|\n';c.L.forEach((l,i)=>{md+=`| **${i+1}** | ${l} |\n`});md+='\n';});});md+='---\n\n';});
-  downloadFile(md,'FCMA_Assessment.md','text/markdown');
-}
+function exportMD(){let md='# FINANCIAL CRIME MATURITY ASSESSMENT\n\n';DATA.forEach(p=>{md+=`# ${p.id}: ${p.name}\n\n`;if(p.desc)md+=`*${p.desc}*\n\n`;p.subs.forEach(s=>{md+=`## ${s.id} — ${s.name}\n\n`;s.comps.forEach(c=>{md+=`### ${CORE.has(c.id)?'🔷 CORE · ':''}${c.id} · ${c.name}\n\n`;md+='| Level | Descriptor |\n|:---:|:---|\n';c.L.forEach((l,i)=>{md+=`| **${i+1}** | ${l} |\n`});md+='\n';});});md+='---\n\n';});downloadFile(md,'FCMA_Assessment.md','text/markdown');}
 function exportJSON(){var p={version:'2.0',data:DATA,core:[...CORE],answers:ANSWERS};if(REG_DATA)p.registration=REG_DATA;downloadFile(JSON.stringify(p,null,2),'FCMA_Assessment.json','application/json');}
 function downloadFile(content,name,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();URL.revokeObjectURL(a.href);}
 function getStats(){let tS=0,tC=0;DATA.forEach(p=>{tS+=p.subs.length;p.subs.forEach(s=>tC+=s.comps.length)});return{pilars:DATA.length,subs:tS,comps:tC,core:CORE.size};}
 
+
+function getScores(){const sc={};DATA.forEach(p=>{let sum=0,cnt=0;p.subs.forEach(s=>s.comps.forEach(c=>{if(ANSWERS[c.id]){sum+=ANSWERS[c.id];cnt++;}}));sc[p.id]=cnt>0?sum/cnt:0;});let tSum=0,tCnt=0;Object.values(sc).forEach(v=>{if(v>0){tSum+=v;tCnt++;}});sc._total=tCnt>0?tSum/tCnt:0;return sc;}
+
 function render(){
-  const app=$('#app');app.innerHTML='';if(IS_CLIENT)app.classList.add('ip-protect');
+  const app=$('#app');app.innerHTML='';
+  if(IS_CLIENT)app.classList.add('ip-protect');
   const st=getStats();
-  if(IS_CLIENT){var wm=el('div',{className:'watermark'});for(var wi=0;wi<20;wi++)wm.append(el('span',null,t('watermark')));app.append(wm);app.append(el('div',{className:'footer-legal'},tf('copyright',{y:new Date().getFullYear()})));}
+  if(IS_CLIENT){
+    var wm=el('div',{className:'watermark'});
+    for(var wi=0;wi<20;wi++)wm.append(el('span',null,t('watermark')));
+    app.append(wm);
+    app.append(el('div',{className:'footer-legal'},tf('copyright',{y:new Date().getFullYear()})));
+  }
   var langSel=el('div',{className:'lang-sel'});
   ['es','en','pt'].forEach(lng=>langSel.append(el('button',{className:'lang-btn'+(LANG===lng?' on':''),onClick:()=>switchLang(lng)},lng.toUpperCase())));
   var tabs=IS_CLIENT?[['assess',t('assess')]]:[['assess',t('assess')],['editor',t('editor')],['preview',t('preview')],['stats',t('stats')]];
   const hdr=el('header',{className:'hdr'},
-    el('div',{style:{display:'flex',alignItems:'center',gap:'10px'}},el('div',{className:'logo'},'F'),el('div',null,el('div',{className:'title'},'FCMA'),el('div',{className:'sub'},IS_CLIENT?t('assessment'):t('assessEditor')))),
+    el('div',{style:{display:'flex',alignItems:'center',gap:'10px'}},
+      el('div',{className:'logo'},'F'),
+      el('div',null,el('div',{className:'title'},'FCMA'),el('div',{className:'sub'},IS_CLIENT?t('assessment'):t('assessEditor')))
+    ),
     el('div',{className:'pills'},...tabs.map(([v,l])=>el('button',{className:`pill${VIEW===v?' on':''}`,onClick:()=>{VIEW=v;render()}},l))),
     el('div',{style:{flex:'1'}}),langSel,
-    el('div',{style:{display:'flex',gap:'6px',alignItems:'center',marginLeft:'10px'}},el('span',{className:'badge badge-t'},st.pilars+'P'),el('span',{className:'badge badge-b'},st.comps+'C'),el('span',{className:'badge badge-a'},st.core+' Core')),
+    el('div',{style:{display:'flex',gap:'6px',alignItems:'center',marginLeft:'10px'}},
+      el('span',{className:'badge badge-t'},st.pilars+'P'),
+      el('span',{className:'badge badge-b'},st.comps+'C'),
+      el('span',{className:'badge badge-a'},st.core+' Core')
+    ),
     ...(IS_CLIENT?[]:[el('div',{style:{display:'flex',gap:'6px'}},
       el('input',{type:'file',id:'fimport',accept:'.md,.json',style:{display:'none'},onChange:e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const tx=ev.target.result;if(f.name.endsWith('.json')){try{const j=JSON.parse(tx);DATA=j.data||j;CORE=new Set(j.core||[]);ACTIVE_P=DATA.length?0:null;ACTIVE_S=null;save();render()}catch(e){alert('Error: '+e.message)}}else importMD(tx);};r.readAsText(f);e.target.value='';}}),
       el('button',{className:'btn',onClick:()=>$('#fimport').click()},t('import')),
@@ -203,18 +292,14 @@ function render(){
     )])
   );
   app.append(hdr);
-  const main=el('div',{className:'main',style:IS_CLIENT?{paddingBottom:'24px'}:{}});app.append(main);
+  const main=el('div',{className:'main',style:IS_CLIENT?{paddingBottom:'24px'}:{}});
+  app.append(main);
   if(VIEW==='assess')renderAssess(main);
   else if(VIEW==='editor')renderEditor(main);
   else if(VIEW==='preview')renderPreview(main);
   else renderStats(main);
 }
 
-function getScores(){
-  const sc={};
-  DATA.forEach(p=>{let sum=0,cnt=0;p.subs.forEach(s=>s.comps.forEach(c=>{if(ANSWERS[c.id]){sum+=ANSWERS[c.id];cnt++;}}));sc[p.id]=cnt>0?sum/cnt:0;});
-  let tSum=0,tCnt=0;Object.values(sc).forEach(v=>{if(v>0){tSum+=v;tCnt++;}});sc._total=tCnt>0?tSum/tCnt:0;return sc;
-}
 
 function renderAssess(main){
   var allQ=[];
@@ -223,65 +308,87 @@ function renderAssess(main){
   var questions=AQ_MODE==='core'?allQ.filter(q=>q.isCore):allQ;
   var totalQ=questions.length,answered=0;questions.forEach(q=>{if(ANSWERS[q.comp.id])answered++;});
   if(AQ_VIEW==='results'){renderResults(main);return;}
-  if(IS_CLIENT&&CODE_VALID===null){main.append(el('div',{style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center'}},el('div',{style:{textAlign:'center',color:'var(--mute)'}},el('div',{style:{fontSize:'32px',marginBottom:'16px'}},'🔒'),el('div',{style:{fontSize:'16px'}},'Validating access code...'))));return;}
-  if(IS_CLIENT&&CODE_VALID===false){main.append(el('div',{style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center'}},el('div',{className:'quiz-slide',style:{textAlign:'center',maxWidth:'480px',padding:'48px',background:'var(--card)',borderRadius:'16px',border:'1px solid var(--brd)'}},el('div',{style:{fontSize:'48px',marginBottom:'16px'}},'🚫'),el('div',{style:{fontSize:'24px',fontWeight:'800',color:'var(--red)',marginBottom:'12px'}},'Access Denied'),el('div',{style:{fontSize:'15px',color:'var(--dim)',lineHeight:'1.6'}},'This access code is invalid, expired, or has already been used.'))));return;}
+
+  if(IS_CLIENT&&CODE_VALID===null){
+    main.append(el('div',{style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center'}},
+      el('div',{style:{textAlign:'center',color:'var(--mute)'}},el('div',{style:{fontSize:'32px',marginBottom:'16px'}},'🔒'),el('div',{style:{fontSize:'16px'}},'Validating access...'))
+    ));return;
+  }
+  if(IS_CLIENT&&CODE_VALID===false){
+    main.append(el('div',{style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center'}},
+      el('div',{className:'quiz-slide',style:{textAlign:'center',maxWidth:'440px',padding:'48px',background:'var(--wh)',borderRadius:'20px',border:'1px solid var(--brd)',boxShadow:'0 20px 60px rgba(0,0,0,0.08)'}},
+        el('div',{style:{fontSize:'48px',marginBottom:'16px'}},'🚫'),
+        el('div',{style:{fontSize:'22px',fontWeight:'800',color:'var(--red)',marginBottom:'12px'}},'Access Denied'),
+        el('div',{style:{fontSize:'14px',color:'var(--dim)',lineHeight:'1.6'}},'This access code is invalid, expired, or has already been used.')
+      )
+    ));return;
+  }
+
+  /* ── Registration form ── */
   if(IS_CLIENT&&!REG_DATA){
-    var rWrap=el('div',{style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center',overflowY:'auto',padding:'24px'}});
-    var rCard=el('div',{className:'quiz-slide',style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'16px',padding:'48px',maxWidth:'600px',width:'100%',boxShadow:'0 20px 60px rgba(0,0,0,0.4)'}});
-    rCard.append(el('div',{style:{display:'flex',alignItems:'center',gap:'14px',marginBottom:'28px'}},el('div',{style:{width:'52px',height:'52px',borderRadius:'14px',background:'linear-gradient(135deg,var(--teal),var(--tealL))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'24px',fontWeight:'800',color:'var(--wh)'}},'F'),el('div',null,el('div',{style:{fontSize:'22px',fontWeight:'800'}},t('regTitle')),el('div',{style:{fontSize:'13px',color:'var(--mute)'}},'FCMA™ Framework'))));
-    rCard.append(el('p',{style:{fontSize:'14px',color:'var(--dim)',lineHeight:'1.6',marginBottom:'28px',padding:'14px 16px',background:'var(--bg)',borderRadius:'8px',borderLeft:'3px solid var(--teal)'}},t('regDesc')));
-    var rErr=el('div',{id:'reg-err',style:{display:'none',padding:'10px 14px',borderRadius:'8px',background:'rgba(239,68,68,0.12)',border:'1px solid rgba(239,68,68,0.3)',color:'#ef4444',fontSize:'13px',marginBottom:'16px'}});rCard.append(rErr);
-    var fs={width:'100%',padding:'12px 16px',borderRadius:'8px',border:'1px solid var(--brd)',background:'var(--bg)',color:'var(--text)',fontFamily:'var(--f)',fontSize:'14px',outline:'none'};
+    var rWrap=el('div',{style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center',overflowY:'auto',padding:'24px',background:'var(--bg)'}});
+    var rCard=el('div',{style:{background:'var(--wh)',border:'1px solid var(--brd)',borderRadius:'20px',padding:'48px',maxWidth:'600px',width:'100%',boxShadow:'0 20px 60px rgba(0,0,0,0.08)'}});
+    rCard.append(el('div',{style:{display:'flex',alignItems:'center',gap:'14px',marginBottom:'20px'}},
+      el('div',{style:{width:'52px',height:'52px',borderRadius:'14px',background:'linear-gradient(135deg,var(--teal),var(--tealL))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'24px',fontWeight:'800',color:'var(--wh)',boxShadow:'0 4px 12px rgba(5,150,105,0.25)'}},'F'),
+      el('div',null,el('div',{style:{fontSize:'22px',fontWeight:'800',color:'var(--text)'}},'FCMA™'),el('div',{style:{fontSize:'13px',color:'var(--mute)'}},'Continental Risk Partners'))
+    ));
+    rCard.append(el('h2',{style:{fontSize:'18px',fontWeight:'700',marginBottom:'6px',color:'var(--text)'}}),
+      el('p',{style:{fontSize:'13px',color:'var(--dim)',lineHeight:'1.6',marginBottom:'24px',padding:'12px 14px',background:'rgba(5,150,105,0.05)',borderRadius:'8px',borderLeft:'3px solid var(--teal)'}})
+    );
+    rCard.children[1].textContent=t('regTitle');
+    rCard.children[2].textContent=t('regDesc');
+    var rErr=el('div',{id:'reg-err',style:{display:'none',padding:'10px 14px',borderRadius:'8px',background:'rgba(220,38,38,0.06)',border:'1px solid rgba(220,38,38,0.2)',color:'var(--red)',fontSize:'13px',marginBottom:'16px'}});
+    rCard.append(rErr);
+    var fs={width:'100%',padding:'10px 14px',borderRadius:'8px',border:'1px solid var(--brd)',background:'var(--bg)',color:'var(--text)',fontFamily:'var(--f)',fontSize:'14px',outline:'none'};
     var ls={fontSize:'12px',fontWeight:'700',color:'var(--dim)',textTransform:'uppercase',letterSpacing:'0.8px',marginBottom:'6px',display:'block'};
-    var gs={marginBottom:'16px'};
-    function rf(lb,tp,id,ph){var g=el('div',{style:gs});g.append(el('label',{style:ls},lb));var i=el('input',{type:tp,id:'reg-'+id,placeholder:ph,style:fs});i.onfocus=()=>i.style.borderColor='var(--teal)';i.onblur=()=>i.style.borderColor='var(--brd)';g.append(i);return g;}
-    function rs(lb,id,ph,opts){var g=el('div',{style:gs});g.append(el('label',{style:ls},lb));var s=el('select',{id:'reg-'+id,style:{...fs,cursor:'pointer'}});s.append(el('option',{value:'',disabled:'',selected:''},ph));opts.forEach(o=>s.append(el('option',{value:o},o)));s.onfocus=()=>s.style.borderColor='var(--teal)';s.onblur=()=>s.style.borderColor='var(--brd)';g.append(s);return g;}
+    function rf(lb,tp,id,ph){var g=el('div',{style:{marginBottom:'16px'}});g.append(el('label',{style:ls},lb));var i=el('input',{type:tp,id:'reg-'+id,placeholder:ph,style:fs});i.onfocus=()=>{i.style.borderColor='var(--teal)';i.style.boxShadow='0 0 0 3px rgba(5,150,105,0.08)'};i.onblur=()=>{i.style.borderColor='var(--brd)';i.style.boxShadow='none'};g.append(i);return g;}
+    function rs(lb,id,ph,opts){var g=el('div',{style:{marginBottom:'16px'}});g.append(el('label',{style:ls},lb));var s=el('select',{id:'reg-'+id,style:{...fs,cursor:'pointer'}});s.append(el('option',{value:'',disabled:'',selected:''},ph));opts.forEach(o=>s.append(el('option',{value:o},o)));s.onfocus=()=>{s.style.borderColor='var(--teal)'};s.onblur=()=>{s.style.borderColor='var(--brd)'};g.append(s);return g;}
     var r1=el('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}});r1.append(rf(t('regCompany'),'text','company',t('regCompanyPh')),rf(t('regContact'),'text','contact',t('regContactPh')));rCard.append(r1);
     var r2=el('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}});r2.append(rf(t('regEmail'),'email','email',t('regEmailPh')),rf(t('regRole'),'text','role',t('regRolePh')));rCard.append(r2);
     var r3=el('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}});r3.append(rs(t('regCountry'),'country',t('regCountryPh'),COUNTRIES),rs(t('regSector'),'sector',t('regSectorPh'),t('sectors').split(',')));rCard.append(r3);
-    var ndaG=el('div',{style:{marginTop:'24px',padding:'20px',background:'var(--bg)',borderRadius:'10px',border:'1px solid var(--brd)'}});
-    ndaG.append(el('div',{style:{fontSize:'13px',fontWeight:'700',color:'var(--teal)',marginBottom:'10px',textTransform:'uppercase'}},'🔒 '+t('regNdaShort')));
+    var ndaG=el('div',{style:{marginTop:'20px',padding:'18px',background:'rgba(5,150,105,0.04)',borderRadius:'10px',border:'1px solid rgba(5,150,105,0.15)'}});
+    ndaG.append(el('div',{style:{fontSize:'12px',fontWeight:'700',color:'var(--teal)',marginBottom:'10px',textTransform:'uppercase'}},'🔒 '+t('regNdaShort')));
     var ndaL=el('label',{style:{display:'flex',gap:'12px',cursor:'pointer',fontSize:'13px',color:'var(--dim)',lineHeight:'1.6'}});
     var ndaC=el('input',{type:'checkbox',id:'reg-nda',style:{marginTop:'4px',accentColor:'var(--teal)',width:'18px',height:'18px',flexShrink:'0'}});
     ndaL.append(ndaC,el('span',null,t('regNda')));ndaG.append(ndaL);rCard.append(ndaG);
-    var rSub=el('button',{className:'btn btn-t',style:{width:'100%',padding:'18px',fontSize:'17px',fontWeight:'700',borderRadius:'10px',marginTop:'24px'},onClick:()=>{
+    var rSub=el('button',{className:'btn btn-t',style:{width:'100%',padding:'16px',fontSize:'16px',fontWeight:'700',borderRadius:'10px',marginTop:'24px',boxShadow:'0 4px 14px rgba(5,150,105,0.25)'},onClick:()=>{
       var co=document.getElementById('reg-company').value.trim(),ct=document.getElementById('reg-contact').value.trim(),em=document.getElementById('reg-email').value.trim(),ro=document.getElementById('reg-role').value.trim(),cu=document.getElementById('reg-country').value,se=document.getElementById('reg-sector').value,nd=document.getElementById('reg-nda').checked;
       if(!co||!ct||!em||!ro||!cu||!se||!nd){var e=document.getElementById('reg-err');e.style.display='block';e.textContent=t('regRequired');return;}
       REG_DATA={company:co,contact:ct,email:em,role:ro,country:cu,sector:se,ndaAccepted:true,ts:new Date().toISOString(),lang:LANG,accessCode:ACCESS_CODE||''};localStorage.setItem('fcma_reg',JSON.stringify(REG_DATA));sendRegistration(REG_DATA);render();
-    }},t('regStart'));rCard.append(rSub);
-    rWrap.append(rCard);main.append(rWrap);return;
+    }},t('regStart'));
+    rCard.append(rSub);rWrap.append(rCard);main.append(rWrap);return;
   }
+
   if(AQ_IDX>AQ_HIGHEST)AQ_HIGHEST=AQ_IDX;
+
+  /* ── START SCREEN ── */
   if(!AQ_STARTED){
-    var start=el('div',{style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center',overflowY:'auto',padding:'24px'}});
-    var card=el('div',{className:'quiz-slide',style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'16px',padding:'52px 48px',maxWidth:'680px',width:'100%',textAlign:'center',boxShadow:'0 20px 60px rgba(0,0,0,0.4)'}});
-    card.append(el('div',{style:{width:'72px',height:'72px',borderRadius:'18px',background:'linear-gradient(135deg,var(--teal),var(--tealL))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'32px',fontWeight:'800',color:'var(--wh)',margin:'0 auto 28px'}},'F'));
-    card.append(el('h1',{style:{fontSize:'32px',fontWeight:'800',marginBottom:'10px',letterSpacing:'-0.8px'}},t('fullTitle')));
-    card.append(el('p',{style:{fontSize:'17px',color:'var(--dim)',marginBottom:'40px',lineHeight:'1.6'}},t('fullDesc')));
-    card.append(el('p',{style:{fontSize:'12px',color:'var(--mute)',marginBottom:'18px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'2px'}},t('selectMode')));
-    var modes=el('div',{style:{display:'flex',gap:'16px',justifyContent:'center',marginBottom:'40px',flexWrap:'wrap'}});
-    var cBtn=el('div',{style:{flex:'1',minWidth:'250px',padding:'32px 24px',borderRadius:'12px',border:'2px solid '+(AQ_MODE==='core'?'var(--teal)':'var(--brd)'),background:AQ_MODE==='core'?'var(--tealD)':'var(--card)',cursor:'pointer',transition:'all .25s ease',textAlign:'center'},onClick:()=>{AQ_MODE='core';render();}});
-    cBtn.append(el('div',{style:{fontSize:'48px',fontWeight:'800',fontFamily:'var(--fm)',color:'var(--teal)',marginBottom:'10px'}},String(CORE.size)),el('div',{style:{fontSize:'19px',fontWeight:'700',marginBottom:'8px'}},t('screeningCore')),el('div',{style:{fontSize:'14px',color:'var(--mute)',lineHeight:'1.6'}},t('screeningDesc')));modes.append(cBtn);
-    var aBtn=el('div',{style:{flex:'1',minWidth:'250px',padding:'32px 24px',borderRadius:'12px',border:'2px solid '+(AQ_MODE==='all'?'#3b82f6':'var(--brd)'),background:AQ_MODE==='all'?'rgba(59,130,246,.1)':'var(--card)',cursor:'pointer',transition:'all .25s ease',textAlign:'center'},onClick:()=>{AQ_MODE='all';render();}});
-    aBtn.append(el('div',{style:{fontSize:'48px',fontWeight:'800',fontFamily:'var(--fm)',color:'#3b82f6',marginBottom:'10px'}},String(allQ.length)),el('div',{style:{fontSize:'19px',fontWeight:'700',marginBottom:'8px'}},t('deepDive')),el('div',{style:{fontSize:'14px',color:'var(--mute)',lineHeight:'1.6'}},t('deepDiveDesc')));modes.append(aBtn);
+    var start=el('div',{style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center',overflowY:'auto',padding:'24px',background:'var(--bg)'}});
+    var card=el('div',{className:'quiz-slide',style:{background:'var(--wh)',border:'1px solid var(--brd)',borderRadius:'24px',padding:'52px 48px',maxWidth:'680px',width:'100%',textAlign:'center',boxShadow:'0 20px 60px rgba(0,0,0,0.08)'}});
+    card.append(el('div',{style:{width:'72px',height:'72px',borderRadius:'20px',background:'linear-gradient(135deg,var(--teal),var(--tealL))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'32px',fontWeight:'800',color:'var(--wh)',margin:'0 auto 28px',boxShadow:'0 8px 24px rgba(5,150,105,0.25)'}},'F'));
+    card.append(el('h1',{style:{fontSize:'30px',fontWeight:'800',marginBottom:'10px',letterSpacing:'-0.8px',color:'var(--text)'}},t('fullTitle')));
+    card.append(el('p',{style:{fontSize:'16px',color:'var(--dim)',marginBottom:'36px',lineHeight:'1.6'}},t('fullDesc')));
+    card.append(el('p',{style:{fontSize:'11px',color:'var(--mute)',marginBottom:'16px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'2px'}},t('selectMode')));
+    var modes=el('div',{style:{display:'flex',gap:'14px',justifyContent:'center',marginBottom:'36px',flexWrap:'wrap'}});
+    var cBtn=el('div',{style:{flex:'1',minWidth:'240px',padding:'28px 22px',borderRadius:'14px',border:'2px solid '+(AQ_MODE==='core'?'var(--teal)':'var(--brd)'),background:AQ_MODE==='core'?'rgba(5,150,105,0.05)':'var(--wh)',cursor:'pointer',transition:'all .2s',textAlign:'center',boxShadow:AQ_MODE==='core'?'0 4px 16px rgba(5,150,105,0.12)':'var(--sh1)'},onClick:()=>{AQ_MODE='core';render();}});
+    cBtn.append(el('div',{style:{fontSize:'44px',fontWeight:'800',fontFamily:'var(--fm)',color:'var(--teal)',marginBottom:'10px'}},String(CORE.size)),el('div',{style:{fontSize:'17px',fontWeight:'700',marginBottom:'8px',color:'var(--text)'}},t('screeningCore')),el('div',{style:{fontSize:'13px',color:'var(--dim)',lineHeight:'1.6'}},t('screeningDesc')));modes.append(cBtn);
+    var aBtn=el('div',{style:{flex:'1',minWidth:'240px',padding:'28px 22px',borderRadius:'14px',border:'2px solid '+(AQ_MODE==='all'?'#2563eb':'var(--brd)'),background:AQ_MODE==='all'?'rgba(37,99,235,0.05)':'var(--wh)',cursor:'pointer',transition:'all .2s',textAlign:'center',boxShadow:AQ_MODE==='all'?'0 4px 16px rgba(37,99,235,0.1)':'var(--sh1)'},onClick:()=>{AQ_MODE='all';render();}});
+    aBtn.append(el('div',{style:{fontSize:'44px',fontWeight:'800',fontFamily:'var(--fm)',color:'#2563eb',marginBottom:'10px'}},String(allQ.length)),el('div',{style:{fontSize:'17px',fontWeight:'700',marginBottom:'8px',color:'var(--text)'}},t('deepDive')),el('div',{style:{fontSize:'13px',color:'var(--dim)',lineHeight:'1.6'}},t('deepDiveDesc')));modes.append(aBtn);
     card.append(modes);
-    card.append(el('button',{className:'btn btn-t',style:{padding:'18px 56px',fontSize:'18px',fontWeight:'700',borderRadius:'10px'},onClick:()=>{AQ_STARTED=true;AQ_IDX=0;AQ_HIGHEST=0;render();}},t('startEval')));
-    if(answered>0){card.append(el('div',{style:{marginTop:'28px',paddingTop:'20px',borderTop:'1px solid var(--brd)'}},el('p',{style:{fontSize:'14px',color:'var(--mute)',marginBottom:'12px'}},tf('savedAnswers',{n:Object.keys(ANSWERS).length})),el('button',{className:'btn',style:{marginRight:'10px',padding:'12px 24px',fontSize:'14px'},onClick:()=>{AQ_STARTED=true;render();}},t('continueWhere')),el('button',{className:'btn btn-r',style:{padding:'12px 24px',fontSize:'14px'},onClick:()=>{if(confirm(t('deleteAll'))){ANSWERS={};AQ_IDX=0;AQ_HIGHEST=0;save();render();}}},t('restart'))));}
+    card.append(el('button',{className:'btn btn-t',style:{padding:'16px 52px',fontSize:'17px',fontWeight:'700',borderRadius:'10px',boxShadow:'0 4px 14px rgba(5,150,105,0.25)'},onClick:()=>{AQ_STARTED=true;AQ_IDX=0;AQ_HIGHEST=0;render();}},t('startEval')));
+    if(answered>0){card.append(el('div',{style:{marginTop:'24px',paddingTop:'18px',borderTop:'1px solid var(--brd)'}},el('p',{style:{fontSize:'13px',color:'var(--mute)',marginBottom:'12px'}},tf('savedAnswers',{n:Object.keys(ANSWERS).length})),el('button',{className:'btn',style:{marginRight:'10px',padding:'10px 22px',fontSize:'13px'},onClick:()=>{AQ_STARTED=true;render();}},t('continueWhere')),el('button',{className:'btn btn-r',style:{padding:'10px 22px',fontSize:'13px'},onClick:()=>{if(confirm(t('deleteAll'))){ANSWERS={};AQ_IDX=0;AQ_HIGHEST=0;save();render();}}},t('restart'))));}
     start.append(card);main.append(start);return;
   }
-  // PILLAR SELECTOR
+
+  /* ── PILLAR SELECTOR ── */
   if(AQ_PILAR===null){
-    var psW=el('div',{className:'quiz-slide',style:{flex:'1',overflowY:'auto',padding:'32px 40px',maxWidth:'900px',margin:'0 auto'}});
-    psW.append(el('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'8px'}},
-      el('div',null,el('h2',{style:{fontSize:'28px',fontWeight:'800',letterSpacing:'-0.5px'}},t('selectPilar')),el('p',{style:{fontSize:'14px',color:'var(--dim)',marginTop:'6px',lineHeight:'1.6'}},t('selectPilarDesc'))),
-      el('button',{className:'btn btn-t',style:{padding:'10px 20px',fontSize:'13px'},onClick:function(){AQ_VIEW='results';render();}},t('results'))
-    ));
+    var psW=el('div',{className:'quiz-slide',style:{flex:'1',overflowY:'auto',padding:'32px 40px',maxWidth:'900px',margin:'0 auto',width:'100%'}});
+    var psHdr=el('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'8px'}});
+    psHdr.append(el('div',null,el('h2',{style:{fontSize:'26px',fontWeight:'800',letterSpacing:'-0.5px',color:'var(--text)'}},t('selectPilar')),el('p',{style:{fontSize:'14px',color:'var(--dim)',marginTop:'6px',lineHeight:'1.6'}},t('selectPilarDesc'))),el('button',{className:'btn btn-t',style:{padding:'10px 20px',fontSize:'13px'},onClick:function(){AQ_VIEW='results';render();}},t('results')));
+    psW.append(psHdr);
     var gAns=Object.keys(ANSWERS).length,gTot=questions.length,gPct=gTot>0?Math.round(gAns/gTot*100):0;
-    psW.append(el('div',{style:{display:'flex',alignItems:'center',gap:'16px',padding:'16px 20px',background:'var(--card)',borderRadius:'12px',border:'1px solid var(--brd)',marginBottom:'28px'}},
-      el('div',{style:{flex:'1'}},
-        el('div',{style:{display:'flex',justifyContent:'space-between',fontSize:'12px',color:'var(--mute)',marginBottom:'6px'}},el('span',null,gAns+'/'+gTot+' '+t('answered')),el('span',null,gPct+'%')),
-        el('div',{style:{width:'100%',height:'6px',background:'var(--bg)',borderRadius:'3px',overflow:'hidden'}},el('div',{style:{width:gPct+'%',height:'100%',background:'linear-gradient(90deg,var(--teal),var(--tealL))',borderRadius:'3px'}}))
-      ),
+    psW.append(el('div',{style:{display:'flex',alignItems:'center',gap:'16px',padding:'16px 20px',background:'var(--wh)',borderRadius:'12px',border:'1px solid var(--brd)',marginBottom:'28px',boxShadow:'var(--sh1)'}},
+      el('div',{style:{flex:'1'}},el('div',{style:{display:'flex',justifyContent:'space-between',fontSize:'12px',color:'var(--mute)',marginBottom:'6px'}},el('span',null,gAns+'/'+gTot+' '+t('answered')),el('span',{style:{fontWeight:'700',color:gPct===100?'var(--teal)':'var(--dim)'}},gPct+'%')),el('div',{style:{width:'100%',height:'8px',background:'var(--brd)',borderRadius:'4px',overflow:'hidden'}},el('div',{style:{width:gPct+'%',height:'100%',background:'linear-gradient(90deg,var(--teal),var(--tealL))',borderRadius:'4px',transition:'width .4s'}}))),
       gAns>0?el('button',{className:'btn btn-r',style:{fontSize:'11px',padding:'6px 14px'},onClick:function(){if(confirm(t('deleteAll'))){ANSWERS={};save();render();}}},'🗑 '+t('restart')):el('span')
     ));
     var psG=el('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:'14px'}});
@@ -290,62 +397,82 @@ function renderAssess(main){
       var pQs=questions.filter(function(q){return q.pilar.id===p.id;});
       var pA=pQs.filter(function(q){return !!ANSWERS[q.comp.id];}).length;
       var pT=pQs.length,pP=pT>0?Math.round(pA/pT*100):0,isDone=pT>0&&pA===pT;
-      var pC=el('div',{style:{background:'var(--card)',border:'2px solid '+(isDone?pc+'66':'var(--brd)'),borderRadius:'14px',padding:'20px',cursor:'pointer',transition:'all .2s',position:'relative',overflow:'hidden'}});
-      pC.onmouseenter=function(){pC.style.borderColor=pc;pC.style.transform='translateY(-3px)';pC.style.boxShadow='0 12px 32px rgba(0,0,0,0.25)';};
-      pC.onmouseout=function(){pC.style.borderColor=isDone?pc+'66':'var(--brd)';pC.style.transform='';pC.style.boxShadow='';};
+      var pC=el('div',{className:'ps-card',style:{borderColor:isDone?pc+'55':'var(--brd)'}});
+      pC.onmouseenter=function(){pC.style.borderColor=pc;pC.style.boxShadow='0 8px 24px rgba(0,0,0,0.1)';};
+      pC.onmouseleave=function(){pC.style.borderColor=isDone?pc+'55':'var(--brd)';pC.style.boxShadow='var(--sh1)';};
       pC.onclick=function(){AQ_PILAR=pi;AQ_IDX=0;AQ_HIGHEST=0;render();};
-      pC.append(el('div',{style:{position:'absolute',top:'0',left:'0',width:'100%',height:'3px',background:'linear-gradient(90deg,'+pc+','+pc+'44)'}}));
+      pC.append(el('div',{style:{position:'absolute',top:'0',left:'0',width:'100%',height:'3px',background:pc,borderRadius:'14px 14px 0 0'}}));
       var pH=el('div',{style:{display:'flex',alignItems:'center',gap:'12px',marginBottom:'14px'}});
-      pH.append(el('div',{style:{width:'40px',height:'40px',borderRadius:'10px',background:pc+'20',border:'2px solid '+pc+'44',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'16px',fontWeight:'800',fontFamily:'var(--fm)',color:pc}},p.id.replace('P','')));
+      pH.append(el('div',{style:{width:'40px',height:'40px',borderRadius:'10px',background:pc+'12',border:'2px solid '+pc+'30',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'16px',fontWeight:'800',fontFamily:'var(--fm)',color:pc}},p.id.replace('P','')));
       pH.append(el('div',{style:{flex:'1',minWidth:'0'}},el('div',{style:{fontSize:'14px',fontWeight:'700',color:'var(--text)',lineHeight:'1.3',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},p.name),el('div',{style:{fontSize:'11px',color:'var(--mute)',marginTop:'2px'}},tf('pilarOf',{n:pA,t:pT})+' '+t('answered'))));
-      if(isDone)pH.append(el('div',{style:{fontSize:'11px',fontWeight:'700',padding:'3px 10px',borderRadius:'8px',background:pc+'20',color:pc}},'✓ '+t('pilarComplete')));
+      if(isDone)pH.append(el('div',{style:{fontSize:'11px',fontWeight:'700',padding:'3px 10px',borderRadius:'8px',background:pc+'12',color:pc,border:'1px solid '+pc+'25'}},'✓ '+t('pilarComplete')));
       pC.append(pH);
-      pC.append(el('div',{style:{width:'100%',height:'5px',background:'var(--bg)',borderRadius:'3px',overflow:'hidden'}},el('div',{style:{width:pP+'%',height:'100%',background:pc,borderRadius:'3px'}})));
+      pC.append(el('div',{style:{width:'100%',height:'5px',background:'var(--brd)',borderRadius:'3px',overflow:'hidden'}},el('div',{style:{width:pP+'%',height:'100%',background:pc,borderRadius:'3px',transition:'width .4s'}})));
       psG.append(pC);
     });
     psW.append(psG);
     psW.append(el('div',{style:{textAlign:'center',marginTop:'32px',paddingTop:'20px',borderTop:'1px solid var(--brd)',fontSize:'10px',color:'var(--mute)'}},tf('copyright',{y:new Date().getFullYear()})));
     main.append(psW);return;
   }
-  // QUIZ — filter by selected pilar
+
+  /* ── QUIZ ── */
   var pilarQuestions=questions.filter(function(q){return q.pilarIndex===AQ_PILAR;});
   var pilarTotalQ=pilarQuestions.length;
   if(AQ_IDX<0)AQ_IDX=0;
   if(AQ_IDX>=pilarTotalQ){AQ_PILAR=null;render();return;}
   var q=pilarQuestions[AQ_IDX],c=q.comp,curAns=ANSWERS[c.id]||null;
   var pClr=PILAR_CLR[q.pilarIndex%PILAR_CLR.length];
-  var pilarQs=pilarQuestions;
-  var pilarAnswered=pilarQs.filter(x=>!!ANSWERS[x.comp.id]).length;
+  var pilarAnswered=pilarQuestions.filter(x=>!!ANSWERS[x.comp.id]).length;
   var canGoBack=AQ_IDX>Math.max(0,AQ_HIGHEST-2);
-  var wrap=el('div',{className:'quiz-slide',style:{flex:'1',display:'flex',flexDirection:'column',overflow:'hidden',position:'relative'}});
-  wrap.append(el('div',{style:{height:'3px',background:'linear-gradient(90deg,'+pClr+','+pClr+'88)',flexShrink:'0'}}));
-  var top=el('div',{style:{padding:'18px 32px 16px',flexShrink:'0',borderBottom:'1px solid var(--brd)',background:'var(--card)'}});
+  var labels=getLBL();
+
+  var wrap=el('div',{className:'quiz-slide',style:{flex:'1',display:'flex',flexDirection:'column',overflow:'hidden',position:'relative',background:'var(--bg)'}});
+  wrap.append(el('div',{style:{height:'4px',background:'linear-gradient(90deg,'+pClr+','+pClr+'88)',flexShrink:'0'}}));
+
+  var top=el('div',{className:'quiz-top'});
   var pilarRow=el('div',{style:{display:'flex',alignItems:'center',gap:'12px',marginBottom:'14px'}});
-  pilarRow.append(el('div',{style:{width:'36px',height:'36px',borderRadius:'10px',background:pClr+'22',border:'2px solid '+pClr+'44',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'14px',fontWeight:'800',fontFamily:'var(--fm)',color:pClr}},q.pilar.id.replace('P','')));
-  pilarRow.append(el('div',{style:{flex:'1'}},el('div',{style:{fontSize:'15px',fontWeight:'700',color:pClr}},q.pilar.name),el('div',{style:{fontSize:'12px',color:'var(--mute)',marginTop:'2px'}},q.sub.id+' — '+q.sub.name)));
-  var ringPct=pilarQs.length>0?pilarAnswered/pilarQs.length:0,ringR=16,ringC=2*Math.PI*ringR,ringOff=ringC*(1-ringPct);
-  var rSvg='<svg width="42" height="42" viewBox="0 0 42 42"><circle cx="21" cy="21" r="'+ringR+'" fill="none" stroke="'+pClr+'22" stroke-width="3"/><circle cx="21" cy="21" r="'+ringR+'" fill="none" stroke="'+pClr+'" stroke-width="3" stroke-dasharray="'+ringC+'" stroke-dashoffset="'+ringOff+'" stroke-linecap="round" transform="rotate(-90 21 21)"/><text x="21" y="25" text-anchor="middle" font-size="11" font-weight="800" fill="'+pClr+'">'+pilarAnswered+'/'+pilarQs.length+'</text></svg>';
+  pilarRow.append(el('div',{style:{width:'36px',height:'36px',borderRadius:'10px',background:pClr+'12',border:'2px solid '+pClr+'30',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'14px',fontWeight:'800',fontFamily:'var(--fm)',color:pClr}},q.pilar.id.replace('P','')));
+  pilarRow.append(el('div',{style:{flex:'1'}},el('div',{style:{fontSize:'14px',fontWeight:'700',color:pClr}},q.pilar.name),el('div',{style:{fontSize:'12px',color:'var(--mute)',marginTop:'2px'}},q.sub.id+' — '+q.sub.name)));
+  var ringPct=pilarQuestions.length>0?pilarAnswered/pilarQuestions.length:0,ringR=16,ringC=2*Math.PI*ringR,ringOff=ringC*(1-ringPct);
+  var rSvg='<svg width="42" height="42" viewBox="0 0 42 42"><circle cx="21" cy="21" r="'+ringR+'" fill="none" stroke="'+pClr+'22" stroke-width="3"/><circle cx="21" cy="21" r="'+ringR+'" fill="none" stroke="'+pClr+'" stroke-width="3" stroke-dasharray="'+ringC+'" stroke-dashoffset="'+ringOff+'" stroke-linecap="round" transform="rotate(-90 21 21)"/><text x="21" y="25" text-anchor="middle" font-size="10" font-weight="800" fill="'+pClr+'">'+pilarAnswered+'/'+pilarQuestions.length+'</text></svg>';
   pilarRow.append(el('div',{innerHTML:rSvg}));
-  pilarRow.append(el('button',{className:'btn',style:{padding:'8px 16px',fontSize:'13px',marginRight:'6px'},onClick:()=>{AQ_PILAR=null;render();}},t('backToPilars')));
-  pilarRow.append(el('button',{className:'btn',style:{padding:'8px 16px',fontSize:'13px'},onClick:()=>{AQ_VIEW='results';render();}},t('results')));
+  pilarRow.append(el('button',{className:'btn',style:{padding:'8px 16px',fontSize:'12px'},onClick:()=>{AQ_PILAR=null;render();}},t('backToPilars')));
+  pilarRow.append(el('button',{className:'btn btn-t',style:{padding:'8px 16px',fontSize:'12px'},onClick:()=>{AQ_VIEW='results';render();}},t('results')));
   top.append(pilarRow);
-  var gPct=(AQ_IDX+1)/pilarTotalQ*100,pbar=el('div',{style:{width:'100%',height:'6px',background:'var(--bg)',borderRadius:'3px',overflow:'hidden'}}),pfill=el('div',{style:{width:gPct+'%',height:'100%',background:'linear-gradient(90deg,'+pClr+',var(--tealL))',borderRadius:'3px',transition:'width .4s ease'}});pbar.append(pfill);top.append(pbar);
-  var counter=el('div',{style:{display:'flex',justifyContent:'space-between',marginTop:'8px',fontSize:'12px',color:'var(--mute)'}});counter.append(el('span',null,t('question')+' '+(AQ_IDX+1)+' '+t('of')+' '+pilarTotalQ+(AQ_MODE==='core'?' ('+t('core')+')':'')),el('span',null,pilarAnswered+'/'+pilarTotalQ+' '+t('answered')));top.append(counter);wrap.append(top);
-  var qa=el('div',{style:{flex:'1',overflowY:'auto',padding:'32px 40px'}});
-  var qHero=el('div',{style:{marginBottom:'28px'}}),qMeta=el('div',{style:{display:'flex',alignItems:'center',gap:'10px',marginBottom:'12px'}});
-  qMeta.append(el('span',{style:{fontSize:'14px',fontFamily:'var(--fm)',color:pClr,fontWeight:'700',background:pClr+'18',padding:'4px 14px',borderRadius:'8px'}},c.id));
-  if(q.isCore)qMeta.append(el('span',{style:{fontSize:'11px',fontWeight:'700',padding:'4px 14px',borderRadius:'8px',background:'var(--tealD)',color:'var(--teal)'}},'🔷 CORE'));
-  qHero.append(qMeta,el('h2',{style:{fontSize:'28px',fontWeight:'800',lineHeight:'1.3',letterSpacing:'-0.5px'}},c.name));qa.append(qHero);
-  var timerBar=el('div',{id:'auto-timer',style:{height:'3px',borderRadius:'2px',marginBottom:'16px',overflow:'hidden',opacity:'0'}});timerBar.append(el('div',{className:'auto-timer',id:'auto-timer-fill',style:{width:'0%'}}));qa.append(timerBar);
-  c.L.forEach((lv,li)=>{
-    var isSel=curAns===li+1;
-    var card2=el('div',{className:'lvl-card'+(isSel?' selected':''),style:{display:'flex',gap:'16px',alignItems:'flex-start',padding:'16px 20px',borderRadius:'12px',border:'2px solid '+(isSel?CLR[li]:'var(--brd)'),background:isSel?CLR[li]+'12':'var(--card)',marginBottom:'10px',position:'relative'}});
-    var nc=el('div',{style:{minWidth:'42px',height:'42px',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'18px',fontWeight:'800',color:isSel?'var(--wh)':CLR[li],background:isSel?CLR[li]:CLR[li]+'20',flexShrink:'0'}},String(li+1));card2.append(nc);
-    var td=el('div',{style:{flex:'1',minWidth:'0'}});td.append(el('div',{style:{fontSize:'14px',fontWeight:'700',color:CLR[li]}},getLBL()[li]));
-    var desc=el('div',{className:'lvl-expand'+(isSel?' open':''),style:{marginTop:'8px'}});desc.append(el('div',{style:{fontSize:'15px',lineHeight:'1.7',color:isSel?'var(--text)':'var(--dim)'}},lv||t('noDescriptor')));td.append(desc);
-    if(isSel)card2.append(el('div',{className:'check-anim',style:{fontSize:'22px',color:CLR[li],flexShrink:'0',alignSelf:'center'}},'✓'));
+  var gPct2=(AQ_IDX+1)/pilarTotalQ*100;
+  top.append(el('div',{style:{width:'100%',height:'5px',background:'var(--brd)',borderRadius:'3px',overflow:'hidden'}},el('div',{style:{width:gPct2+'%',height:'100%',background:'linear-gradient(90deg,'+pClr+',var(--tealL))',borderRadius:'3px',transition:'width .4s ease'}})));
+  top.append(el('div',{style:{display:'flex',justifyContent:'space-between',marginTop:'7px',fontSize:'11px',color:'var(--mute)'}},el('span',null,t('question')+' '+(AQ_IDX+1)+' '+t('of')+' '+pilarTotalQ+(AQ_MODE==='core'?' ('+t('core')+')':'')),el('span',null,pilarAnswered+'/'+pilarTotalQ+' '+t('answered'))));
+  wrap.append(top);
+
+  var qa=el('div',{style:{flex:'1',overflowY:'auto',padding:'28px 40px',background:'var(--bg)'}});
+  var qMeta=el('div',{style:{display:'flex',alignItems:'center',gap:'10px',marginBottom:'12px'}});
+  qMeta.append(el('span',{style:{fontSize:'13px',fontFamily:'var(--fm)',color:pClr,fontWeight:'700',background:pClr+'10',border:'1px solid '+pClr+'25',padding:'4px 12px',borderRadius:'8px'}},c.id));
+  if(q.isCore)qMeta.append(el('span',{style:{fontSize:'11px',fontWeight:'700',padding:'4px 12px',borderRadius:'8px',background:'rgba(5,150,105,0.08)',color:'var(--teal)',border:'1px solid rgba(5,150,105,0.15)'}},'🔷 CORE'));
+  qa.append(el('div',{style:{marginBottom:'24px'}},qMeta,el('h2',{style:{fontSize:'26px',fontWeight:'800',lineHeight:'1.3',letterSpacing:'-0.5px',color:'var(--text)'}},c.name)));
+
+  var timerBar=el('div',{id:'auto-timer',style:{height:'3px',borderRadius:'2px',marginBottom:'14px',overflow:'hidden',opacity:'0'}});
+  timerBar.append(el('div',{className:'auto-timer',id:'auto-timer-fill',style:{width:'0%'}}));
+  qa.append(timerBar);
+
+  /* Level cards — LIGHT theme */
+  [0,1,2,3,4].forEach(li=>{
+    var lv=c.L[li]||'';var isSel=curAns===li+1;
+    var card2=el('div',{className:'lvl-card'+(isSel?' selected':''),style:{
+      display:'flex',gap:'16px',alignItems:'flex-start',padding:'16px 20px',borderRadius:'12px',
+      border:'2px solid '+(isSel?CLR[li]:CLR_BRD[li]),
+      background:isSel?CLR_BG[li]:'var(--wh)',marginBottom:'10px',
+    }});
+    var nc=el('div',{style:{minWidth:'40px',height:'40px',borderRadius:'50%',flexShrink:'0',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'17px',fontWeight:'800',color:isSel?'var(--wh)':CLR[li],background:isSel?CLR[li]:CLR_BG[li],border:'2px solid '+(isSel?CLR[li]:CLR_BRD[li])}},String(li+1));
+    card2.append(nc);
+    var td=el('div',{style:{flex:'1',minWidth:'0'}});
+    td.append(el('div',{style:{fontSize:'13px',fontWeight:'700',color:CLR[li],marginBottom:'4px'}},labels[li]));
+    var desc=el('div',{className:'lvl-expand'+(isSel?' open':''),style:{marginTop:'4px'}});
+    desc.append(el('div',{style:{fontSize:'14px',lineHeight:'1.7',color:isSel?'var(--text)':'var(--dim)'}},lv||t('noDescriptor')));
+    td.append(desc);
+    if(isSel)card2.append(el('div',{className:'check-anim',style:{fontSize:'20px',color:CLR[li],flexShrink:'0',alignSelf:'center'}},'✓'));
     card2.append(td);
-    card2.onmouseenter=()=>desc.classList.add('open');card2.onmouseleave=()=>{if(!isSel)desc.classList.remove('open');};
+    card2.onmouseenter=()=>{desc.classList.add('open');if(!isSel){card2.style.boxShadow='var(--sh2)';card2.style.borderColor=CLR[li];}};
+    card2.onmouseleave=()=>{if(!isSel){desc.classList.remove('open');card2.style.boxShadow='';card2.style.borderColor=CLR_BRD[li];}};
     card2.onclick=()=>{
       if(AQ_ADVANCE_TIMER)clearTimeout(AQ_ADVANCE_TIMER);ANSWERS[c.id]=li+1;save();render();
       var te=document.getElementById('auto-timer'),fe=document.getElementById('auto-timer-fill');
@@ -354,28 +481,25 @@ function renderAssess(main){
     };
     qa.append(card2);
   });
-  if(curAns){var undo=el('div',{style:{marginTop:'12px',textAlign:'center',fontSize:'13px',color:'var(--mute)',opacity:'0.7'}},el('span',null,'✓ Level '+curAns+' selected — '),el('button',{style:{background:'none',border:'none',color:'var(--tealL)',cursor:'pointer',fontFamily:'var(--f)',fontSize:'13px',textDecoration:'underline'},onClick:()=>{if(AQ_ADVANCE_TIMER){clearTimeout(AQ_ADVANCE_TIMER);AQ_ADVANCE_TIMER=null;}delete ANSWERS[c.id];save();render();}},t('undo')));qa.append(undo);}
+
+  if(curAns){qa.append(el('div',{style:{marginTop:'10px',textAlign:'center',fontSize:'13px',color:'var(--mute)'}},el('span',null,'✓ Level '+curAns+' selected — '),el('button',{style:{background:'none',border:'none',color:'var(--teal)',cursor:'pointer',fontFamily:'var(--f)',fontSize:'13px',textDecoration:'underline'},onClick:()=>{if(AQ_ADVANCE_TIMER){clearTimeout(AQ_ADVANCE_TIMER);AQ_ADVANCE_TIMER=null;}delete ANSWERS[c.id];save();render();}},t('undo'))));}
   wrap.append(qa);
-  var nav=el('div',{style:{padding:'14px 32px',borderTop:'1px solid var(--brd)',display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:'0',background:'var(--card)'}});
-  var pb=el('button',{className:'btn',style:{padding:'10px 24px',fontSize:'14px'},onClick:()=>{if(AQ_ADVANCE_TIMER){clearTimeout(AQ_ADVANCE_TIMER);AQ_ADVANCE_TIMER=null;}AQ_IDX--;render();}},t('prev'));
-  if(AQ_IDX===0||!canGoBack){pb.style.opacity='0.25';pb.style.pointerEvents='none';}
-  var jd=el('div',{style:{display:'flex',gap:'6px',alignItems:'center'}});jd.append(el('span',{style:{fontSize:'13px',color:'var(--mute)'}},t('goTo')));
-  var ji=el('input',{className:'inp',type:'number',min:'1',max:String(pilarTotalQ),value:String(AQ_IDX+1),style:{width:'68px',textAlign:'center',fontSize:'14px',padding:'8px'}});
+
+  var nav=el('div',{className:'quiz-nav'});
+  var pb=el('button',{className:'btn',style:{padding:'10px 22px',fontSize:'13px'},onClick:()=>{if(AQ_ADVANCE_TIMER){clearTimeout(AQ_ADVANCE_TIMER);AQ_ADVANCE_TIMER=null;}AQ_IDX--;render();}},t('prev'));
+  if(AQ_IDX===0||!canGoBack){pb.style.opacity='0.3';pb.style.pointerEvents='none';}
+  var jd=el('div',{style:{display:'flex',gap:'6px',alignItems:'center'}});
+  jd.append(el('span',{style:{fontSize:'12px',color:'var(--mute)'}},t('goTo')));
+  var ji=el('input',{className:'inp',type:'number',min:'1',max:String(pilarTotalQ),value:String(AQ_IDX+1),style:{width:'64px',textAlign:'center',fontSize:'13px',padding:'7px'}});
   ji.onchange=()=>{var v=parseInt(ji.value),m=Math.max(1,AQ_HIGHEST-1);if(v>=m&&v<=pilarTotalQ){AQ_IDX=v-1;render();}};jd.append(ji);
-  var nb=AQ_IDX>=pilarTotalQ-1?el('button',{className:'btn btn-t',style:{padding:'10px 24px',fontSize:'14px'},onClick:()=>{if(AQ_ADVANCE_TIMER){clearTimeout(AQ_ADVANCE_TIMER);AQ_ADVANCE_TIMER=null;}AQ_PILAR=null;render();},},t('backToPilars')):el('button',{className:'btn btn-t',style:{padding:'10px 24px',fontSize:'14px'},onClick:()=>{if(AQ_ADVANCE_TIMER){clearTimeout(AQ_ADVANCE_TIMER);AQ_ADVANCE_TIMER=null;}AQ_IDX++;render();},},t('next'));
-  var sk=el('button',{className:'btn',style:{fontSize:'12px',color:'var(--mute)',padding:'10px 14px'},onClick:()=>{if(AQ_ADVANCE_TIMER){clearTimeout(AQ_ADVANCE_TIMER);AQ_ADVANCE_TIMER=null;}AQ_IDX++;render();},},t('skip'));
-  nav.append(pb,jd,el('div',{style:{display:'flex',gap:'8px'}},sk,nb));wrap.append(nav);main.append(wrap);
+  var nb=AQ_IDX>=pilarTotalQ-1
+    ?el('button',{className:'btn btn-t',style:{padding:'10px 22px',fontSize:'13px'},onClick:()=>{if(AQ_ADVANCE_TIMER){clearTimeout(AQ_ADVANCE_TIMER);AQ_ADVANCE_TIMER=null;}AQ_PILAR=null;render();}},t('backToPilars'))
+    :el('button',{className:'btn btn-t',style:{padding:'10px 22px',fontSize:'13px'},onClick:()=>{if(AQ_ADVANCE_TIMER){clearTimeout(AQ_ADVANCE_TIMER);AQ_ADVANCE_TIMER=null;}AQ_IDX++;render();}},t('next'));
+  var sk=el('button',{className:'btn',style:{fontSize:'12px',color:'var(--mute)',padding:'10px 12px'},onClick:()=>{if(AQ_ADVANCE_TIMER){clearTimeout(AQ_ADVANCE_TIMER);AQ_ADVANCE_TIMER=null;}AQ_IDX++;render();}},t('skip'));
+  nav.append(pb,jd,el('div',{style:{display:'flex',gap:'8px'}},sk,nb));
+  wrap.append(nav);main.append(wrap);
 }
-// ═══════════════════════════════════════════════════════════════════
-// PASO 1: Pegar esta línea junto a las otras variables globales
-// (busca "let AQ_VIEW" y agrega justo abajo o arriba)
-// ═══════════════════════════════════════════════════════════════════
-// let DASHBOARD_VIEW = 'overview';
 
-
-// ═══════════════════════════════════════════════════════════════════
-// PASO 2: Reemplazar toda la función renderResults(main) con esto
-// ═══════════════════════════════════════════════════════════════════
 
 function renderResults(main) {
   var scores = getScores();
@@ -1313,180 +1437,91 @@ function renderResults(main) {
   main.innerHTML = '';
   main.append(root);
 }
-function renderEditor(main) {
-  const left = el('div',{className:'panel panel-l'});
-  left.append(el('div',{className:'panel-hd'},t('pilars')));
-  DATA.forEach((p,i) => {
-    const item = el('div',{className:`pitem${ACTIVE_P===i?' on':''}`,onClick:()=>{ACTIVE_P=i;ACTIVE_S=null;render()}},
-      el('span',{className:'pid'},p.id),
-      el('span',{className:'pn'},p.name),
-      el('button',{className:'btn btn-r btn-sm',onClick:e=>{e.stopPropagation();if(confirm(tf('deletePilar',{id:p.id}))){DATA.splice(i,1);ACTIVE_P=Math.max(0,i-1);ACTIVE_S=null;save();render()}}},'✕')
-    );
-    left.append(item);
-  });
-  left.append(el('button',{className:'btn btn-t',style:{marginTop:'8px'},onClick:()=>{
-    DATA.push({id:'P'+DATA.length,name:t('newPilar'),desc:'',subs:[]});
-    ACTIVE_P=DATA.length-1;ACTIVE_S=null;save();render();
-  }},'+ Pilar'));
-  if(!DATA.length) left.append(el('div',{className:'empty-state'},el('div',{style:{fontSize:'13px',color:'var(--dim)',marginBottom:'8px'}},t('noData')),el('div',{style:{fontSize:'11px',color:'var(--mute)'}},t('import'))));
+
+
+function renderEditor(main){
+  const left=el('div',{className:'panel panel-l'});left.append(el('div',{className:'panel-hd'},t('pilars')));
+  DATA.forEach((p,i)=>{const item=el('div',{className:`pitem${ACTIVE_P===i?' on':''}`,onClick:()=>{ACTIVE_P=i;ACTIVE_S=null;render()}},el('span',{className:'pid'},p.id),el('span',{className:'pn'},p.name),el('span',{className:'badge badge-t'},String(p.subs.length)),el('button',{className:'btn btn-r btn-sm',onClick:e=>{e.stopPropagation();if(confirm(tf('deletePilar',{id:p.id}))){DATA.splice(i,1);ACTIVE_P=Math.max(0,i-1);ACTIVE_S=null;save();render()}}},'✕'));left.append(item);});
+  left.append(el('button',{className:'btn btn-t',style:{marginTop:'8px'},onClick:()=>{DATA.push({id:'P'+DATA.length,name:t('newPilar'),desc:'',subs:[]});ACTIVE_P=DATA.length-1;ACTIVE_S=null;save();render();}},'+ Pilar'));
+  if(!DATA.length)left.append(el('div',{className:'empty-state'},t('noData')));
   main.append(left);
-  const curP = DATA[ACTIVE_P];
-  if (!curP) return;
-  const mid = el('div',{className:'panel panel-m'});
-  const pidInp = el('input',{className:'inp',value:curP.id,style:{width:'60px',fontFamily:'var(--fm)',fontSize:'12px',marginBottom:'4px'}});
-  pidInp.addEventListener('input',()=>{curP.id=pidInp.value;save()});
-  const pnInp = el('input',{className:'inp',value:curP.name,style:{fontSize:'13px',fontWeight:'600',marginBottom:'4px'}});
-  pnInp.addEventListener('input',()=>{curP.name=pnInp.value;save()});
-  const pdInp = el('textarea',{className:'inp',rows:'2',value:curP.desc||'',style:{fontSize:'11px',marginBottom:'10px'},placeholder:t('description')});
-  pdInp.addEventListener('input',()=>{curP.desc=pdInp.value;save()});
-  mid.append(pidInp,pnInp,pdInp);
-  mid.append(el('div',{className:'panel-hd'},'Sub-dimensions ('+curP.subs.length+')'));
-  curP.subs.forEach((s,i) => {
-    const item = el('div',{className:`pitem${ACTIVE_S===i?' on':''}`,onClick:()=>{ACTIVE_S=i;render()}},
-      el('span',{style:{fontSize:'10px',fontFamily:'var(--fm)',color:'var(--tealL)',minWidth:'24px'}},s.id),
-      el('span',{className:'pn'},s.name),
-      el('span',{className:'badge badge-t'},String(s.comps.length)),
-      el('button',{className:'btn btn-r btn-sm',onClick:e=>{e.stopPropagation();if(confirm(tf('deleteSub',{id:s.id}))){curP.subs.splice(i,1);ACTIVE_S=null;save();render()}}},'✕')
-    );
-    mid.append(item);
-  });
-  mid.append(el('button',{className:'btn btn-t',style:{marginTop:'8px'},onClick:()=>{
-    const sid=curP.id.replace('P','')+'.'+String(curP.subs.length+1);
-    curP.subs.push({id:sid,name:t('newSub'),comps:[]});
-    ACTIVE_S=curP.subs.length-1;save();render();
-  }},'+ Sub-dimension'));
+  const curP=DATA[ACTIVE_P];if(!curP)return;
+  const mid=el('div',{className:'panel panel-m'});
+  const pidInp=el('input',{className:'inp',value:curP.id,style:{width:'60px',fontFamily:'var(--fm)',fontSize:'12px',marginBottom:'4px'}});pidInp.addEventListener('input',()=>{curP.id=pidInp.value;save()});
+  const pnInp=el('input',{className:'inp',value:curP.name,style:{fontSize:'13px',fontWeight:'600',marginBottom:'4px'}});pnInp.addEventListener('input',()=>{curP.name=pnInp.value;save()});
+  const pdInp=el('textarea',{className:'inp',rows:'2',value:curP.desc||'',style:{fontSize:'11px',marginBottom:'10px'},placeholder:t('description')});pdInp.addEventListener('input',()=>{curP.desc=pdInp.value;save()});
+  mid.append(pidInp,pnInp,pdInp);mid.append(el('div',{className:'panel-hd'},'Sub-dimensions ('+curP.subs.length+')'));
+  curP.subs.forEach((s,i)=>{const item=el('div',{className:`pitem${ACTIVE_S===i?' on':''}`,onClick:()=>{ACTIVE_S=i;render()}},el('span',{style:{fontSize:'10px',fontFamily:'var(--fm)',color:'var(--teal)',minWidth:'24px'}},s.id),el('span',{className:'pn'},s.name),el('span',{className:'badge badge-t'},String(s.comps.length)),el('button',{className:'btn btn-r btn-sm',onClick:e=>{e.stopPropagation();if(confirm(tf('deleteSub',{id:s.id}))){curP.subs.splice(i,1);ACTIVE_S=null;save();render()}}},'✕'));mid.append(item);});
+  mid.append(el('button',{className:'btn btn-t',style:{marginTop:'8px'},onClick:()=>{const sid=curP.id.replace('P','')+'.'+String(curP.subs.length+1);curP.subs.push({id:sid,name:t('newSub'),comps:[]});ACTIVE_S=curP.subs.length-1;save();render();}},'+ Sub-dimension'));
   main.append(mid);
-  const right = el('div',{className:'panel-r'});
-  const curS = curP.subs[ACTIVE_S];
-  if (!curS) { right.append(el('div',{style:{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:'var(--mute)'}},t('selectSub'))); main.append(right); return; }
-  const shdr = el('div',{style:{display:'flex',gap:'10px',alignItems:'center',marginBottom:'10px'}});
-  const sidI = el('input',{className:'inp',value:curS.id,style:{width:'60px',fontFamily:'var(--fm)'}});
-  sidI.addEventListener('input',()=>{curS.id=sidI.value;save()});
-  const snI = el('input',{className:'inp',value:curS.name,style:{flex:'1',fontWeight:'600'}});
-  snI.addEventListener('input',()=>{curS.name=snI.value;save()});
-  shdr.append(sidI,snI,el('span',{className:'badge badge-b'},curS.comps.length+' comps'));
-  right.append(shdr);
-  const srch = el('input',{className:'inp',placeholder:t('searchComp'),value:SEARCH,style:{marginBottom:'12px'}});
-  srch.addEventListener('input',()=>{SEARCH=srch.value;render()});
-  right.append(srch);
-  const colors = ['#ef4444','#f97316','#f59e0b','#3b82f6','#22c55e'];
-  const labels = getLBL();
-  curS.comps.forEach((c,ci) => {
-    if (SEARCH && !c.id.toLowerCase().includes(SEARCH.toLowerCase()) && !c.name.toLowerCase().includes(SEARCH.toLowerCase())) return;
-    const isCore = CORE.has(c.id);
-    const isExp = EXPANDED.has(c.id);
-    const card = el('div',{className:`ccard${isCore?' core':''}`});
-    const chd = el('div',{className:'ccard-hd',onClick:()=>{if(EXPANDED.has(c.id))EXPANDED.delete(c.id);else EXPANDED.add(c.id);render()}},
-      el('span',{className:'cid'},c.id),
-      ...(isCore?[el('span',{className:'badge badge-t'},'CORE')]:[]),
-      el('span',{className:'cn'},c.name),
-      el('button',{className:'btn btn-g btn-sm',onClick:e=>{e.stopPropagation();if(CORE.has(c.id))CORE.delete(c.id);else CORE.add(c.id);save();render()}},isCore?'★':'☆'),
-      el('button',{className:'btn btn-r btn-sm',onClick:e=>{e.stopPropagation();if(confirm(tf('deleteComp',{id:c.id}))){curS.comps.splice(ci,1);save();render()}}},'✕'),
-      el('span',{className:`arrow${isExp?' open':''}`},'▾')
-    );
+  const right=el('div',{className:'panel-r'});
+  const curS=curP.subs[ACTIVE_S];
+  if(!curS){right.append(el('div',{style:{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:'var(--mute)'}},t('selectSub')));main.append(right);return;}
+  const shdr=el('div',{style:{display:'flex',gap:'10px',alignItems:'center',marginBottom:'10px'}});
+  const sidI=el('input',{className:'inp',value:curS.id,style:{width:'60px',fontFamily:'var(--fm)'}});sidI.addEventListener('input',()=>{curS.id=sidI.value;save()});
+  const snI=el('input',{className:'inp',value:curS.name,style:{flex:'1',fontWeight:'600'}});snI.addEventListener('input',()=>{curS.name=snI.value;save()});
+  shdr.append(sidI,snI,el('span',{className:'badge badge-b'},curS.comps.length+' comps'));right.append(shdr);
+  const srch=el('input',{className:'inp',placeholder:t('searchComp'),value:SEARCH,style:{marginBottom:'12px'}});srch.addEventListener('input',()=>{SEARCH=srch.value;render()});right.append(srch);
+  curS.comps.forEach((c,ci)=>{
+    if(SEARCH&&!c.id.toLowerCase().includes(SEARCH.toLowerCase())&&!c.name.toLowerCase().includes(SEARCH.toLowerCase()))return;
+    const isCore=CORE.has(c.id),isExp=EXPANDED.has(c.id);
+    const card=el('div',{className:`ccard${isCore?' core':''}`});
+    const chd=el('div',{className:'ccard-hd',onClick:()=>{if(EXPANDED.has(c.id))EXPANDED.delete(c.id);else EXPANDED.add(c.id);render()}},el('span',{className:'cid'},c.id),...(isCore?[el('span',{className:'badge badge-t'},'CORE')]:[]),el('span',{className:'cn'},c.name),el('button',{className:'btn btn-g btn-sm',onClick:e=>{e.stopPropagation();if(CORE.has(c.id))CORE.delete(c.id);else CORE.add(c.id);save();render()}},isCore?'★':'☆'),el('button',{className:'btn btn-r btn-sm',onClick:e=>{e.stopPropagation();if(confirm(tf('deleteComp',{id:c.id}))){curS.comps.splice(ci,1);save();render()}}},'✕'),el('span',{className:`arrow${isExp?' open':''}`},'▾'));
     card.append(chd);
-    if (isExp) {
-      const body = el('div',{className:'ccard-body'});
-      const row1 = el('div',{style:{display:'flex',gap:'10px',margin:'10px 0 12px'}});
-      const ciI = el('input',{className:'inp',value:c.id,style:{width:'90px',fontFamily:'var(--fm)'}});
-      ciI.addEventListener('input',()=>{c.id=ciI.value;save()});
-      const cnI = el('input',{className:'inp',value:c.name,style:{flex:'1'}});
-      cnI.addEventListener('input',()=>{c.name=cnI.value;save()});
-      row1.append(ciI,cnI); body.append(row1);
-      c.L.forEach((lv,li) => {
-        const lvDiv = el('div',{className:'lvl'});
-        lvDiv.append(el('div',{className:'lvl-n',style:{background:colors[li]}},String(li+1)));
-        const lvRight = el('div',{style:{flex:'1'}});
-        lvRight.append(el('div',{className:'lvl-label',style:{color:colors[li]}},'L'+(li+1)+' — '+labels[li]));
-        const ta = el('textarea',{className:'inp',rows:'2',value:lv,placeholder:tf('descLevel',{n:li+1})});
-        ta.addEventListener('input',()=>{c.L[li]=ta.value;save()});
-        lvRight.append(ta); lvDiv.append(lvRight); body.append(lvDiv);
-      });
-      card.append(body);
-    }
-    right.append(card);
+    if(isExp){
+      const body=el('div',{className:'ccard-body'});
+      const row1=el('div',{style:{display:'flex',gap:'10px',margin:'10px 0 12px'}});
+      const ciI=el('input',{className:'inp',value:c.id,style:{width:'90px',fontFamily:'var(--fm)'}});ciI.addEventListener('input',()=>{c.id=ciI.value;save()});
+      const cnI=el('input',{className:'inp',value:c.name,style:{flex:'1'}});cnI.addEventListener('input',()=>{c.name=cnI.value;save()});
+      row1.append(ciI,cnI);body.append(row1);
+      c.L.forEach((lv,li)=>{
+        const lvDiv=el('div',{className:'lvl'});
+        lvDiv.append(el('div',{className:'lvl-n',style:{background:CLR[li]}},String(li+1)));
+        const lvRight=el('div',{style:{flex:'1'}});
+        lvRight.append(el('div',{className:'lvl-label',style:{color:CLR[li]}},'L'+(li+1)+' — '+getLBL()[li]));
+        const ta=el('textarea',{className:'inp',rows:'2',value:lv,placeholder:tf('descLevel',{n:li+1})});ta.addEventListener('input',()=>{c.L[li]=ta.value;save()});
+        lvRight.append(ta);lvDiv.append(lvRight);body.append(lvDiv);
+      });card.append(body);
+    }right.append(card);
   });
-  right.append(el('button',{className:'btn btn-t',style:{marginTop:'12px'},onClick:()=>{
-    const cid=curS.id+'.'+(curS.comps.length+1);
-    curS.comps.push({id:cid,name:t('newComp'),L:['','','','','']});
-    EXPANDED.add(cid);save();render();
-  }},'+ Component'));
+  right.append(el('button',{className:'btn btn-t',style:{marginTop:'12px'},onClick:()=>{const cid=curS.id+'.'+(curS.comps.length+1);curS.comps.push({id:cid,name:t('newComp'),L:['','','','','']});EXPANDED.add(cid);save();render();}},'+ Component'));
   main.append(right);
 }
 
-function renderPreview(main) {
-  const pv = el('div',{className:'preview'});
-  pv.append(el('h1',null,'Financial Crime Maturity Assessment'));
-  const st = getStats();
-  pv.append(el('p',{style:{color:'var(--dim)',fontSize:'14px',marginBottom:'24px'}},`${st.pilars} Pillars · ${st.subs} Sub-dimensions · ${st.comps} Components · ${st.core} Core`));
-  const colors = ['#ef4444','#f97316','#f59e0b','#3b82f6','#22c55e'];
-  DATA.forEach(p => {
-    pv.append(el('h2',null,p.id+': '+p.name));
-    if(p.desc) pv.append(el('p',{style:{color:'var(--mute)',fontSize:'13px',fontStyle:'italic',margin:'0 0 12px'}},p.desc));
-    p.subs.forEach(s => {
-      pv.append(el('h3',null,s.id+' — '+s.name));
-      s.comps.forEach(c => {
-        const isCore = CORE.has(c.id);
-        const div = el('div',{className:`comp${isCore?' core':''}`});
-        div.append(el('div',{className:'comp-hd'},...(isCore?[el('span',{style:{color:'var(--teal)',marginRight:'6px'}},'🔷 CORE')]:[]),el('span',{style:{fontFamily:'var(--fm)',color:'var(--mute)',marginRight:'8px'}},c.id),c.name));
-        const tbl = el('table'); const tb = el('tbody');
-        c.L.forEach((l,i) => { tb.append(el('tr',null,el('td',{className:'ln',style:{color:colors[i]}},String(i+1)),el('td',{style:{color:'var(--dim)'}},l))); });
-        tbl.append(tb); div.append(tbl); pv.append(div);
-      });
-    });
-  });
+function renderPreview(main){
+  const pv=el('div',{className:'preview'});pv.append(el('h1',null,'Financial Crime Maturity Assessment'));
+  const st=getStats();pv.append(el('p',{style:{color:'var(--dim)',fontSize:'14px',marginBottom:'24px'}},`${st.pilars} Pillars · ${st.subs} Sub-dimensions · ${st.comps} Components · ${st.core} Core`));
+  DATA.forEach(p=>{pv.append(el('h2',null,p.id+': '+p.name));if(p.desc)pv.append(el('p',{style:{color:'var(--mute)',fontSize:'13px',fontStyle:'italic',margin:'0 0 12px'}},p.desc));
+    p.subs.forEach(s=>{pv.append(el('h3',null,s.id+' — '+s.name));s.comps.forEach(c=>{const isCore=CORE.has(c.id);const div=el('div',{className:`comp${isCore?' core':''}`});div.append(el('div',{className:'comp-hd'},...(isCore?[el('span',{style:{color:'var(--teal)',marginRight:'6px'}},'🔷 CORE')]:[]),el('span',{style:{fontFamily:'var(--fm)',color:'var(--mute)',marginRight:'8px'}},c.id),c.name));const tbl=el('table');const tb=el('tbody');c.L.forEach((l,i)=>{tb.append(el('tr',null,el('td',{className:'ln',style:{color:CLR[i]}},String(i+1)),el('td',{style:{color:'var(--dim)'}},l)));});tbl.append(tb);div.append(tbl);pv.append(div);});});});
   main.append(pv);
 }
 
-function renderStats(main) {
-  const sv = el('div',{className:'stats'});
-  sv.append(el('h2',null,t('statsTitle')));
-  const st = getStats();
-  const grid = el('div',{className:'sgrid'});
-  [[t('pilars'),st.pilars,'var(--teal)'],[t('subs'),st.subs,'var(--tealL)'],[t('comps'),st.comps,'#3b82f6'],[t('core'),st.core,'var(--amb)']].forEach(([l,v,c])=>{
-    grid.append(el('div',{className:'scard',style:{borderTop:`3px solid ${c}`}},el('div',{className:'sv',style:{color:c}},String(v)),el('div',{className:'sl'},l)));
-  });
-  sv.append(grid);
+function renderStats(main){
+  const sv=el('div',{className:'stats'});sv.append(el('h2',null,t('statsTitle')));
+  const st=getStats();const grid=el('div',{className:'sgrid'});
+  [[t('pilars'),st.pilars,'var(--teal)'],[t('subs'),st.subs,'var(--tealL)'],[t('comps'),st.comps,'#2563eb'],[t('core'),st.core,'var(--amb)']].forEach(([l,v,c])=>{grid.append(el('div',{className:'scard',style:{borderTop:`3px solid ${c}`}},el('div',{className:'sv',style:{color:c}},String(v)),el('div',{className:'sl'},l)));});sv.append(grid);
   sv.append(el('h3',{style:{fontSize:'16px',fontWeight:'600',margin:'0 0 12px'}},t('detailByPillar')));
-  const tbl = el('table',{className:'stable'});
-  const thead = el('thead'); const thr = el('tr');
-  [t('pilar'),t('name'),t('subs'),t('comps'),t('core'),t('completeness')].forEach((h,i)=>{ thr.append(el('th',{style:{textAlign:i>1?'center':'left'}},h)); });
-  thead.append(thr); tbl.append(thead);
-  const tbody = el('tbody');
-  DATA.forEach(p=>{
-    let pc=0,pcr=0,filled=0,total=0;
-    p.subs.forEach(s=>s.comps.forEach(c=>{pc++;if(CORE.has(c.id))pcr++;c.L.forEach(l=>{total++;if(l.trim())filled++})}));
-    const pct=total?Math.round(filled/total*100):0;
-    const tr=el('tr');
-    tr.append(
-      el('td',{style:{fontFamily:'var(--fm)',color:'var(--teal)',fontWeight:'700'}},p.id),
-      el('td',null,p.name),
-      el('td',{style:{textAlign:'center'}},String(p.subs.length)),
-      el('td',{style:{textAlign:'center'}},String(pc)),
-      el('td',{style:{textAlign:'center'}},el('span',{className:'badge badge-t'},String(pcr))),
-      el('td',{style:{textAlign:'center'}},el('div',{className:'pbar'},el('div',{className:'pbar-fill',style:{width:pct+'%',background:pct===100?'var(--grn)':pct>80?'var(--teal)':'var(--amb)'}})),el('div',{style:{fontSize:'10px',color:'var(--mute)',marginTop:'2px'}},pct+'%'))
-    );
-    tbody.append(tr);
-  });
-  tbl.append(tbody); sv.append(tbl);
-  sv.append(el('div',{style:{marginTop:'28px',padding:'16px',background:'var(--card)',borderRadius:'var(--r)',border:'1px solid var(--brd)'}},
-    el('h4',{style:{fontSize:'14px',fontWeight:'600',marginBottom:'6px'}},t('totalDesc')),
-    el('p',{style:{fontSize:'13px',color:'var(--dim)'},innerHTML:tf('totalDescText',{c:st.comps,t:st.comps*5})})
-  ));
+  const tbl=el('table',{className:'stable'});const thead=el('thead');const thr=el('tr');
+  [t('pilar'),t('name'),t('subs'),t('comps'),t('core'),t('completeness')].forEach((h,i)=>{thr.append(el('th',{style:{textAlign:i>1?'center':'left'}},h));});thead.append(thr);tbl.append(thead);
+  const tbody=el('tbody');
+  DATA.forEach(p=>{let pc=0,pcr=0,filled=0,total=0;p.subs.forEach(s=>s.comps.forEach(c=>{pc++;if(CORE.has(c.id))pcr++;c.L.forEach(l=>{total++;if(l.trim())filled++})}));const pct=total?Math.round(filled/total*100):0;const tr=el('tr');tr.append(el('td',{style:{fontFamily:'var(--fm)',color:'var(--teal)',fontWeight:'700'}},p.id),el('td',null,p.name),el('td',{style:{textAlign:'center'}},String(p.subs.length)),el('td',{style:{textAlign:'center'}},String(pc)),el('td',{style:{textAlign:'center'}},el('span',{className:'badge badge-t'},String(pcr))),el('td',{style:{textAlign:'center'}},el('div',{className:'pbar'},el('div',{className:'pbar-fill',style:{width:pct+'%',background:pct===100?'var(--grn)':pct>80?'var(--teal)':'var(--amb)'}})),el('div',{style:{fontSize:'10px',color:'var(--mute)',marginTop:'2px'}},pct+'%')));tbody.append(tr);});
+  tbl.append(tbody);sv.append(tbl);
+  sv.append(el('div',{style:{marginTop:'28px',padding:'16px',background:'var(--wh)',borderRadius:'var(--r)',border:'1px solid var(--brd)',boxShadow:'var(--sh1)'}},el('h4',{style:{fontSize:'14px',fontWeight:'600',marginBottom:'6px'}},t('totalDesc')),el('p',{style:{fontSize:'13px',color:'var(--dim)'},innerHTML:tf('totalDescText',{c:st.comps,t:st.comps*5})})));
   main.append(sv);
 }
 
-// ── INIT ──
+/* ── INIT ── */
 load();
-if(IS_CLIENT) {
+if(IS_CLIENT){
   render();
-  validateCode(ACCESS_CODE, function(valid){
-    if(valid){ loadLangContent(LANG, function(){ render(); }); }
-    else { render(); }
+  validateCode(ACCESS_CODE,function(valid){
+    if(valid){loadLangContent(LANG,function(){render();});}
+    else{render();}
   });
-} else {
+}else{
   checkEditorAuth();
 }
+
 </script>
 </body>
 </html>
