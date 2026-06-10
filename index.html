@@ -1176,7 +1176,7 @@ function renderResults(main) {
           }});
 
           [
-            { label:(LANG==='es'?'📍 Actual':'LANG==='pt'?'📍 Atual':'📍 Current')+' — Nivel '+g.score,
+            { label:(LANG==='es'?'📍 Actual':LANG==='pt'?'📍 Atual':'📍 Current')+' — Nivel '+g.score,
               desc:curDesc, col:gCol },
             { label:(LANG==='es'?'🎯 Objetivo':LANG==='pt'?'🎯 Meta':'🎯 Target')+' — Nivel 4',
               desc:tarDesc, col:'#3b82f6' },
@@ -1313,7 +1313,6 @@ function renderResults(main) {
   main.innerHTML = '';
   main.append(root);
 }
-
 function renderEditor(main) {
   const left = el('div',{className:'panel panel-l'});
   left.append(el('div',{className:'panel-hd'},t('pilars')));
