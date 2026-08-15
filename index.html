@@ -220,7 +220,7 @@ function t(key){return I18N[LANG][key]||I18N['en'][key]||key;}
 function tf(key,vars){var s=t(key);Object.entries(vars).forEach(([k,v])=>{s=s.replace('{'+k+'}',v)});return s;}
 function getLBL(){return I18N[LANG].levels;}
 
-var LOADED_LANG=null;
+var LOADED_LANG=null;var META={title:null,subtitle:null};
 var BASE_URL=window.location.href.replace(/\/[^\/]*$/,'/');
 function loadLangContent(lang,callback){
   if(!IS_CLIENT){if(callback)callback();return;}
@@ -240,7 +240,7 @@ if(IS_CLIENT){
 function save(){try{localStorage.setItem('fcma_data',JSON.stringify(DATA));localStorage.setItem('fcma_answers',JSON.stringify(ANSWERS));localStorage.setItem('fcma_core',JSON.stringify([...CORE]));}catch(e){}}
 function load(){try{const d=localStorage.getItem('fcma_data');const c=localStorage.getItem('fcma_core');if(d){DATA=JSON.parse(d);if(c)CORE=new Set(JSON.parse(c));try{const a=localStorage.getItem('fcma_answers');if(a)ANSWERS=JSON.parse(a);}catch(e){}return true;}}catch(e){}DATA=[];CORE=new Set(INIT_CORE_ARR);return true;}
 function importMD(text){
-  const pilars=[];let curP=null,curS=null,curC=null;const newCore=new Set();
+  const pilars=[];let curP=null,curS=null,curC=null;const newCore=new Set();var _mt=text.match(/<!--\s*title:\s*(.+?)\s*-->/),_ms=text.match(/<!--\s*subtitle:\s*(.+?)\s*-->/);META={title:_mt?_mt[1].trim():null,subtitle:_ms?_ms[1].trim():null};
   for(const line of text.split('\n')){
     const pm=line.match(/^# (P\d+):\s*(.+)/);if(pm){curP={id:pm[1],name:pm[2].trim(),desc:'',subs:[]};pilars.push(curP);curS=curC=null;continue;}
     if(curP&&!curP.desc&&line.startsWith('*')&&line.endsWith('*')){curP.desc=line.slice(1,-1);continue;}
@@ -365,9 +365,9 @@ function renderAssess(main){
   if(!AQ_STARTED){
     var start=el('div',{style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center',overflowY:'auto',padding:'24px',background:'var(--bg)'}});
     var card=el('div',{className:'quiz-slide',style:{background:'var(--wh)',border:'1px solid var(--brd)',borderRadius:'24px',padding:'52px 48px',maxWidth:'680px',width:'100%',textAlign:'center',boxShadow:'0 20px 60px rgba(0,0,0,0.08)'}});
-    card.append(el('div',{style:{width:'72px',height:'72px',borderRadius:'20px',background:'linear-gradient(135deg,var(--teal),var(--tealL))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'32px',fontWeight:'800',color:'var(--wh)',margin:'0 auto 28px',boxShadow:'0 8px 24px rgba(5,150,105,0.25)'}},'F'));
-    card.append(el('h1',{style:{fontSize:'30px',fontWeight:'800',marginBottom:'10px',letterSpacing:'-0.8px',color:'var(--text)'}},t('fullTitle')));
-    card.append(el('p',{style:{fontSize:'16px',color:'var(--dim)',marginBottom:'36px',lineHeight:'1.6'}},t('fullDesc')));
+    card.append(el('div',{style:{width:'72px',height:'72px',borderRadius:'20px',background:'linear-gradient(135deg,var(--teal),var(--tealL))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'32px',fontWeight:'800',color:'var(--wh)',margin:'0 auto 28px',boxShadow:'0 8px 24px rgba(5,150,105,0.25)'}},((META.title||'F').trim()[0]||'F')));
+    card.append(el('h1',{style:{fontSize:'30px',fontWeight:'800',marginBottom:'10px',letterSpacing:'-0.8px',color:'var(--text)'}},(META.title||t('fullTitle'))));
+    card.append(el('p',{style:{fontSize:'16px',color:'var(--dim)',marginBottom:'36px',lineHeight:'1.6'}},(META.subtitle||t('fullDesc'))));
     card.append(el('p',{style:{fontSize:'11px',color:'var(--mute)',marginBottom:'16px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'2px'}},t('selectMode')));
     var modes=el('div',{style:{display:'flex',gap:'14px',justifyContent:'center',marginBottom:'36px',flexWrap:'wrap'}});
     var cBtn=el('div',{style:{flex:'1',minWidth:'240px',padding:'28px 22px',borderRadius:'14px',border:'2px solid '+(AQ_MODE==='core'?'var(--teal)':'var(--brd)'),background:AQ_MODE==='core'?'rgba(5,150,105,0.05)':'var(--wh)',cursor:'pointer',transition:'all .2s',textAlign:'center',boxShadow:AQ_MODE==='core'?'0 4px 16px rgba(5,150,105,0.12)':'var(--sh1)'},onClick:()=>{AQ_MODE='core';render();}});
@@ -1489,7 +1489,7 @@ function renderEditor(main){
 }
 
 function renderPreview(main){
-  const pv=el('div',{className:'preview'});pv.append(el('h1',null,'Financial Crime Maturity Assessment'));
+  const pv=el('div',{className:'preview'});pv.append(el('h1',null,(META.title||'Financial Crime Maturity Assessment')));
   const st=getStats();pv.append(el('p',{style:{color:'var(--dim)',fontSize:'14px',marginBottom:'24px'}},`${st.pilars} Pillars · ${st.subs} Sub-dimensions · ${st.comps} Components · ${st.core} Core`));
   DATA.forEach(p=>{pv.append(el('h2',null,p.id+': '+p.name));if(p.desc)pv.append(el('p',{style:{color:'var(--mute)',fontSize:'13px',fontStyle:'italic',margin:'0 0 12px'}},p.desc));
     p.subs.forEach(s=>{pv.append(el('h3',null,s.id+' — '+s.name));s.comps.forEach(c=>{const isCore=CORE.has(c.id);const div=el('div',{className:`comp${isCore?' core':''}`});div.append(el('div',{className:'comp-hd'},...(isCore?[el('span',{style:{color:'var(--teal)',marginRight:'6px'}},'🔷 CORE')]:[]),el('span',{style:{fontFamily:'var(--fm)',color:'var(--mute)',marginRight:'8px'}},c.id),c.name));const tbl=el('table');const tb=el('tbody');c.L.forEach((l,i)=>{tb.append(el('tr',null,el('td',{className:'ln',style:{color:CLR[i]}},String(i+1)),el('td',{style:{color:'var(--dim)'}},l)));});tbl.append(tb);div.append(tbl);pv.append(div);});});});
@@ -1525,3 +1525,4 @@ if(IS_CLIENT){
 </script>
 </body>
 </html>
+
