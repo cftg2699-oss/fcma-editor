@@ -930,6 +930,8 @@ function App() {
     { id:'gaps',        label:'Critical Gaps',           icon:'⚠',
       badge: data ? (() => { let n=0; data.forEach(p=>p.subs.forEach(s=>s.comps.forEach(c=>{ if(answers[c.id]&&answers[c.id]<=2)n++; }))); return n; })() : 0 },
     { id:'roadmap',     label:'Actionable Roadmap',      icon:'🗺' },
+    { id:'threats',     label:'Threat Exposure',         icon:'🎯' },
+    { id:'initiatives', label:'Initiatives (Effort×Benefit)', icon:'🧭' },
   ];
 
   if (!data) {
@@ -1058,8 +1060,6 @@ function App() {
           {page === 'maturity' && <PageMaturityScale/>}
           {page === 'gaps' && <PageGaps data={data} answers={answers} core={core}/>}
           {page === 'roadmap' && <PageRoadmap data={data} answers={answers} scores={scores}/>}
-    { id:'threats',     label:'Threat Exposure',         icon:'🎯' },
-    { id:'initiatives', label:'Initiatives (Effort×Benefit)', icon:'🧭' },
           {page === 'threats' && <PageThreats answers={answers}/>}
           {page === 'initiatives' && <PageInitiatives data={data} answers={answers} core={core}/>}
         </main>
@@ -1079,3 +1079,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
+
