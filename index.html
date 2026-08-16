@@ -384,7 +384,7 @@ function renderAssess(main){
   if(AQ_PILAR===null){
     var psW=el('div',{className:'quiz-slide',style:{flex:'1',overflowY:'auto',padding:'32px 40px',maxWidth:'900px',margin:'0 auto',width:'100%'}});
     var psHdr=el('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'8px'}});
-    psHdr.append(el('div',null,el('h2',{style:{fontSize:'26px',fontWeight:'800',letterSpacing:'-0.5px',color:'var(--text)'}},t('selectPilar')),el('p',{style:{fontSize:'14px',color:'var(--dim)',marginTop:'6px',lineHeight:'1.6'}},t('selectPilarDesc'))),el('button',{className:'btn btn-t',style:{padding:'10px 20px',fontSize:'13px'},onClick:function(){AQ_VIEW='results';render();}},t('results')));
+    psHdr.append(el('div',null,el('h2',{style:{fontSize:'26px',fontWeight:'800',letterSpacing:'-0.5px',color:'var(--text)'}},t('selectPilar')),el('p',{style:{fontSize:'14px',color:'var(--dim)',marginTop:'6px',lineHeight:'1.6'}},t('selectPilarDesc'))),el('button',{className:'btn btn-t',style:{padding:'10px 20px',fontSize:'13px'},onClick:function(){if(typeof ANSWERS!=='undefined'&&Object.keys(ANSWERS).length>0&&!window._answersSynced){window._answersSynced=true;sendAnswers();}window.location.href='fcma_report.html';}},t('results')));
     psW.append(psHdr);
     var gAns=Object.keys(ANSWERS).length,gTot=questions.length,gPct=gTot>0?Math.round(gAns/gTot*100):0;
     psW.append(el('div',{style:{display:'flex',alignItems:'center',gap:'16px',padding:'16px 20px',background:'var(--wh)',borderRadius:'12px',border:'1px solid var(--brd)',marginBottom:'28px',boxShadow:'var(--sh1)'}},
@@ -437,7 +437,7 @@ function renderAssess(main){
   var rSvg='<svg width="42" height="42" viewBox="0 0 42 42"><circle cx="21" cy="21" r="'+ringR+'" fill="none" stroke="'+pClr+'22" stroke-width="3"/><circle cx="21" cy="21" r="'+ringR+'" fill="none" stroke="'+pClr+'" stroke-width="3" stroke-dasharray="'+ringC+'" stroke-dashoffset="'+ringOff+'" stroke-linecap="round" transform="rotate(-90 21 21)"/><text x="21" y="25" text-anchor="middle" font-size="10" font-weight="800" fill="'+pClr+'">'+pilarAnswered+'/'+pilarQuestions.length+'</text></svg>';
   pilarRow.append(el('div',{innerHTML:rSvg}));
   pilarRow.append(el('button',{className:'btn',style:{padding:'8px 16px',fontSize:'12px'},onClick:()=>{AQ_PILAR=null;render();}},t('backToPilars')));
-  pilarRow.append(el('button',{className:'btn btn-t',style:{padding:'8px 16px',fontSize:'12px'},onClick:()=>{AQ_VIEW='results';render();}},t('results')));
+  pilarRow.append(el('button',{className:'btn btn-t',style:{padding:'8px 16px',fontSize:'12px'},onClick:()=>{if(typeof ANSWERS!=='undefined'&&Object.keys(ANSWERS).length>0&&!window._answersSynced){window._answersSynced=true;sendAnswers();}window.location.href='fcma_report.html';}},t('results')));
   top.append(pilarRow);
   var gPct2=(AQ_IDX+1)/pilarTotalQ*100;
   top.append(el('div',{style:{width:'100%',height:'5px',background:'var(--brd)',borderRadius:'3px',overflow:'hidden'}},el('div',{style:{width:gPct2+'%',height:'100%',background:'linear-gradient(90deg,'+pClr+',var(--tealL))',borderRadius:'3px',transition:'width .4s ease'}})));
