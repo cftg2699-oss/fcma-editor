@@ -368,6 +368,18 @@ function renderAssess(main){
     card.append(el('div',{style:{width:'72px',height:'72px',borderRadius:'20px',background:'linear-gradient(135deg,var(--teal),var(--tealL))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'32px',fontWeight:'800',color:'var(--wh)',margin:'0 auto 28px',boxShadow:'0 8px 24px rgba(5,150,105,0.25)'}},((META.title||'F').trim()[0]||'F')));
     card.append(el('h1',{style:{fontSize:'30px',fontWeight:'800',marginBottom:'10px',letterSpacing:'-0.8px',color:'var(--text)'}},(META.title||t('fullTitle'))));
     card.append(el('p',{style:{fontSize:'16px',color:'var(--dim)',marginBottom:'36px',lineHeight:'1.6'}},(META.subtitle||t('fullDesc'))));
+    if(!IS_CLIENT){
+      var _org=el('div',{style:{marginBottom:'28px',textAlign:'left',background:'var(--bg)',border:'1px solid var(--brd)',borderRadius:'14px',padding:'20px 22px'}});
+      _org.append(el('div',{style:{fontSize:'11px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'1.5px',color:'var(--mute)',marginBottom:'14px'}},'Organization'));
+      var _mkf=function(id,lab,ph,val){var w=el('div',{style:{marginBottom:'12px'}});w.append(el('label',{style:{display:'block',fontSize:'12px',fontWeight:'600',color:'var(--dim)',marginBottom:'5px'}},lab));w.append(el('input',{id:id,type:'text',value:val||'',placeholder:ph,style:{width:'100%',padding:'10px 12px',fontSize:'14px',border:'1px solid var(--brd)',borderRadius:'8px',boxSizing:'border-box',fontFamily:'inherit'}}));return w;};
+      _org.append(_mkf('qco','Company / Organization *','Enter company name',(REG_DATA&&REG_DATA.company)||''));
+      var _row=el('div',{style:{display:'flex',gap:'12px',flexWrap:'wrap'}});
+      var _f2=_mkf('qow','Assessment Owner','Full name',(REG_DATA&&REG_DATA.contact)||'');_f2.style.flex='1';_f2.style.minWidth='170px';
+      var _f3=_mkf('qem','Email','name@company.com',(REG_DATA&&REG_DATA.email)||'');_f3.style.flex='1';_f3.style.minWidth='170px';
+      _row.append(_f2,_f3);_org.append(_row);
+      _org.append(el('div',{id:'qerr',style:{display:'none',color:'#dc2626',fontSize:'12px',marginTop:'6px'}},'Enter the company name to continue.'));
+      card.append(_org);
+    }
     card.append(el('p',{style:{fontSize:'11px',color:'var(--mute)',marginBottom:'16px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'2px'}},t('selectMode')));
     var modes=el('div',{style:{display:'flex',gap:'14px',justifyContent:'center',marginBottom:'36px',flexWrap:'wrap'}});
     var cBtn=el('div',{style:{flex:'1',minWidth:'240px',padding:'28px 22px',borderRadius:'14px',border:'2px solid '+(AQ_MODE==='core'?'var(--teal)':'var(--brd)'),background:AQ_MODE==='core'?'rgba(5,150,105,0.05)':'var(--wh)',cursor:'pointer',transition:'all .2s',textAlign:'center',boxShadow:AQ_MODE==='core'?'0 4px 16px rgba(5,150,105,0.12)':'var(--sh1)'},onClick:()=>{AQ_MODE='core';render();}});
@@ -375,7 +387,7 @@ function renderAssess(main){
     var aBtn=el('div',{style:{flex:'1',minWidth:'240px',padding:'28px 22px',borderRadius:'14px',border:'2px solid '+(AQ_MODE==='all'?'#2563eb':'var(--brd)'),background:AQ_MODE==='all'?'rgba(37,99,235,0.05)':'var(--wh)',cursor:'pointer',transition:'all .2s',textAlign:'center',boxShadow:AQ_MODE==='all'?'0 4px 16px rgba(37,99,235,0.1)':'var(--sh1)'},onClick:()=>{AQ_MODE='all';render();}});
     aBtn.append(el('div',{style:{fontSize:'44px',fontWeight:'800',fontFamily:'var(--fm)',color:'#2563eb',marginBottom:'10px'}},String(allQ.length)),el('div',{style:{fontSize:'17px',fontWeight:'700',marginBottom:'8px',color:'var(--text)'}},t('deepDive')),el('div',{style:{fontSize:'13px',color:'var(--dim)',lineHeight:'1.6'}},t('deepDiveDesc')));modes.append(aBtn);
     card.append(modes);
-    card.append(el('button',{className:'btn btn-t',style:{padding:'16px 52px',fontSize:'17px',fontWeight:'700',borderRadius:'10px',boxShadow:'0 4px 14px rgba(5,150,105,0.25)'},onClick:()=>{AQ_STARTED=true;AQ_IDX=0;AQ_HIGHEST=0;render();}},t('startEval')));
+    card.append(el('button',{className:'btn btn-t',style:{padding:'16px 52px',fontSize:'17px',fontWeight:'700',borderRadius:'10px',boxShadow:'0 4px 14px rgba(5,150,105,0.25)'},onClick:()=>{if(!IS_CLIENT){var _co=(document.getElementById('qco')||{}).value;_co=_co?_co.trim():'';if(!_co){var _e=document.getElementById('qerr');if(_e)_e.style.display='block';return;}var _ow=(document.getElementById('qow')||{}).value;_ow=_ow?_ow.trim():'';var _em=(document.getElementById('qem')||{}).value;_em=_em?_em.trim():'';REG_DATA=Object.assign({},REG_DATA||{},{company:_co,contact:_ow,email:_em,ts:(REG_DATA&&REG_DATA.ts)||new Date().toISOString(),lang:LANG});try{localStorage.setItem('fcma_reg',JSON.stringify(REG_DATA));}catch(_x){}try{sendRegistration(REG_DATA);}catch(_x){}}AQ_STARTED=true;AQ_IDX=0;AQ_HIGHEST=0;render();}},t('startEval')));
     if(answered>0){card.append(el('div',{style:{marginTop:'24px',paddingTop:'18px',borderTop:'1px solid var(--brd)'}},el('p',{style:{fontSize:'13px',color:'var(--mute)',marginBottom:'12px'}},tf('savedAnswers',{n:Object.keys(ANSWERS).length})),el('button',{className:'btn',style:{marginRight:'10px',padding:'10px 22px',fontSize:'13px'},onClick:()=>{AQ_STARTED=true;render();}},t('continueWhere')),el('button',{className:'btn btn-r',style:{padding:'10px 22px',fontSize:'13px'},onClick:()=>{if(confirm(t('deleteAll'))){ANSWERS={};AQ_IDX=0;AQ_HIGHEST=0;save();render();}}},t('restart'))));}
     start.append(card);main.append(start);return;
   }
