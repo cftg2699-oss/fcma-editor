@@ -245,7 +245,7 @@ function importMD(text){
     const pm=line.match(/^# (P\d+):\s*(.+)/);if(pm){curP={id:pm[1],name:pm[2].trim(),desc:'',subs:[]};pilars.push(curP);curS=curC=null;continue;}
     if(curP&&!curP.desc&&line.startsWith('*')&&line.endsWith('*')){curP.desc=line.slice(1,-1);continue;}
     const sm=line.match(/^## (\d+\.\d+)\s*[—–-]\s*(.+)/);if(sm&&curP){curS={id:sm[1],name:sm[2].trim(),comps:[]};curP.subs.push(curS);curC=null;continue;}
-    const cm=line.match(/^### (?:🔷\s*CORE\s*·\s*)?(\d+\.\d+\.\d+)\s*·\s*(.+)/);if(cm&&curS){if(line.includes('🔷 CORE'))newCore.add(cm[1]);curC={id:cm[1],name:cm[2].trim(),L:[]};curS.comps.push(curC);continue;}
+    const cm=line.match(/^### (?:🔷\s*CORE\s*·\s*)?([^·\n]+?)\s*·\s*(.+)/);if(cm&&curS){const cid=cm[1].trim();if(line.includes('🔷 CORE'))newCore.add(cid);curC={id:cid,name:cm[2].trim(),L:[]};curS.comps.push(curC);continue;}
     const lm=line.match(/^\|\s*\*\*(\d)\*\*\s*\|\s*(.+?)\s*\|$/);if(lm&&curC){curC.L.push(lm[2]);continue;}
   }
   pilars.forEach(p=>p.subs.forEach(s=>s.comps.forEach(c=>{while(c.L.length<5)c.L.push('');})));
@@ -1525,4 +1525,3 @@ if(IS_CLIENT){
 </script>
 </body>
 </html>
-
