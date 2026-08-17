@@ -157,7 +157,7 @@ function PageThreats({ answers }) {
     <div className="animate-fade">
       <div className="mb-5">
         <h2 className="text-xl font-extrabold text-white mb-1">Threat Exposure</h2>
-        <p className="text-xs text-slate-400 max-w-3xl">Top banking cyber threats. <b>Residual risk = Inherent \u00D7 (1 \u2212 control maturity/5)</b>, where control maturity is the average of the CMA components that mitigate each threat. Unanswered components are excluded; low coverage means the residual is an estimate.</p>
+        <p className="text-xs text-slate-400 max-w-3xl">Top banking cyber threats. <b>Residual risk = Inherent × (1 − control maturity/5)</b>, where control maturity is the average of the CMA components that mitigate each threat. Unanswered components are excluded; low coverage means the residual is an estimate.</p>
       </div>
       <div className="space-y-2">
         {rows.map(r=>(
@@ -168,7 +168,7 @@ function PageThreats({ answers }) {
                 <span className="text-sm font-bold text-slate-100 truncate">{r.name}</span>
                 <span className="text-[10px] mono px-2 py-0.5 rounded-full shrink-0"
                   style={{color:riskColor(r.residual),background:riskColor(r.residual)+'1a',border:'1px solid '+riskColor(r.residual)+'55'}}>
-                  {riskLabel(r.residual)} \u00B7 {r.residual.toFixed(2)}
+                  {riskLabel(r.residual)} · {r.residual.toFixed(2)}
                 </span>
               </div>
               <div className="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
@@ -176,14 +176,14 @@ function PageThreats({ answers }) {
               </div>
               <div className="flex gap-4 mt-1.5 text-[10px] text-slate-400 mono">
                 <span>Inherent: <b className="text-slate-200">{r.inherent}/5</b></span>
-                <span>Control maturity: <b className="text-slate-200">{r.maturity==null?'\u2014':r.maturity.toFixed(1)+'/5'}</b></span>
+                <span>Control maturity: <b className="text-slate-200">{r.maturity==null?'—':r.maturity.toFixed(1)+'/5'}</b></span>
                 <span>Coverage: <b className="text-slate-200">{r.coverage}/{r.comps.length}</b></span>
               </div>
             </div>
           </div>
         ))}
       </div>
-      <p className="text-[10px] text-slate-600 mt-4 italic">Inherent-risk values and threat\u2192component mappings are judgment defaults; validate against your institution\u2019s risk assessment before use with a client.</p>
+      <p className="text-[10px] text-slate-600 mt-4 italic">Inherent-risk values and threat→component mappings are judgment defaults; validate against your institution’s risk assessment before use with a client.</p>
     </div>
   );
 }
@@ -212,11 +212,11 @@ function PageInitiatives({ data, answers, core }) {
   return (
     <div className="animate-fade">
       <div className="mb-5">
-        <h2 className="text-xl font-extrabold text-white mb-1">Initiatives \u2014 Effort \u00D7 Benefit</h2>
-        <p className="text-xs text-slate-400 max-w-3xl">Every component scored \u2264 2 becomes an improvement initiative. <b>Benefit = maturity uplift (5 \u2212 current), weighted \u00D71.25 for Core components. Effort</b> is a complexity judgment. Top-left = <b className="text-emerald-400">Quick Wins</b> (high benefit, low effort).</p>
+        <h2 className="text-xl font-extrabold text-white mb-1">Initiatives — Effort × Benefit</h2>
+        <p className="text-xs text-slate-400 max-w-3xl">Every component scored ≤ 2 becomes an improvement initiative. <b>Benefit = maturity uplift (5 − current), weighted ×1.25 for Core components. Effort</b> is a complexity judgment. Top-left = <b className="text-emerald-400">Quick Wins</b> (high benefit, low effort).</p>
       </div>
       {items.length===0 ? (
-        <div className="p-8 text-center text-slate-500 border border-slate-700 rounded-xl">No initiatives \u2014 no component is currently scored at level 2 or below. Answer more questions or improve coverage.</div>
+        <div className="p-8 text-center text-slate-500 border border-slate-700 rounded-xl">No initiatives — no component is currently scored at level 2 or below. Answer more questions or improve coverage.</div>
       ) : (
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <div className="border border-slate-700 rounded-xl p-3 bg-slate-900/40">
@@ -227,16 +227,16 @@ function PageInitiatives({ data, answers, core }) {
             <line x1={mL} y1={H-mB} x2={W-mR} y2={H-mB} stroke="#475569"/>
             <text x={mL-8} y={mT+6} textAnchor="end" fontSize="9" fill="#64748b">High</text>
             <text x={mL-8} y={H-mB} textAnchor="end" fontSize="9" fill="#64748b">Low</text>
-            <text x={mL-40} y={(H)/2} textAnchor="middle" fontSize="10" fill="#94a3b8" transform={`rotate(-90 ${mL-40} ${H/2})`}>Benefit \u2192</text>
+            <text x={mL-40} y={(H)/2} textAnchor="middle" fontSize="10" fill="#94a3b8" transform={`rotate(-90 ${mL-40} ${H/2})`}>Benefit →</text>
             <text x={mL} y={H-mB+16} textAnchor="middle" fontSize="9" fill="#64748b">Low</text>
             <text x={W-mR} y={H-mB+16} textAnchor="end" fontSize="9" fill="#64748b">High</text>
-            <text x={(mL+W-mR)/2} y={H-8} textAnchor="middle" fontSize="10" fill="#94a3b8">Effort \u2192</text>
-            <text x={mL+6} y={mT+14} fontSize="9" fill="#22c55e" fontWeight="700">\u26A1 QUICK WINS</text>
+            <text x={(mL+W-mR)/2} y={H-8} textAnchor="middle" fontSize="10" fill="#94a3b8">Effort →</text>
+            <text x={mL+6} y={mT+14} fontSize="9" fill="#22c55e" fontWeight="700">⚡ QUICK WINS</text>
             {items.map((it,i)=>(
               <g key={it.id}>
                 <circle cx={px(it.effort)+jitter(i)} cy={py(it.benefit)} r="13"
                   fill={it.color+'cc'} stroke={it.quick?'#22c55e':'#0f172a'} strokeWidth={it.quick?2:1}>
-                  <title>{it.id} \u00B7 {it.name} (benefit {it.benefit.toFixed(1)}, effort {effLabel(it.effort)})</title>
+                  <title>{it.id} · {it.name} (benefit {it.benefit.toFixed(1)}, effort {effLabel(it.effort)})</title>
                 </circle>
                 <text x={px(it.effort)+jitter(i)} y={py(it.benefit)+3} textAnchor="middle" fontSize="7.5" fill="#fff" fontWeight="700" style={{pointerEvents:'none'}}>{it.id}</text>
               </g>
@@ -248,11 +248,11 @@ function PageInitiatives({ data, answers, core }) {
             <div key={it.id} className="p-3 rounded-xl border border-slate-700 bg-slate-800/40">
               <div className="flex justify-between items-start gap-2 mb-1">
                 <span className="text-xs font-bold text-slate-100">
-                  {it.quick && <span className="text-emerald-400">\u26A1 </span>}
-                  <span className="mono" style={{color:it.color}}>{it.id}</span> \u00B7 {it.name}
+                  {it.quick && <span className="text-emerald-400">⚡ </span>}
+                  <span className="mono" style={{color:it.color}}>{it.id}</span> · {it.name}
                   {it.isCore && <span className="ml-1 text-[9px] px-1 rounded bg-slate-700 text-slate-300">CORE</span>}
                 </span>
-                <span className="text-[10px] mono text-slate-400 shrink-0">L{it.score}\u2192L{it.score+1}</span>
+                <span className="text-[10px] mono text-slate-400 shrink-0">L{it.score}→L{it.score+1}</span>
               </div>
               <div className="flex gap-3 text-[10px] mono text-slate-400 mb-1.5">
                 <span>Effort: <b className="text-slate-200">{effLabel(it.effort)}</b></span>
@@ -1049,6 +1049,10 @@ function App() {
         {sidebarOpen && (
           <aside className="no-print w-56 shrink-0 sticky top-[57px] h-[calc(100vh-57px)] bg-slate-900 border-r border-slate-800 flex flex-col py-4 overflow-y-auto">
             <div className="px-3 space-y-1">
+              <a href="index.html" className="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 mb-3 rounded-xl text-xs font-bold transition text-left bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20" style={{textDecoration:'none'}}>
+                <span>←</span>
+                <span className="flex-1">Back to Assessment</span>
+              </a>
               {NAV.map(n => {
                 const isActive = page === n.id || (n.id === 'overview' && page === 'pillar');
                 return (
