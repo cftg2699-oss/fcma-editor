@@ -83,7 +83,8 @@ function levelBadge(s) {
 }
 
 // ── DATA LOADER ────────────────────────────────────────────
-const FMETA=(function(){var d={assessmentName:'Financial Crime Maturity Assessment',frameworkShort:'FCMA\u2122 v2.0',org:'Continental Risk Partners',framework:'FCMA\u2122'};try{var m=JSON.parse(localStorage.getItem('fcma_meta')||'null')||{};return{assessmentName:m.assessmentName||m.title||d.assessmentName,frameworkShort:m.frameworkShort||d.frameworkShort,org:m.org||d.org,framework:m.framework||d.framework};}catch(e){return d;}})();
+const FMETA=(function(){var d={assessmentName:'Financial Crime Maturity Assessment',frameworkShort:'FCMA\u2122 v2.0',org:'Continental Risk Partners',framework:'FCMA\u2122',version:''};try{var m=JSON.parse(localStorage.getItem('fcma_meta')||'null')||{};return{assessmentName:m.assessmentName||m.title||d.assessmentName,frameworkShort:m.frameworkShort||d.frameworkShort,org:m.org||d.org,framework:m.framework||d.framework,version:m.version||d.version};}catch(e){return d;}})();
+const TOOL={name:'Maturity Tool',version:'1.0'};
 function loadFCMAData() {
   try {
     const data    = JSON.parse(localStorage.getItem('fcma_data')  || 'null');
@@ -1004,9 +1005,9 @@ function App() {
               ☰
             </button>
             <div className="w-9 h-9 rounded-lg flex items-center justify-center font-extrabold text-white"
-              style={{background:'linear-gradient(135deg,#0d9488,#14b8a6)'}}>F</div>
+              style={{background:'linear-gradient(135deg,#0d9488,#14b8a6)'}}>{TOOL.name.trim()[0]}</div>
             <div>
-              <div className="text-sm font-extrabold tracking-tight">FCMA™ Executive Report</div>
+              <div className="text-sm font-extrabold tracking-tight">{TOOL.name} · Executive Report</div>
               <div className="text-[10px] text-slate-400 uppercase tracking-wider">{FMETA.assessmentName}</div>
             </div>
           </div>
@@ -1071,6 +1072,8 @@ function App() {
               <div className="p-3 bg-slate-800/50 rounded-xl border border-slate-700 text-center">
                 <div className="text-[9px] text-slate-500 uppercase tracking-wider font-bold mb-1">Framework</div>
                 <div className="text-xs font-bold text-teal-400">{FMETA.frameworkShort}</div>
+                {FMETA.version && <div className="text-[10px] text-slate-500 mt-0.5">Assessment v{FMETA.version}</div>}
+                <div className="text-[10px] text-slate-400 mt-1.5 pt-1.5 border-t border-slate-700/60">{TOOL.name} v{TOOL.version}</div>
                 <div className="text-[9px] text-slate-600 mt-1">© {FMETA.org}</div>
               </div>
             </div>
