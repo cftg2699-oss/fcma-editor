@@ -50,11 +50,11 @@ const { useState, useMemo, useEffect, useRef } = React;
 
 // ── CONSTANTS ──────────────────────────────────────────────
 const MATURITY_LEVELS = [
-  { min:0,    max:1.49, level:1, name:'Non-Existent',  color:'#ef4444', bg:'rgba(239,68,68,0.12)',  desc:'The fraud program has no formal structure. Decisions are reactive and ad hoc. Significant regulatory and financial exposure.' },
-  { min:1.5,  max:2.49, level:2, name:'Reactive',      color:'#f97316', bg:'rgba(249,115,22,0.12)', desc:'Basic controls exist but are informal and undocumented. The program responds to incidents rather than preventing them.' },
-  { min:2.5,  max:3.49, level:3, name:'Defined',       color:'#f59e0b', bg:'rgba(245,158,11,0.12)', desc:'Core processes are documented and repeatable. Governance structures are in place. Gaps remain in ML detection and threat intelligence.' },
-  { min:3.5,  max:4.24, level:4, name:'Managed',       color:'#3b82f6', bg:'rgba(59,130,246,0.12)', desc:'The program is metrics-driven and proactively managed. Detection includes ML models. Benchmarking and continuous improvement are established.' },
-  { min:4.25, max:5.0,  level:5, name:'Optimized',     color:'#22c55e', bg:'rgba(34,197,94,0.12)',  desc:'Best-in-class program with real-time adaptive controls, full cross-functional convergence, and continuous optimization.' },
+  { min:0,    max:1.49, level:1, name:'Non-Existent',  color:'#ef4444', bg:'rgba(239,68,68,0.12)',  desc:'No formal structure or documented processes. Activities are reactive and ad hoc, creating significant risk exposure.' },
+  { min:1.5,  max:2.49, level:2, name:'Reactive',      color:'#f97316', bg:'rgba(249,115,22,0.12)', desc:'Basic controls exist but are informal and undocumented. The program reacts to issues rather than preventing them.' },
+  { min:2.5,  max:3.49, level:3, name:'Defined',       color:'#f59e0b', bg:'rgba(245,158,11,0.12)', desc:'Core processes are documented, repeatable, and governed. Practices are consistent, though gaps in measurement and coverage remain.' },
+  { min:3.5,  max:4.24, level:4, name:'Managed',       color:'#3b82f6', bg:'rgba(59,130,246,0.12)', desc:'The program is metrics-driven and proactively managed, with monitoring, benchmarking, and continuous improvement established.' },
+  { min:4.25, max:5.0,  level:5, name:'Optimized',     color:'#22c55e', bg:'rgba(34,197,94,0.12)',  desc:'Best-in-class capability with real-time adaptive controls, full integration across functions, and continuous optimization.' },
 ];
 const PILAR_COLORS = ['#0d9488','#3b82f6','#8b5cf6','#ec4899','#f59e0b','#ef4444','#22c55e','#06b6d4','#6366f1'];
 
@@ -627,14 +627,17 @@ function PageHeatmap({ data, answers, scores }) {
   );
 }
 
-function PageMaturityScale() {
+function PageMaturityScale({ data, core }) {
+  const P = data ? data.length : 0;
+  let S = 0, C = 0;
+  if (data) data.forEach(p => { S += p.subs.length; p.subs.forEach(s => C += s.comps.length); });
+  const coreCount = core ? core.size : 0;
   return (
     <div className="animate-fade space-y-6">
       <div className="bg-slate-900 rounded-2xl border border-slate-700 p-6">
-        <h3 className="font-bold text-white text-xl mb-2">FCMA™ Maturity Scale</h3>
+        <h3 className="font-bold text-white text-xl mb-2">Maturity Scale</h3>
         <p className="text-slate-400 text-sm max-w-2xl mb-6">
-          The Financial Crime Maturity Assessment uses a 5-tier evaluation framework measuring program
-          maturity across 9 pillars, 49 sub-dimensions, and 175 components.
+          {FMETA.assessmentName} uses a 5-tier evaluation framework measuring maturity across {P} pillars, {S} sub-dimensions, and {C} components.
         </p>
         <div className="space-y-4">
           {MATURITY_LEVELS.map(m => (
@@ -660,7 +663,7 @@ function PageMaturityScale() {
           Each component is evaluated on a 1–5 scale by the respondent. Sub-dimension scores are
           the arithmetic mean of their components. Pillar scores average across all evaluated
           sub-dimensions. The global score is the mean of pillar scores with at least one answer.
-          CORE components (61 of 175) represent the most critical capabilities per the FCMA™ framework.
+          CORE components ({coreCount} of {C}) represent the most critical capabilities of the framework.
         </p>
       </div>
     </div>
@@ -1087,7 +1090,7 @@ function App() {
           {page === 'heatmap' && (
             <PageHeatmap data={data} answers={answers} scores={scores}/>
           )}
-          {page === 'maturity' && <PageMaturityScale/>}
+          {page === 'maturity' && <PageMaturityScale data={data} core={core}/>}
           {page === 'gaps' && <PageGaps data={data} answers={answers} core={core}/>}
           {page === 'roadmap' && <PageRoadmap data={data} answers={answers} scores={scores}/>}
           {page === 'threats' && <PageThreats answers={answers}/>}
@@ -1107,4 +1110,3 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
-
