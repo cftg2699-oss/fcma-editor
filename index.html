@@ -240,7 +240,7 @@ if(IS_CLIENT){
 function save(){try{localStorage.setItem('fcma_data',JSON.stringify(DATA));localStorage.setItem('fcma_answers',JSON.stringify(ANSWERS));localStorage.setItem('fcma_core',JSON.stringify([...CORE]));localStorage.setItem('fcma_meta',JSON.stringify(META));}catch(e){}}
 function load(){try{const d=localStorage.getItem('fcma_data');const c=localStorage.getItem('fcma_core');if(d){DATA=JSON.parse(d);if(c)CORE=new Set(JSON.parse(c));try{const a=localStorage.getItem('fcma_answers');if(a)ANSWERS=JSON.parse(a);}catch(e){}return true;}}catch(e){}DATA=[];CORE=new Set(INIT_CORE_ARR);return true;}
 function importMD(text){
-  const pilars=[];let curP=null,curS=null,curC=null;const newCore=new Set();var _mt=text.match(/<!--\s*title:\s*(.+?)\s*-->/),_ms=text.match(/<!--\s*subtitle:\s*(.+?)\s*-->/);var _mf=text.match(/<!--\s*framework:\s*(.+?)\s*-->/),_mfs=text.match(/<!--\s*frameworkShort:\s*(.+?)\s*-->/),_man=text.match(/<!--\s*assessmentName:\s*(.+?)\s*-->/),_mv=text.match(/<!--\s*version:\s*(.+?)\s*-->/),_mo=text.match(/<!--\s*org:\s*(.+?)\s*-->/);META={title:_mt?_mt[1].trim():null,subtitle:_ms?_ms[1].trim():null,framework:_mf?_mf[1].trim():null,frameworkShort:_mfs?_mfs[1].trim():null,assessmentName:_man?_man[1].trim():null,version:_mv?_mv[1].trim():null,org:_mo?_mo[1].trim():null};try{localStorage.setItem('fcma_meta',JSON.stringify(META));}catch(e){}
+  const pilars=[];let curP=null,curS=null,curC=null;const newCore=new Set();var _mt=text.match(/<!--\s*title:\s*(.+?)\s*-->/),_ms=text.match(/<!--\s*subtitle:\s*(.+?)\s*-->/);var _mf=text.match(/<!--\s*framework:\s*(.+?)\s*-->/),_mfs=text.match(/<!--\s*frameworkShort:\s*(.+?)\s*-->/),_man=text.match(/<!--\s*assessmentName:\s*(.+?)\s*-->/),_mv=text.match(/<!--\s*version:\s*(.+?)\s*-->/),_mo=text.match(/<!--\s*org:\s*(.+?)\s*-->/),_msd=text.match(/<!--\s*scoreDirection:\s*(.+?)\s*-->/);META={title:_mt?_mt[1].trim():null,subtitle:_ms?_ms[1].trim():null,framework:_mf?_mf[1].trim():null,frameworkShort:_mfs?_mfs[1].trim():null,assessmentName:_man?_man[1].trim():null,version:_mv?_mv[1].trim():null,org:_mo?_mo[1].trim():null,scoreDirection:_msd?_msd[1].trim():null};try{localStorage.setItem('fcma_meta',JSON.stringify(META));}catch(e){}
   for(const line of text.split('\n')){
     const pm=line.match(/^# (P\d+):\s*(.+)/);if(pm){curP={id:pm[1],name:pm[2].trim(),desc:'',subs:[]};pilars.push(curP);curS=curC=null;continue;}
     if(curP&&!curP.desc&&line.startsWith('*')&&line.endsWith('*')){curP.desc=line.slice(1,-1);continue;}
@@ -1537,3 +1537,4 @@ if(IS_CLIENT){
 </script>
 </body>
 </html>
+
