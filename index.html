@@ -178,6 +178,7 @@ let CORE = new Set();
 let VIEW = 'assess';
 let PORTF=(function(){try{return JSON.parse(localStorage.getItem('tprm_portfolio')||'null');}catch(e){return null;}})();
 let ACTIVE_NODE=localStorage.getItem('tprm_active_node')||null;
+let FW_TYPE=null;
 let ACTIVE_P = null, ACTIVE_S = null;
 let EXPANDED = new Set();
 let SEARCH = '';
@@ -257,7 +258,7 @@ function parseMD(text){
 }
 function importMD(text){
   const r=parseMD(text);META=r.meta;try{localStorage.setItem('fcma_meta',JSON.stringify(META));}catch(e){}
-  DATA=r.data;CORE=r.core;ACTIVE_P=DATA.length>0?0:null;ACTIVE_S=null;save();render();
+  DATA=r.data;CORE=r.core;ACTIVE_P=DATA.length>0?0:null;ACTIVE_S=null;FW_TYPE=DATA.length?(/vendor|third[\s\-]?party|tprm/i.test(((META.framework||'')+' '+(META.assessmentName||'')+' '+(META.title||''))?'vendor':'generic')):null;if(DATA.length){FW_TYPE=/vendor|third[\s\-]?party|tprm/i.test(((META.framework||'')+' '+(META.assessmentName||'')+' '+(META.title||'')))?'vendor':'generic';}else{FW_TYPE=null;}if(FW_TYPE==='vendor'){try{localStorage.setItem('tprm_fw_inst',JSON.stringify({data:DATA,core:[...CORE],meta:META}));}catch(e){}pfInit();}AQ_STARTED=false;save();render();
 }
 function exportMD(){let md='# FINANCIAL CRIME MATURITY ASSESSMENT\n\n';DATA.forEach(p=>{md+=`# ${p.id}: ${p.name}\n\n`;if(p.desc)md+=`*${p.desc}*\n\n`;p.subs.forEach(s=>{md+=`## ${s.id} — ${s.name}\n\n`;s.comps.forEach(c=>{md+=`### ${CORE.has(c.id)?'🔷 CORE · ':''}${c.id} · ${c.name}\n\n`;md+='| Level | Descriptor |\n|:---:|:---|\n';c.L.forEach((l,i)=>{md+=`| **${i+1}** | ${l} |\n`});md+='\n';});});md+='---\n\n';});downloadFile(md,'FCMA_Assessment.md','text/markdown');}
 function exportJSON(){var p={version:'2.0',data:DATA,core:[...CORE],answers:ANSWERS};if(REG_DATA)p.registration=REG_DATA;downloadFile(JSON.stringify(p,null,2),'FCMA_Assessment.json','application/json');}
@@ -274,7 +275,7 @@ function pfLoadFw(kind){try{return JSON.parse(localStorage.getItem('tprm_fw_'+ki
 function pfSetFramework(kind,text){var r=parseMD(text);try{localStorage.setItem('tprm_fw_'+kind,JSON.stringify({data:r.data,core:[...r.core],meta:r.meta}));}catch(e){}render();}
 function pfSaveActive(){if(ACTIVE_NODE){try{localStorage.setItem('tprm_ans_'+ACTIVE_NODE,JSON.stringify(ANSWERS));}catch(e){}}}
 function pfOpen(nodeKey,nodeName,fwKind){var fw=pfLoadFw(fwKind);if(!fw){alert('Load the '+fwKind+' framework first.');return;}pfSaveActive();DATA=fw.data;CORE=new Set(fw.core||[]);META=fw.meta||{};try{ANSWERS=JSON.parse(localStorage.getItem('tprm_ans_'+nodeKey)||'{}');}catch(e){ANSWERS={};}ACTIVE_NODE=nodeKey;try{localStorage.setItem('tprm_active_node',nodeKey);}catch(e){}REG_DATA={company:nodeName,contact:(PORTF&&PORTF.instName)||'',ts:new Date().toISOString(),lang:LANG};try{localStorage.setItem('fcma_reg',JSON.stringify(REG_DATA));}catch(e){}ACTIVE_P=DATA.length?0:null;ACTIVE_S=null;AQ_STARTED=true;AQ_IDX=0;AQ_HIGHEST=0;AQ_MODE='all';VIEW='assess';save();render();}
-function pfBack(){pfSaveActive();ACTIVE_NODE=null;try{localStorage.removeItem('tprm_active_node');}catch(e){}AQ_STARTED=false;VIEW='portfolio';render();}
+function pfBack(){pfSaveActive();ACTIVE_NODE=null;try{localStorage.removeItem('tprm_active_node');}catch(e){}AQ_STARTED=false;render();}
 function pfAddProvider(){var nm=prompt('Provider name:');if(!nm)return;nm=nm.trim();if(!nm)return;pfInit();PORTF.providers.push({id:'v'+Date.now().toString(36),name:nm});pfSave();render();}
 function pfRemoveProvider(id){if(!confirm('Remove this provider and its answers?'))return;pfInit();PORTF.providers=PORTF.providers.filter(x=>x.id!==id);try{localStorage.removeItem('tprm_ans_'+id);}catch(e){}pfSave();render();}
 function pfFwButton(kind,label){var ok=pfHasFw(kind);return el('button',{className:'btn'+(ok?' btn-t':'')},(ok?'\u2713 ':'')+label);}
@@ -315,6 +316,60 @@ function renderPortfolio(main){
     pc.append(row);
   });
   wrap.append(pc);
+  var dash=el('div',{style:{marginTop:'20px',textAlign:'center'}},el('button',{className:'btn btn-t',onClick:function(){try{localStorage.setItem('tprm_open_portfolio','1');}catch(e){}window.location.href='fcma_report.html';}},'📊 Portfolio Risk Dashboard →'));
+  wrap.append(dash);
+  main.append(wrap);
+}
+function resetFlow(){FW_TYPE=null;DATA=[];CORE=new Set();META={};ANSWERS={};ACTIVE_NODE=null;AQ_STARTED=false;try{localStorage.removeItem('tprm_active_node');}catch(e){}render();}
+function renderWelcome(main){
+  var wrap=el('div',{style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center',padding:'24px',minHeight:'70vh'}});
+  var card=el('div',{style:{background:'var(--wh)',border:'1px solid var(--brd)',borderRadius:'24px',padding:'56px 48px',maxWidth:'560px',width:'100%',textAlign:'center',boxShadow:'0 20px 60px rgba(0,0,0,0.08)'}});
+  card.append(el('div',{style:{width:'64px',height:'64px',borderRadius:'18px',background:'linear-gradient(135deg,var(--teal),var(--tealL))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'30px',margin:'0 auto 24px'}},'\U0001F4CB'));
+  card.append(el('h1',{style:{fontSize:'28px',fontWeight:'800',color:'var(--text)',marginBottom:'10px',letterSpacing:'-0.5px'}},'What do you want to evaluate?'));
+  card.append(el('p',{style:{fontSize:'15px',color:'var(--dim)',lineHeight:'1.6',marginBottom:'32px'}},'Load your assessment framework and the tool will interpret it and guide you through the rest.'));
+  var inp=el('input',{type:'file',id:'wimport',accept:'.md',style:{display:'none'},onChange:function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){importMD(ev.target.result);};r.readAsText(f);e.target.value='';}});
+  card.append(inp);
+  card.append(el('button',{className:'btn btn-t',style:{padding:'16px 44px',fontSize:'16px',fontWeight:'700',borderRadius:'12px',boxShadow:'0 4px 14px rgba(5,150,105,0.25)'},onClick:function(){document.getElementById('wimport').click();}},'Load framework'));
+  wrap.append(card);main.append(wrap);
+}
+function renderSetup(main){
+  pfInit();
+  var CS={background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'14px',padding:'18px',marginBottom:'16px'};
+  var SL={fontSize:'11px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'1px',color:'var(--teal)',marginBottom:'12px'};
+  var IN={width:'100%',maxWidth:'360px',padding:'9px 11px',fontSize:'14px',border:'1px solid var(--brd)',borderRadius:'8px',boxSizing:'border-box'};
+  var wrap=el('div',{style:{maxWidth:'820px',margin:'0 auto',padding:'12px'}});
+  wrap.append(el('div',{style:{fontSize:'12px',fontWeight:'700',color:'var(--teal)',textTransform:'uppercase',letterSpacing:'1px',marginBottom:'6px'}},'\u2713 Vendor management detected'));
+  wrap.append(el('div',{style:{fontSize:'24px',fontWeight:'800',color:'var(--text)',marginBottom:'6px'}},(META.assessmentName||META.title||'Assessment')));
+  wrap.append(el('div',{style:{color:'var(--dim)',fontSize:'14px',marginBottom:'22px',lineHeight:'1.6'}},"This framework evaluates a third-party risk program. First evaluate your institution's program, then add the providers you want to assess."));
+  var ic=el('div',{style:CS});
+  ic.append(el('div',{style:SL},'Step 1 \u00B7 Your institution'));
+  ic.append(el('input',{id:'pf-inst-name',type:'text',value:(PORTF.instName||''),placeholder:'Institution name',style:IN,onChange:function(e){PORTF.instName=e.target.value.trim();pfSave();}}));
+  ic.append(el('div',{style:{marginTop:'12px'}},el('button',{className:'btn btn-t',onClick:function(){var v=document.getElementById('pf-inst-name');PORTF.instName=(v&&v.value.trim())||'Institution';pfSave();pfOpen('inst',PORTF.instName,'inst');}},'Evaluate program \u2192')));
+  wrap.append(ic);
+  var pc=el('div',{style:CS});
+  pc.append(el('div',{style:SL},'Step 2 \u00B7 Providers'));
+  if(!pfHasFw('vendor')){
+    pc.append(el('div',{style:{fontSize:'13px',color:'var(--dim)',marginBottom:'10px'}},'Load the framework used to evaluate each provider.'));
+    var vinp=el('input',{type:'file',accept:'.md',style:{display:'none'},onChange:function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){pfSetFramework('vendor',ev.target.result);};r.readAsText(f);}});
+    pc.append(vinp,el('button',{className:'btn',onClick:function(){vinp.click();}},'Load provider framework'));
+  }else{
+    pc.append(el('div',{style:{fontSize:'12px',color:'var(--teal)',marginBottom:'12px'}},'\u2713 Provider framework loaded'));
+    var ph=el('div',{style:{display:'flex',alignItems:'center',marginBottom:'8px'}});
+    ph.append(el('div',{style:{flex:'1',fontSize:'13px',color:'var(--dim)'}},'Add the providers you want to evaluate:'));
+    ph.append(el('button',{className:'btn',onClick:pfAddProvider},'+ Add provider'));
+    pc.append(ph);
+    if(PORTF.providers.length===0)pc.append(el('div',{style:{color:'var(--mute)',fontSize:'13px',padding:'6px 0'}},'No providers yet.'));
+    PORTF.providers.forEach(function(pv){
+      var ac=0;try{ac=Object.keys(JSON.parse(localStorage.getItem('tprm_ans_'+pv.id)||'{}')).length;}catch(e){}
+      var row=el('div',{style:{display:'flex',alignItems:'center',gap:'10px',padding:'10px 0',borderTop:'1px solid var(--brd)'}});
+      row.append(el('div',{style:{flex:'1'}},el('div',{style:{fontWeight:'600',color:'var(--text)'}},pv.name),el('div',{style:{fontSize:'11px',color:'var(--mute)'}},ac>0?ac+' answered':'not started')));
+      row.append(el('button',{className:'btn btn-t',onClick:(function(x){return function(){pfOpen(x.id,x.name,'vendor');};})(pv)},'Evaluate \u2192'));
+      row.append(el('button',{className:'btn',style:{color:'var(--red)'},onClick:(function(x){return function(){pfRemoveProvider(x.id);};})(pv)},'\u2715'));
+      pc.append(row);
+    });
+  }
+  wrap.append(pc);
+  if(PORTF.providers.length){wrap.append(el('div',{style:{marginTop:'20px',textAlign:'center'}},el('button',{className:'btn btn-t',onClick:function(){try{localStorage.setItem('tprm_open_portfolio','1');}catch(e){}window.location.href='fcma_report.html';}},'View consolidated results \u2192')));}
   main.append(wrap);
 }
 function render(){
@@ -329,35 +384,24 @@ function render(){
   }
   var langSel=el('div',{className:'lang-sel'});
   ['es','en','pt'].forEach(lng=>langSel.append(el('button',{className:'lang-btn'+(LANG===lng?' on':''),onClick:()=>switchLang(lng)},lng.toUpperCase())));
-  var tabs=IS_CLIENT?[['assess',t('assess')]]:[['portfolio','🗂 Portfolio'],['assess',t('assess')],['editor',t('editor')],['preview',t('preview')],['stats',t('stats')]];
+  var brandName=FW_TYPE?((META.assessmentName||META.title||'Assessment')):'Assessment Tool';
   const hdr=el('header',{className:'hdr'},
     el('div',{style:{display:'flex',alignItems:'center',gap:'10px'}},
-      el('div',{className:'logo'},'F'),
-      el('div',null,el('div',{className:'title'},'FCMA'),el('div',{className:'sub'},IS_CLIENT?t('assessment'):t('assessEditor')))
+      el('div',{className:'logo'},((brandName||'A').trim()[0]||'A').toUpperCase()),
+      el('div',null,el('div',{className:'title'},brandName),el('div',{className:'sub'},IS_CLIENT?t('assessment'):(FW_TYPE==='vendor'?'Third-party risk program':(FW_TYPE?'Assessment':'Load a framework to begin'))))
     ),
-    el('div',{className:'pills'},...tabs.map(([v,l])=>el('button',{className:`pill${VIEW===v?' on':''}`,onClick:()=>{VIEW=v;render()}},l))),
     el('div',{style:{flex:'1'}}),langSel,
-    el('div',{style:{display:'flex',gap:'6px',alignItems:'center',marginLeft:'10px'}},
-      el('span',{className:'badge badge-t'},st.pilars+'P'),
-      el('span',{className:'badge badge-b'},st.comps+'C'),
-      el('span',{className:'badge badge-a'},st.core+' Core')
-    ),
-    ...(IS_CLIENT?[]:[el('div',{style:{display:'flex',gap:'6px'}},
-      el('input',{type:'file',id:'fimport',accept:'.md,.json',style:{display:'none'},onChange:e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const tx=ev.target.result;if(f.name.endsWith('.json')){try{const j=JSON.parse(tx);DATA=j.data||j;CORE=new Set(j.core||[]);ACTIVE_P=DATA.length?0:null;ACTIVE_S=null;save();render()}catch(e){alert('Error: '+e.message)}}else importMD(tx);};r.readAsText(f);e.target.value='';}}),
-      el('button',{className:'btn',onClick:()=>$('#fimport').click()},t('import')),
-      el('button',{className:'btn btn-t',onClick:exportMD},'📄 MD'),
-      el('button',{className:'btn',onClick:exportJSON},'💾 JSON'),
-    )])
+    ...(FW_TYPE&&!IS_CLIENT&&!ACTIVE_NODE?[el('button',{className:'btn',style:{marginLeft:'10px'},onClick:resetFlow},'\u21BA New')]:[])
   );
   app.append(hdr);
-  if(ACTIVE_NODE&&!IS_CLIENT){app.append(el('div',{style:{maxWidth:'1100px',margin:'0 auto',padding:'8px 12px',display:'flex',alignItems:'center',gap:'10px'}},el('button',{className:'btn',onClick:pfBack},'← Back to Portfolio'),el('span',{style:{fontSize:'13px',color:'var(--dim)'}},'Assessing: ',el('b',{style:{color:'var(--text)'}},(REG_DATA&&REG_DATA.company)||''))));}
+  if(ACTIVE_NODE&&!IS_CLIENT){app.append(el('div',{style:{maxWidth:'1100px',margin:'0 auto',padding:'8px 12px',display:'flex',alignItems:'center',gap:'10px'}},el('button',{className:'btn',onClick:pfBack},'\u2190 Back'),el('span',{style:{fontSize:'13px',color:'var(--dim)'}},'Evaluating: ',el('b',{style:{color:'var(--text)'}},(REG_DATA&&REG_DATA.company)||''))));}
   const main=el('div',{className:'main',style:IS_CLIENT?{paddingBottom:'24px'}:{}});
   app.append(main);
-  if(VIEW==='portfolio')renderPortfolio(main);
-  else if(VIEW==='assess')renderAssess(main);
-  else if(VIEW==='editor')renderEditor(main);
-  else if(VIEW==='preview')renderPreview(main);
-  else renderStats(main);
+  if(IS_CLIENT){renderAssess(main);}
+  else if(ACTIVE_NODE){renderAssess(main);}
+  else if(FW_TYPE==='vendor'){renderSetup(main);}
+  else if(FW_TYPE==='generic'){renderAssess(main);}
+  else{renderWelcome(main);}
 }
 
 
@@ -428,7 +472,7 @@ function renderAssess(main){
     card.append(el('div',{style:{width:'72px',height:'72px',borderRadius:'20px',background:'linear-gradient(135deg,var(--teal),var(--tealL))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'32px',fontWeight:'800',color:'var(--wh)',margin:'0 auto 28px',boxShadow:'0 8px 24px rgba(5,150,105,0.25)'}},((META.title||'F').trim()[0]||'F')));
     card.append(el('h1',{style:{fontSize:'30px',fontWeight:'800',marginBottom:'10px',letterSpacing:'-0.8px',color:'var(--text)'}},(META.title||t('fullTitle'))));
     card.append(el('p',{style:{fontSize:'16px',color:'var(--dim)',marginBottom:'36px',lineHeight:'1.6'}},(META.subtitle||t('fullDesc'))));
-    if(!IS_CLIENT){
+    if(!IS_CLIENT&&!ACTIVE_NODE){
       var _org=el('div',{style:{marginBottom:'28px',textAlign:'left',background:'var(--bg)',border:'1px solid var(--brd)',borderRadius:'14px',padding:'20px 22px'}});
       _org.append(el('div',{style:{fontSize:'11px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'1.5px',color:'var(--mute)',marginBottom:'14px'}},'Organization'));
       var _mkf=function(id,lab,ph,val){var w=el('div',{style:{marginBottom:'12px'}});w.append(el('label',{style:{display:'block',fontSize:'12px',fontWeight:'600',color:'var(--dim)',marginBottom:'5px'}},lab));w.append(el('input',{id:id,type:'text',value:val||'',placeholder:ph,style:{width:'100%',padding:'10px 12px',fontSize:'14px',border:'1px solid var(--brd)',borderRadius:'8px',boxSizing:'border-box',fontFamily:'inherit'}}));return w;};
@@ -440,14 +484,16 @@ function renderAssess(main){
       _org.append(el('div',{id:'qerr',style:{display:'none',color:'#dc2626',fontSize:'12px',marginTop:'6px'}},'Enter the company name to continue.'));
       card.append(_org);
     }
-    card.append(el('p',{style:{fontSize:'11px',color:'var(--mute)',marginBottom:'16px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'2px'}},t('selectMode')));
+    if(CORE.size>0){
+    card.append(el('p',{style:{fontSize:'12px',color:'var(--dim)',marginBottom:'16px',fontWeight:'600',lineHeight:'1.5'}},'This framework contains Core questions. Choose how to evaluate:'));
     var modes=el('div',{style:{display:'flex',gap:'14px',justifyContent:'center',marginBottom:'36px',flexWrap:'wrap'}});
     var cBtn=el('div',{style:{flex:'1',minWidth:'240px',padding:'28px 22px',borderRadius:'14px',border:'2px solid '+(AQ_MODE==='core'?'var(--teal)':'var(--brd)'),background:AQ_MODE==='core'?'rgba(5,150,105,0.05)':'var(--wh)',cursor:'pointer',transition:'all .2s',textAlign:'center',boxShadow:AQ_MODE==='core'?'0 4px 16px rgba(5,150,105,0.12)':'var(--sh1)'},onClick:()=>{AQ_MODE='core';render();}});
     cBtn.append(el('div',{style:{fontSize:'44px',fontWeight:'800',fontFamily:'var(--fm)',color:'var(--teal)',marginBottom:'10px'}},String(CORE.size)),el('div',{style:{fontSize:'17px',fontWeight:'700',marginBottom:'8px',color:'var(--text)'}},t('screeningCore')),el('div',{style:{fontSize:'13px',color:'var(--dim)',lineHeight:'1.6'}},t('screeningDesc')));modes.append(cBtn);
     var aBtn=el('div',{style:{flex:'1',minWidth:'240px',padding:'28px 22px',borderRadius:'14px',border:'2px solid '+(AQ_MODE==='all'?'#2563eb':'var(--brd)'),background:AQ_MODE==='all'?'rgba(37,99,235,0.05)':'var(--wh)',cursor:'pointer',transition:'all .2s',textAlign:'center',boxShadow:AQ_MODE==='all'?'0 4px 16px rgba(37,99,235,0.1)':'var(--sh1)'},onClick:()=>{AQ_MODE='all';render();}});
     aBtn.append(el('div',{style:{fontSize:'44px',fontWeight:'800',fontFamily:'var(--fm)',color:'#2563eb',marginBottom:'10px'}},String(allQ.length)),el('div',{style:{fontSize:'17px',fontWeight:'700',marginBottom:'8px',color:'var(--text)'}},t('deepDive')),el('div',{style:{fontSize:'13px',color:'var(--dim)',lineHeight:'1.6'}},t('deepDiveDesc')));modes.append(aBtn);
     card.append(modes);
-    card.append(el('button',{className:'btn btn-t',style:{padding:'16px 52px',fontSize:'17px',fontWeight:'700',borderRadius:'10px',boxShadow:'0 4px 14px rgba(5,150,105,0.25)'},onClick:()=>{if(!IS_CLIENT){var _co=(document.getElementById('qco')||{}).value;_co=_co?_co.trim():'';if(!_co){var _e=document.getElementById('qerr');if(_e)_e.style.display='block';return;}var _ow=(document.getElementById('qow')||{}).value;_ow=_ow?_ow.trim():'';var _em=(document.getElementById('qem')||{}).value;_em=_em?_em.trim():'';REG_DATA=Object.assign({},REG_DATA||{},{company:_co,contact:_ow,email:_em,ts:new Date().toISOString(),lang:LANG});try{localStorage.setItem('fcma_reg',JSON.stringify(REG_DATA));}catch(_x){}try{sendRegistration(REG_DATA);}catch(_x){}}AQ_STARTED=true;AQ_IDX=0;AQ_HIGHEST=0;render();}},t('startEval')));
+    }else{AQ_MODE='all';}
+    card.append(el('button',{className:'btn btn-t',style:{padding:'16px 52px',fontSize:'17px',fontWeight:'700',borderRadius:'10px',boxShadow:'0 4px 14px rgba(5,150,105,0.25)'},onClick:()=>{if(!IS_CLIENT&&!ACTIVE_NODE){var _co=(document.getElementById('qco')||{}).value;_co=_co?_co.trim():'';if(!_co){var _e=document.getElementById('qerr');if(_e)_e.style.display='block';return;}var _ow=(document.getElementById('qow')||{}).value;_ow=_ow?_ow.trim():'';var _em=(document.getElementById('qem')||{}).value;_em=_em?_em.trim():'';REG_DATA=Object.assign({},REG_DATA||{},{company:_co,contact:_ow,email:_em,ts:new Date().toISOString(),lang:LANG});try{localStorage.setItem('fcma_reg',JSON.stringify(REG_DATA));}catch(_x){}try{sendRegistration(REG_DATA);}catch(_x){}}AQ_STARTED=true;AQ_IDX=0;AQ_HIGHEST=0;render();}},t('startEval')));
     if(answered>0){card.append(el('div',{style:{marginTop:'24px',paddingTop:'18px',borderTop:'1px solid var(--brd)'}},el('p',{style:{fontSize:'13px',color:'var(--mute)',marginBottom:'12px'}},tf('savedAnswers',{n:Object.keys(ANSWERS).length})),el('button',{className:'btn',style:{marginRight:'10px',padding:'10px 22px',fontSize:'13px'},onClick:()=>{AQ_STARTED=true;render();}},t('continueWhere')),el('button',{className:'btn btn-r',style:{padding:'10px 22px',fontSize:'13px'},onClick:()=>{if(confirm(t('deleteAll'))){ANSWERS={};AQ_IDX=0;AQ_HIGHEST=0;save();render();}}},t('restart'))));}
     start.append(card);main.append(start);return;
   }
@@ -1592,7 +1638,9 @@ if(IS_CLIENT){
   });
 }else{
   load();
-  if(PORTF){ACTIVE_NODE=null;try{localStorage.removeItem('tprm_active_node');}catch(e){}VIEW='portfolio';}
+  ACTIVE_NODE=null;try{localStorage.removeItem('tprm_active_node');}catch(e){}
+  if(localStorage.getItem('tprm_fw_inst')){FW_TYPE='vendor';try{var _fi=JSON.parse(localStorage.getItem('tprm_fw_inst'));DATA=_fi.data;CORE=new Set(_fi.core||[]);META=_fi.meta||{};}catch(e){}}
+  else if(DATA&&DATA.length){FW_TYPE=/vendor|third[\s\-]?party|tprm/i.test(((META.framework||'')+' '+(META.assessmentName||'')+' '+(META.title||'')))?'vendor':'generic';}
   render();
 }
 
