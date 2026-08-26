@@ -722,7 +722,7 @@ function PagePortfolio(){
   try{var ifw=JSON.parse(localStorage.getItem('tprm_fw_inst')||'null');var ians=JSON.parse(localStorage.getItem('tprm_ans_inst')||'{}');if(ifw&&ifw.data){var iv=[];ifw.data.forEach(function(pp){pp.subs.forEach(function(sd){sd.comps.forEach(function(c){if(ians[c.id]>0)iv.push(ians[c.id]);});});});if(iv.length){entMat=parseFloat((iv.reduce(function(a,b){return a+b;},0)/iv.length).toFixed(2));entRisk=parseFloat((6-entMat).toFixed(2));}}}catch(e){}
   const [pwPct,setPwPct]=useState(Math.round(BRANCH_WEIGHTS.provider*100));
   var wp=pwPct/100, we=(100-pwPct)/100;
-  function branchTotal(res){if(!res)return 0;if(!entRisk)return res;return Math.round(res*wp+entRisk*we);}
+  function branchTotal(res){if(!res)return 0;if(!entRisk)return res;return res*wp+entRisk*we;}
   var provs=(pf.providers||[]).map(function(pv){
     var ans={}; try{ans=JSON.parse(localStorage.getItem('tprm_ans_'+pv.id)||'{}');}catch(e){}
     var r=computeProviderRisk(fw,ans);
@@ -815,7 +815,7 @@ function PagePortfolio(){
               <td className="text-center p-3 mono text-slate-300">{p.inhAvg||(p.answered>0?<span className="text-amber-500 text-xs">in progress</span>:<span className="text-slate-600 text-xs">not started</span>)}</td>
               <td className="text-center p-3"><span className="px-2 py-0.5 rounded-full text-xs font-bold mono" style={{color:RES_INFO[p.overallMax].color,background:RES_INFO[p.overallMax].color+'1f',border:'1px solid '+RES_INFO[p.overallMax].color+'55'}}>{p.overallMax?p.overallMax+' · '+RES_INFO[p.overallMax].label:'—'}</span></td>
               <td className="text-center p-3 mono text-slate-400">{p.weightedIndex||'—'}</td>
-              <td className="text-center p-3">{(function(){var bt=branchTotal(p.overallMax);return bt?(<span className="px-2 py-0.5 rounded-full text-xs font-bold mono" style={{color:RES_INFO[bt].color,background:RES_INFO[bt].color+'1f',border:'1px solid '+RES_INFO[bt].color+'55'}}>{bt+' · '+RES_INFO[bt].label}</span>):(<span className="text-slate-600">—</span>);})()}</td>
+              <td className="text-center p-3">{(function(){var btR=branchTotal(p.overallMax);var bt=Math.round(btR);return btR?(<span className="px-2 py-0.5 rounded-full text-xs font-bold mono" style={{color:RES_INFO[bt].color,background:RES_INFO[bt].color+'1f',border:'1px solid '+RES_INFO[bt].color+'55'}}>{btR.toFixed(1)+' · '+RES_INFO[bt].label}</span>):(<span className="text-slate-600">—</span>);})()}</td>
               <td className="p-3 text-slate-400 text-xs">{p.weakest?p.weakest.name+' ('+p.weakest.res+')':'—'}</td>
               <td className="text-center p-3 mono text-slate-500 text-xs">{p.coverage}/{domNames.length}</td>
             </tr>);})}
