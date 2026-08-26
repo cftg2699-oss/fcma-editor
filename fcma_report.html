@@ -83,8 +83,8 @@ function levelBadge(s) {
 }
 
 // ── DATA LOADER ────────────────────────────────────────────
-const FMETA=(function(){var d={assessmentName:'Financial Crime Maturity Assessment',frameworkShort:'FCMA\u2122 v2.0',org:'Continental Risk Partners',framework:'FCMA\u2122',version:'',scoreDirection:null};try{var m=JSON.parse(localStorage.getItem('fcma_meta')||'null')||{};return{assessmentName:m.assessmentName||m.title||d.assessmentName,frameworkShort:m.frameworkShort||d.frameworkShort,org:m.org||d.org,framework:m.framework||d.framework,version:m.version||d.version,scoreDirection:m.scoreDirection||null};}catch(e){return d;}})();
-const TOOL={name:'Maturity Tool',version:'1.0'};
+const FMETA=(function(){var d={assessmentName:'Financial Crime Maturity Assessment',frameworkShort:'FCMA\u2122 v2.0',org:'Continental Risk Advisor',framework:'FCMA\u2122',version:'',scoreDirection:null};try{var m=JSON.parse(localStorage.getItem('fcma_meta')||'null')||{};return{assessmentName:m.assessmentName||m.title||d.assessmentName,frameworkShort:m.frameworkShort||d.frameworkShort,org:m.org||d.org,framework:m.framework||d.framework,version:m.version||d.version,scoreDirection:m.scoreDirection||null};}catch(e){return d;}})();
+const TOOL={name:'RiskAtlas',version:'1.0'};
 const RESIDUAL_MATRIX=[[1,1,2,2,3],[1,2,2,3,3],[2,2,3,3,4],[2,3,3,4,5],[3,3,4,5,5]];
 const RES_INFO={0:{label:'\u2014',color:'#475569',auth:'Not yet computed'},1:{label:'Very Low',color:'#22c55e',auth:'Business unit management'},2:{label:'Low',color:'#84cc16',auth:'Business unit management'},3:{label:'Moderate',color:'#f59e0b',auth:'Business unit + TPRM office sign-off'},4:{label:'High',color:'#f97316',auth:'Senior management approval; documented risk acceptance'},5:{label:'Critical',color:'#ef4444',auth:'Senior management + board approval'}};
 const IS_SCORECARD=/INVERTED/i.test(FMETA.scoreDirection||'');
@@ -1150,7 +1150,7 @@ function App() {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <div className="text-center max-w-md p-8">
-          <div className="text-6xl mb-6">📋</div>
+          <div className="text-6xl mb-6">🗺️</div>
           <h1 className="text-white text-2xl font-extrabold mb-3">No Assessment Data Found</h1>
           <p className="text-slate-400 text-sm leading-relaxed mb-6">
             Complete the FCMA Assessment first, then open this report.
