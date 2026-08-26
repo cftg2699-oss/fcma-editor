@@ -89,6 +89,7 @@ const RESIDUAL_MATRIX=[[1,1,2,2,3],[1,2,2,3,3],[2,2,3,3,4],[2,3,3,4,5],[3,3,4,5,
 const RES_INFO={0:{label:'\u2014',color:'#475569',auth:'Not yet computed'},1:{label:'Very Low',color:'#22c55e',auth:'Business unit management'},2:{label:'Low',color:'#84cc16',auth:'Business unit management'},3:{label:'Moderate',color:'#f59e0b',auth:'Business unit + TPRM office sign-off'},4:{label:'High',color:'#f97316',auth:'Senior management approval; documented risk acceptance'},5:{label:'Critical',color:'#ef4444',auth:'Senior management + board approval'}};
 const IS_SCORECARD=/INVERTED/i.test(FMETA.scoreDirection||'');
 const DOMAIN_WEIGHTS=[1,1.2,1.1,1,0.9,0.9,0.8,1.1,1,1.2];
+const BRANCH_WEIGHTS={provider:0.6,entity:0.4};
 const PORTFOLIO_DATA=(function(){try{var pf=JSON.parse(localStorage.getItem('tprm_portfolio')||'null');var fw=JSON.parse(localStorage.getItem('tprm_fw_vendor')||'null');if(!pf||!fw||!fw.data||!pf.providers)return null;return {pf:pf,fw:fw};}catch(e){return null;}})();
 const IS_PORTFOLIO=!!(PORTFOLIO_DATA&&PORTFOLIO_DATA.pf.providers&&PORTFOLIO_DATA.pf.providers.length);
 function computeProviderRisk(fw, answers){
@@ -717,6 +718,9 @@ function PageVendorRisk({ data, answers }) {
 
 function PagePortfolio(){
   var pf=PORTFOLIO_DATA.pf, fw=PORTFOLIO_DATA.fw;
+  var entMat=0, entRisk=0;
+  try{var ifw=JSON.parse(localStorage.getItem('tprm_fw_inst')||'null');var ians=JSON.parse(localStorage.getItem('tprm_ans_inst')||'{}');if(ifw&&ifw.data){var iv=[];ifw.data.forEach(function(pp){pp.subs.forEach(function(sd){sd.comps.forEach(function(c){if(ians[c.id]>0)iv.push(ians[c.id]);});});});if(iv.length){entMat=parseFloat((iv.reduce(function(a,b){return a+b;},0)/iv.length).toFixed(2));entRisk=parseFloat((6-entMat).toFixed(2));}}}catch(e){}
+  function branchTotal(res){if(!res)return 0;if(!entRisk)return res;return Math.round(res*BRANCH_WEIGHTS.provider+entRisk*BRANCH_WEIGHTS.entity);}
   var provs=(pf.providers||[]).map(function(pv){
     var ans={}; try{ans=JSON.parse(localStorage.getItem('tprm_ans_'+pv.id)||'{}');}catch(e){}
     var r=computeProviderRisk(fw,ans);
@@ -744,6 +748,12 @@ function PagePortfolio(){
         <h2 className="text-2xl font-extrabold text-white mb-1">Portfolio Roll-up</h2>
         <p className="text-sm text-slate-400 max-w-3xl">Consolidated third-party risk across <b>{assessed.length}</b> assessed provider{assessed.length===1?'':'s'} (of {provs.length}). Official residual per provider is the <b>worst domain</b> (weakest link); the weighted index is a secondary comparison metric.</p>
       </div>
+      {entMat>0 && <div className="rounded-2xl border p-5 flex flex-wrap items-center gap-6" style={{background:RES_INFO[Math.round(entRisk)||1].color+'12',borderColor:RES_INFO[Math.round(entRisk)||1].color+'44'}}>
+        <div className="text-center"><div className="text-4xl font-extrabold mono text-teal-400">{entMat}</div><div className="text-[10px] text-slate-400 uppercase tracking-wide mt-1">Program Maturity</div></div>
+        <div className="text-2xl text-slate-600">→</div>
+        <div className="text-center"><div className="text-4xl font-extrabold mono" style={{color:RES_INFO[Math.round(entRisk)||1].color}}>{entRisk}</div><div className="text-[10px] text-slate-400 uppercase tracking-wide mt-1">Entity Risk (6−maturity)</div></div>
+        <div className="flex-1 min-w-[220px] text-xs text-slate-400 leading-relaxed">The institution program's maturity is converted to a risk counterpart. Each branch total below combines this with the provider's residual, weighted {Math.round(BRANCH_WEIGHTS.provider*100)}% provider / {Math.round(BRANCH_WEIGHTS.entity*100)}% entity (editable in BRANCH_WEIGHTS).</div>
+      </div>}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4 text-center"><div className="text-3xl font-extrabold text-white mono">{assessed.length}</div><div className="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Assessed</div></div>
         <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4 text-center"><div className="text-3xl font-extrabold mono" style={{color:critCount>0?'#ef4444':'#22c55e'}}>{critCount}</div><div className="text-[11px] text-slate-400 uppercase tracking-wide mt-1">High / Critical</div></div>
@@ -781,6 +791,7 @@ function PagePortfolio(){
             <th className="text-center p-3">Inherent</th>
             <th className="text-center p-3">Residual (official)</th>
             <th className="text-center p-3">Weighted idx</th>
+            <th className="text-center p-3">Branch total</th>
             <th className="text-left p-3">Weakest domain</th>
             <th className="text-center p-3">Coverage</th>
           </tr></thead>
@@ -790,10 +801,11 @@ function PagePortfolio(){
               <td className="text-center p-3 mono text-slate-300">{p.inhAvg||'—'}</td>
               <td className="text-center p-3"><span className="px-2 py-0.5 rounded-full text-xs font-bold mono" style={{color:RES_INFO[p.overallMax].color,background:RES_INFO[p.overallMax].color+'1f',border:'1px solid '+RES_INFO[p.overallMax].color+'55'}}>{p.overallMax?p.overallMax+' · '+RES_INFO[p.overallMax].label:'—'}</span></td>
               <td className="text-center p-3 mono text-slate-400">{p.weightedIndex||'—'}</td>
+              <td className="text-center p-3">{(function(){var bt=branchTotal(p.overallMax);return bt?(<span className="px-2 py-0.5 rounded-full text-xs font-bold mono" style={{color:RES_INFO[bt].color,background:RES_INFO[bt].color+'1f',border:'1px solid '+RES_INFO[bt].color+'55'}}>{bt+' · '+RES_INFO[bt].label}</span>):(<span className="text-slate-600">—</span>);})()}</td>
               <td className="p-3 text-slate-400 text-xs">{p.weakest?p.weakest.name+' ('+p.weakest.res+')':'—'}</td>
               <td className="text-center p-3 mono text-slate-500 text-xs">{p.coverage}/{domNames.length}</td>
             </tr>);})}
-            {assessed.length===0 && <tr><td colSpan="6" className="p-6 text-center text-slate-500">No providers assessed yet. Assess providers from the Portfolio screen.</td></tr>}
+            {assessed.length===0 && <tr><td colSpan="7" className="p-6 text-center text-slate-500">No providers assessed yet. Assess providers from the Portfolio screen.</td></tr>}
           </tbody>
         </table>
       </div>
@@ -1295,4 +1307,3 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
-
