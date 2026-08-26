@@ -728,18 +728,19 @@ function PagePortfolio(){
     var r=computeProviderRisk(fw,ans);
     return Object.assign({},pv,r,{answered:Object.keys(ans).length});
   });
-  var assessed=provs.filter(function(p){return p.coverage>0;});
+  var assessed=provs.filter(function(p){return p.answered>0;});
+  var withRes=provs.filter(function(p){return p.overallMax>0;});
   var critCount=assessed.filter(function(p){return p.overallMax>=4;}).length;
   var avgIdx=assessed.length?parseFloat((assessed.reduce(function(a,p){return a+p.weightedIndex;},0)/assessed.length).toFixed(2)):0;
   var domNames=fw.data.slice(1).map(function(cp){return cp.name.replace(/^Control Effectiveness\s*[—-]\s*/,'');});
   var domAvgs=domNames.map(function(nm,i){
-    var vals=assessed.map(function(p){return p.domains[i]&&p.domains[i].res;}).filter(function(v){return v>0;});
+    var vals=withRes.map(function(p){return p.domains[i]&&p.domains[i].res;}).filter(function(v){return v>0;});
     return {name:nm,avg:vals.length?parseFloat((vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(2)):0,count:vals.length};
   });
   var worstDomain=domAvgs.reduce(function(m,d){return d.avg>((m&&m.avg)||0)?d:m;},null);
   var worstCell=null;
-  assessed.forEach(function(p){p.domains.forEach(function(d){if(d.res>=4&&(!worstCell||d.res>worstCell.res))worstCell={prov:p.name,domain:d.name,res:d.res};});});
-  var sorted=assessed.slice().sort(function(a,b){return b.overallMax-a.overallMax||b.weightedIndex-a.weightedIndex;});
+  withRes.forEach(function(p){p.domains.forEach(function(d){if(d.res>=4&&(!worstCell||d.res>worstCell.res))worstCell={prov:p.name,domain:d.name,res:d.res};});});
+  var sorted=provs.slice().sort(function(a,b){return (b.overallMax-a.overallMax)||(b.answered-a.answered);});
   // scatter geom
   var W=620,H=400,mL=54,mR=20,mT=20,mB=46;
   var px=function(v){return mL+((v-1)/4)*(W-mL-mR);};
@@ -811,14 +812,14 @@ function PagePortfolio(){
           <tbody>
             {sorted.map(function(p){return (<tr key={p.id} className="border-t border-slate-800">
               <td className="p-3 text-slate-200 font-medium">{p.name}</td>
-              <td className="text-center p-3 mono text-slate-300">{p.inhAvg||'—'}</td>
+              <td className="text-center p-3 mono text-slate-300">{p.inhAvg||(p.answered>0?<span className="text-amber-500 text-xs">in progress</span>:<span className="text-slate-600 text-xs">not started</span>)}</td>
               <td className="text-center p-3"><span className="px-2 py-0.5 rounded-full text-xs font-bold mono" style={{color:RES_INFO[p.overallMax].color,background:RES_INFO[p.overallMax].color+'1f',border:'1px solid '+RES_INFO[p.overallMax].color+'55'}}>{p.overallMax?p.overallMax+' · '+RES_INFO[p.overallMax].label:'—'}</span></td>
               <td className="text-center p-3 mono text-slate-400">{p.weightedIndex||'—'}</td>
               <td className="text-center p-3">{(function(){var bt=branchTotal(p.overallMax);return bt?(<span className="px-2 py-0.5 rounded-full text-xs font-bold mono" style={{color:RES_INFO[bt].color,background:RES_INFO[bt].color+'1f',border:'1px solid '+RES_INFO[bt].color+'55'}}>{bt+' · '+RES_INFO[bt].label}</span>):(<span className="text-slate-600">—</span>);})()}</td>
               <td className="p-3 text-slate-400 text-xs">{p.weakest?p.weakest.name+' ('+p.weakest.res+')':'—'}</td>
               <td className="text-center p-3 mono text-slate-500 text-xs">{p.coverage}/{domNames.length}</td>
             </tr>);})}
-            {assessed.length===0 && <tr><td colSpan="7" className="p-6 text-center text-slate-500">No providers assessed yet. Assess providers from the Portfolio screen.</td></tr>}
+            {provs.length===0 && <tr><td colSpan="7" className="p-6 text-center text-slate-500">No providers yet. Add and assess providers from the Portfolio screen.</td></tr>}
           </tbody>
         </table>
       </div>
@@ -1320,3 +1321,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
+
