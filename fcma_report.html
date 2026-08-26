@@ -88,6 +88,30 @@ const TOOL={name:'Maturity Tool',version:'1.0'};
 const RESIDUAL_MATRIX=[[1,1,2,2,3],[1,2,2,3,3],[2,2,3,3,4],[2,3,3,4,5],[3,3,4,5,5]];
 const RES_INFO={0:{label:'\u2014',color:'#475569',auth:'Not yet computed'},1:{label:'Very Low',color:'#22c55e',auth:'Business unit management'},2:{label:'Low',color:'#84cc16',auth:'Business unit management'},3:{label:'Moderate',color:'#f59e0b',auth:'Business unit + TPRM office sign-off'},4:{label:'High',color:'#f97316',auth:'Senior management approval; documented risk acceptance'},5:{label:'Critical',color:'#ef4444',auth:'Senior management + board approval'}};
 const IS_SCORECARD=/INVERTED/i.test(FMETA.scoreDirection||'');
+const DOMAIN_WEIGHTS=[1,1.2,1.1,1,0.9,0.9,0.8,1.1,1,1.2];
+const PORTFOLIO_DATA=(function(){try{var pf=JSON.parse(localStorage.getItem('tprm_portfolio')||'null');var fw=JSON.parse(localStorage.getItem('tprm_fw_vendor')||'null');if(!pf||!fw||!fw.data||!pf.providers)return null;return {pf:pf,fw:fw};}catch(e){return null;}})();
+const IS_PORTFOLIO=!!(PORTFOLIO_DATA&&PORTFOLIO_DATA.pf.providers&&PORTFOLIO_DATA.pf.providers.length);
+function computeProviderRisk(fw, answers){
+  var data=fw.data; var inhPillar=data[0];
+  var inhComps=inhPillar?inhPillar.subs.reduce(function(a,x){return a.concat(x.comps);},[]):[];
+  var controlPillars=data.slice(1);
+  var domains=controlPillars.map(function(cp,i){
+    var inhComp=inhComps[i]; var inh=inhComp?(answers[inhComp.id]||0):0;
+    var cComps=cp.subs.reduce(function(a,x){return a.concat(x.comps);},[]);
+    var scored=cComps.map(function(c){return answers[c.id];}).filter(function(v){return v>0;});
+    var ctrl=scored.length?Math.round(scored.reduce(function(a,b){return a+b;},0)/scored.length):0;
+    var res=(inh&&ctrl)?RESIDUAL_MATRIX[inh-1][ctrl-1]:0;
+    return {name:cp.name.replace(/^Control Effectiveness\s*[—-]\s*/,''),inh:inh,ctrl:ctrl,res:res};
+  });
+  var overallMax=domains.reduce(function(m,d){return Math.max(m,d.res);},0);
+  var wsum=0,w=0; domains.forEach(function(d,i){if(d.res>0){var wt=DOMAIN_WEIGHTS[i]||1;wsum+=d.res*wt;w+=wt;}});
+  var weightedIndex=w>0?parseFloat((wsum/w).toFixed(2)):0;
+  var inhVals=domains.map(function(d){return d.inh;}).filter(function(v){return v>0;});
+  var inhAvg=inhVals.length?parseFloat((inhVals.reduce(function(a,b){return a+b;},0)/inhVals.length).toFixed(2)):0;
+  var weakest=null; domains.forEach(function(d){if(d.res>0&&(!weakest||d.res>weakest.res))weakest=d;});
+  var coverage=domains.filter(function(d){return d.res>0;}).length;
+  return {domains:domains,overallMax:overallMax,weightedIndex:weightedIndex,inhAvg:inhAvg,weakest:weakest,coverage:coverage};
+}
 function loadFCMAData() {
   try {
     const data    = JSON.parse(localStorage.getItem('fcma_data')  || 'null');
@@ -691,6 +715,93 @@ function PageVendorRisk({ data, answers }) {
   );
 }
 
+function PagePortfolio(){
+  var pf=PORTFOLIO_DATA.pf, fw=PORTFOLIO_DATA.fw;
+  var provs=(pf.providers||[]).map(function(pv){
+    var ans={}; try{ans=JSON.parse(localStorage.getItem('tprm_ans_'+pv.id)||'{}');}catch(e){}
+    var r=computeProviderRisk(fw,ans);
+    return Object.assign({},pv,r,{answered:Object.keys(ans).length});
+  });
+  var assessed=provs.filter(function(p){return p.coverage>0;});
+  var critCount=assessed.filter(function(p){return p.overallMax>=4;}).length;
+  var avgIdx=assessed.length?parseFloat((assessed.reduce(function(a,p){return a+p.weightedIndex;},0)/assessed.length).toFixed(2)):0;
+  var domNames=fw.data.slice(1).map(function(cp){return cp.name.replace(/^Control Effectiveness\s*[—-]\s*/,'');});
+  var domAvgs=domNames.map(function(nm,i){
+    var vals=assessed.map(function(p){return p.domains[i]&&p.domains[i].res;}).filter(function(v){return v>0;});
+    return {name:nm,avg:vals.length?parseFloat((vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(2)):0,count:vals.length};
+  });
+  var worstDomain=domAvgs.reduce(function(m,d){return d.avg>((m&&m.avg)||0)?d:m;},null);
+  var worstCell=null;
+  assessed.forEach(function(p){p.domains.forEach(function(d){if(d.res>=4&&(!worstCell||d.res>worstCell.res))worstCell={prov:p.name,domain:d.name,res:d.res};});});
+  var sorted=assessed.slice().sort(function(a,b){return b.overallMax-a.overallMax||b.weightedIndex-a.weightedIndex;});
+  // scatter geom
+  var W=620,H=400,mL=54,mR=20,mT=20,mB=46;
+  var px=function(v){return mL+((v-1)/4)*(W-mL-mR);};
+  var py=function(v){return mT+(1-((v-1)/4))*(H-mT-mB);};
+  return (
+    <div className="animate-fade space-y-6">
+      <div className="mb-2">
+        <h2 className="text-2xl font-extrabold text-white mb-1">Portfolio Roll-up</h2>
+        <p className="text-sm text-slate-400 max-w-3xl">Consolidated third-party risk across <b>{assessed.length}</b> assessed provider{assessed.length===1?'':'s'} (of {provs.length}). Official residual per provider is the <b>worst domain</b> (weakest link); the weighted index is a secondary comparison metric.</p>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4 text-center"><div className="text-3xl font-extrabold text-white mono">{assessed.length}</div><div className="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Assessed</div></div>
+        <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4 text-center"><div className="text-3xl font-extrabold mono" style={{color:critCount>0?'#ef4444':'#22c55e'}}>{critCount}</div><div className="text-[11px] text-slate-400 uppercase tracking-wide mt-1">High / Critical</div></div>
+        <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4 text-center"><div className="text-3xl font-extrabold text-white mono">{avgIdx||'—'}</div><div className="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Avg Weighted Idx</div></div>
+        <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4 text-center"><div className="text-sm font-bold text-white leading-tight mt-1">{worstDomain?worstDomain.name:'—'}</div><div className="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Weakest Domain</div></div>
+      </div>
+      {worstCell && <div className="rounded-xl border p-4" style={{background:RES_INFO[worstCell.res].color+'14',borderColor:RES_INFO[worstCell.res].color+'55'}}><span className="text-xs uppercase tracking-wide font-bold" style={{color:RES_INFO[worstCell.res].color}}>Worst cell · </span><span className="text-sm text-slate-200"><b>{worstCell.prov}</b> — {worstCell.domain} at residual {worstCell.res} ({RES_INFO[worstCell.res].label})</span></div>}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4">
+          <h3 className="text-sm font-bold text-white mb-1">Criticality vs. Residual Risk</h3>
+          <p className="text-[11px] text-slate-500 mb-2">X: inherent criticality · Y: residual (max). Top-right = highest priority.</p>
+          <svg viewBox={`0 0 ${W} ${H}`} width="100%">
+            <line x1={mL} y1={py(3)} x2={W-mR} y2={py(3)} stroke="#334155" strokeDasharray="4 4"/>
+            <line x1={px(3)} y1={mT} x2={px(3)} y2={H-mB} stroke="#334155" strokeDasharray="4 4"/>
+            <line x1={mL} y1={mT} x2={mL} y2={H-mB} stroke="#475569"/>
+            <line x1={mL} y1={H-mB} x2={W-mR} y2={H-mB} stroke="#475569"/>
+            {[1,2,3,4,5].map(function(t){return (<text key={'x'+t} x={px(t)} y={H-mB+16} textAnchor="middle" fontSize="9" fill="#64748b">{t}</text>);})}
+            {[1,2,3,4,5].map(function(t){return (<text key={'y'+t} x={mL-8} y={py(t)+3} textAnchor="end" fontSize="9" fill="#64748b">{t}</text>);})}
+            <text x={(mL+W-mR)/2} y={H-6} textAnchor="middle" fontSize="10" fill="#94a3b8">Inherent Criticality →</text>
+            <text x={16} y={(H)/2} textAnchor="middle" fontSize="10" fill="#94a3b8" transform={`rotate(-90 16 ${H/2})`}>Residual (max) →</text>
+            {sorted.map(function(p,i){var col=RES_INFO[p.overallMax||0].color;var jx=((i%3)-1)*7;return (<g key={p.id}><circle cx={px(p.inhAvg||1)+jx} cy={py(p.overallMax||1)} r="9" fill={col+'cc'} stroke={col} strokeWidth="1.5"><title>{p.name+' · inherent '+p.inhAvg+' · residual '+p.overallMax}</title></circle></g>);})}
+          </svg>
+        </div>
+        <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4">
+          <h3 className="text-sm font-bold text-white mb-3">Portfolio Domain Averages</h3>
+          <div className="space-y-2">
+            {domAvgs.map(function(d,i){var col=d.avg>=4?'#ef4444':d.avg>=3?'#f59e0b':d.avg>=2?'#84cc16':d.avg>=1?'#22c55e':'#475569';return (<div key={i} className="flex items-center gap-2"><span className="text-[11px] text-slate-300 w-40 truncate">{d.name}</span><div className="flex-1 bg-slate-800 rounded-full h-2.5 overflow-hidden"><div className="h-full rounded-full bar-fill" style={{width:((d.avg/5)*100)+'%',background:col}}/></div><span className="text-[11px] mono w-8 text-right" style={{color:col}}>{d.avg||'—'}</span></div>);})}
+          </div>
+        </div>
+      </div>
+      <div className="bg-slate-900 rounded-2xl border border-slate-700 overflow-hidden">
+        <table className="w-full text-sm">
+          <thead><tr className="bg-slate-800 text-slate-300 text-xs uppercase tracking-wider">
+            <th className="text-left p-3">Provider</th>
+            <th className="text-center p-3">Inherent</th>
+            <th className="text-center p-3">Residual (official)</th>
+            <th className="text-center p-3">Weighted idx</th>
+            <th className="text-left p-3">Weakest domain</th>
+            <th className="text-center p-3">Coverage</th>
+          </tr></thead>
+          <tbody>
+            {sorted.map(function(p){return (<tr key={p.id} className="border-t border-slate-800">
+              <td className="p-3 text-slate-200 font-medium">{p.name}</td>
+              <td className="text-center p-3 mono text-slate-300">{p.inhAvg||'—'}</td>
+              <td className="text-center p-3"><span className="px-2 py-0.5 rounded-full text-xs font-bold mono" style={{color:RES_INFO[p.overallMax].color,background:RES_INFO[p.overallMax].color+'1f',border:'1px solid '+RES_INFO[p.overallMax].color+'55'}}>{p.overallMax?p.overallMax+' · '+RES_INFO[p.overallMax].label:'—'}</span></td>
+              <td className="text-center p-3 mono text-slate-400">{p.weightedIndex||'—'}</td>
+              <td className="p-3 text-slate-400 text-xs">{p.weakest?p.weakest.name+' ('+p.weakest.res+')':'—'}</td>
+              <td className="text-center p-3 mono text-slate-500 text-xs">{p.coverage}/{domNames.length}</td>
+            </tr>);})}
+            {assessed.length===0 && <tr><td colSpan="6" className="p-6 text-center text-slate-500">No providers assessed yet. Assess providers from the Portfolio screen.</td></tr>}
+          </tbody>
+        </table>
+      </div>
+      <p className="text-[10px] text-slate-600 italic">Official residual = worst domain (weakest link), per CRA methodology. Weighted index uses domain weights (Cyber/AI 1.2, Privacy/Resilience 1.1, Financial/Concentration 0.9, Reputational 0.8) — editable in DOMAIN_WEIGHTS. Weights are a judgment default and should be validated before use with a client.</p>
+    </div>
+  );
+}
+
 function PageMaturityScale({ data, core }) {
   const P = data ? data.length : 0;
   let S = 0, C = 0;
@@ -1011,7 +1122,7 @@ function PagePillarDetail({ pillar, answers, scores, core, onBack }) {
 
 // ── MAIN APP ───────────────────────────────────────────────
 function App() {
-  const [page, setPage] = useState(IS_SCORECARD ? 'vendorrisk' : 'overview');
+  const [page, setPage] = useState((function(){try{if(localStorage.getItem('tprm_open_portfolio')==='1'){localStorage.removeItem('tprm_open_portfolio');return 'portfolio';}}catch(e){}return IS_SCORECARD?'vendorrisk':'overview';})());
   const [drillPillar, setDrillPillar] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { data, answers, core, reg } = useMemo(() => loadFCMAData(), []);
@@ -1032,6 +1143,7 @@ function App() {
     { id:'threats',     label:'Threat Exposure',         icon:'🎯' },
     { id:'initiatives', label:'Initiatives (Effort×Benefit)', icon:'🧭' },
     { id:'vendorrisk',  label:'Vendor Risk (Residual)',   icon:'🧮' },
+    { id:'portfolio',   label:'Portfolio Roll-up',        icon:'🗂' },
   ];
 
   if (!data) {
@@ -1117,7 +1229,7 @@ function App() {
                 <span>←</span>
                 <span className="flex-1">Back to Assessment</span>
               </a>
-              {NAV.filter(n => n.id!=='vendorrisk' || IS_SCORECARD).map(n => {
+              {NAV.filter(n => (n.id!=='vendorrisk' || IS_SCORECARD) && (n.id!=='portfolio' || IS_PORTFOLIO)).map(n => {
                 const isActive = page === n.id || (n.id === 'overview' && page === 'pillar');
                 return (
                   <button key={n.id}
@@ -1167,6 +1279,7 @@ function App() {
           {page === 'threats' && <PageThreats answers={answers}/>}
           {page === 'initiatives' && <PageInitiatives data={data} answers={answers} core={core}/>}
           {page === 'vendorrisk' && <PageVendorRisk data={data} answers={answers}/>}
+          {page === 'portfolio' && <PagePortfolio/>}
         </main>
       </div>
 
