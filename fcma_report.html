@@ -720,7 +720,9 @@ function PagePortfolio(){
   var pf=PORTFOLIO_DATA.pf, fw=PORTFOLIO_DATA.fw;
   var entMat=0, entRisk=0;
   try{var ifw=JSON.parse(localStorage.getItem('tprm_fw_inst')||'null');var ians=JSON.parse(localStorage.getItem('tprm_ans_inst')||'{}');if(ifw&&ifw.data){var iv=[];ifw.data.forEach(function(pp){pp.subs.forEach(function(sd){sd.comps.forEach(function(c){if(ians[c.id]>0)iv.push(ians[c.id]);});});});if(iv.length){entMat=parseFloat((iv.reduce(function(a,b){return a+b;},0)/iv.length).toFixed(2));entRisk=parseFloat((6-entMat).toFixed(2));}}}catch(e){}
-  function branchTotal(res){if(!res)return 0;if(!entRisk)return res;return Math.round(res*BRANCH_WEIGHTS.provider+entRisk*BRANCH_WEIGHTS.entity);}
+  const [pwPct,setPwPct]=useState(Math.round(BRANCH_WEIGHTS.provider*100));
+  var wp=pwPct/100, we=(100-pwPct)/100;
+  function branchTotal(res){if(!res)return 0;if(!entRisk)return res;return Math.round(res*wp+entRisk*we);}
   var provs=(pf.providers||[]).map(function(pv){
     var ans={}; try{ans=JSON.parse(localStorage.getItem('tprm_ans_'+pv.id)||'{}');}catch(e){}
     var r=computeProviderRisk(fw,ans);
@@ -752,7 +754,18 @@ function PagePortfolio(){
         <div className="text-center"><div className="text-4xl font-extrabold mono text-teal-400">{entMat}</div><div className="text-[10px] text-slate-400 uppercase tracking-wide mt-1">Program Maturity</div></div>
         <div className="text-2xl text-slate-600">→</div>
         <div className="text-center"><div className="text-4xl font-extrabold mono" style={{color:RES_INFO[Math.round(entRisk)||1].color}}>{entRisk}</div><div className="text-[10px] text-slate-400 uppercase tracking-wide mt-1">Entity Risk (6−maturity)</div></div>
-        <div className="flex-1 min-w-[220px] text-xs text-slate-400 leading-relaxed">The institution program's maturity is converted to a risk counterpart. Each branch total below combines this with the provider's residual, weighted {Math.round(BRANCH_WEIGHTS.provider*100)}% provider / {Math.round(BRANCH_WEIGHTS.entity*100)}% entity (editable in BRANCH_WEIGHTS).</div>
+        <div className="flex-1 min-w-[260px]">
+          <div className="text-xs text-slate-400 leading-relaxed mb-2">Program maturity is converted to a risk counterpart. Each branch total combines it with the provider residual using the weights below (live):</div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-slate-300">Provider</span>
+            <input type="number" min="0" max="100" value={pwPct} onChange={function(e){var v=parseInt(e.target.value,10);if(isNaN(v))v=0;v=Math.max(0,Math.min(100,v));setPwPct(v);}} className="w-16 bg-slate-800 border border-slate-600 rounded px-2 py-1 text-white mono text-center"/>
+            <span className="text-slate-500">%</span>
+            <span className="text-slate-600 mx-1">·</span>
+            <span className="text-slate-300">Entity</span>
+            <span className="w-16 bg-slate-800/50 border border-slate-700 rounded px-2 py-1 text-slate-300 mono text-center inline-block">{100-pwPct}</span>
+            <span className="text-slate-500">%</span>
+          </div>
+        </div>
       </div>}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4 text-center"><div className="text-3xl font-extrabold text-white mono">{assessed.length}</div><div className="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Assessed</div></div>
@@ -1307,4 +1320,3 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
-
