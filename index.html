@@ -379,7 +379,7 @@ function renderSetup(main){
         var pan=el('div',{style:{padding:'10px 0 14px',borderTop:'1px dashed var(--brd)'}});
         pan.append(el('div',{style:{fontSize:'11px',color:'var(--mute)',marginBottom:'8px'}},'Inherent risk per pillar for '+pv.name+' (1 = low exposure, 5 = high). Set here, not in the questionnaire:'));
         var cfg=pfGetInherent(pv.id);
-        var grid=el('div',{style:{display:'grid',gridTemplateColumns:'1fr auto',gap:'6px 14px',maxWidth:'520px'}});
+        var grid=el('div',{style:{display:'grid',gridTemplateColumns:'1fr auto',gap:'8px 14px',maxWidth:'520px',maxHeight:'46vh',overflowY:'auto',paddingRight:'8px',border:'1px solid var(--brd)',borderRadius:'8px',padding:'10px'}});
         vpil.forEach(function(pl,idx){
           grid.append(el('div',{style:{fontSize:'13px',color:'var(--text)',alignSelf:'center'}},pl.name));
           var opts=['0','1','2','3','4','5'].map(function(v){return el('option',{value:v},v==='0'?'—':v);});
