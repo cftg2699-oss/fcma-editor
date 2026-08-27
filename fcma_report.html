@@ -455,7 +455,7 @@ function PageOverview({ data, answers, scores, reg, core, onDrillPillar }) {
             <h4 className="font-extrabold text-white text-lg mt-0.5">
               {reg && reg.company ? reg.company : 'Demo Company'}
             </h4>
-            {reg && <p className="text-slate-400 text-xs mt-1">{reg.contact} · {reg.role}</p>}
+            
           </div>
           <div className="flex flex-col items-center my-4 relative z-10">
             <Donut score={globalScore} color={maturity.color} size={180}/>
