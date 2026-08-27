@@ -794,6 +794,9 @@ function PagePortfolio(){
           </div>
         </div>
       </div>
+      <div className="bg-slate-800/40 rounded-xl border border-slate-700 p-3 text-[11px] text-slate-400 leading-relaxed">
+        <b className="text-slate-300">How each column is computed:</b> <b>Inherent</b> = average of the 1–5 inherent risk you configured per pillar for the provider · <b>Control</b> = average of the provider's control answers across pillars · <b>Residual Risk</b> = the provider's highest pillar residual (weakest link) · <b>Entity + Provider Residual</b> = provider Residual Risk × {Math.round(pwPct)}% + entity risk ({entRisk||'—'}) × {100-pwPct}%.
+      </div>
       <div className="bg-slate-900 rounded-2xl border border-slate-700 overflow-hidden">
         <table className="w-full text-sm">
           <thead><tr className="bg-slate-800 text-slate-300 text-xs uppercase tracking-wider">
@@ -801,7 +804,7 @@ function PagePortfolio(){
             <th className="text-center p-3">Inherent</th>
             <th className="text-center p-3">Control</th>
             <th className="text-center p-3">Residual Risk</th>
-            <th className="text-center p-3">Branch total</th>
+            <th className="text-center p-3">Entity + Provider Residual</th>
             <th className="text-left p-3">Weakest pillar</th>
             <th className="text-center p-3">Pillars</th>
           </tr></thead>
