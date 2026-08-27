@@ -180,6 +180,7 @@ let PORTF=(function(){try{return JSON.parse(localStorage.getItem('tprm_portfolio
 let ACTIVE_NODE=localStorage.getItem('tprm_active_node')||null;
 let FW_TYPE=null;
 let HISTORY_VIEW=false;
+let INH_OPEN=null;
 let ACTIVE_P = null, ACTIVE_S = null;
 let EXPANDED = new Set();
 let SEARCH = '';
@@ -322,6 +323,8 @@ function renderPortfolio(main){
   main.append(wrap);
 }
 function resetFlow(){HISTORY_VIEW=false;FW_TYPE=null;DATA=[];CORE=new Set();META={};ANSWERS={};ACTIVE_NODE=null;AQ_STARTED=false;try{localStorage.removeItem('tprm_active_node');}catch(e){}render();}
+function pfSetInherent(pid,idx,val){var cfg={};try{cfg=JSON.parse(localStorage.getItem('tprm_inh_'+pid)||'{}');}catch(e){}cfg[idx]=parseInt(val,10)||0;try{localStorage.setItem('tprm_inh_'+pid,JSON.stringify(cfg));}catch(e){}}
+function pfGetInherent(pid){try{return JSON.parse(localStorage.getItem('tprm_inh_'+pid)||'{}');}catch(e){return {};}}
 function renderWelcome(main){
   var wrap=el('div',{style:{flex:'1',display:'flex',alignItems:'center',justifyContent:'center',padding:'24px',minHeight:'70vh'}});
   var card=el('div',{style:{background:'var(--wh)',border:'1px solid var(--brd)',borderRadius:'24px',padding:'56px 48px',maxWidth:'560px',width:'100%',textAlign:'center',boxShadow:'0 20px 60px rgba(0,0,0,0.08)'}});
@@ -355,6 +358,7 @@ function renderSetup(main){
     var vinp=el('input',{type:'file',accept:'.md',style:{display:'none'},onChange:function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){pfSetFramework('vendor',ev.target.result);};r.readAsText(f);}});
     pc.append(vinp,el('button',{className:'btn',onClick:function(){vinp.click();}},'Load provider framework'));
   }else{
+    var vfw=pfLoadFw('vendor');var vpil=(vfw&&vfw.data)?vfw.data:[];
     pc.append(el('div',{style:{fontSize:'12px',color:'var(--teal)',marginBottom:'12px'}},'\u2713 Provider framework loaded'));
     var ph=el('div',{style:{display:'flex',alignItems:'center',marginBottom:'8px'}});
     ph.append(el('div',{style:{flex:'1',fontSize:'13px',color:'var(--dim)'}},'Add the providers you want to evaluate:'));
@@ -365,9 +369,27 @@ function renderSetup(main){
       var ac=0;try{ac=Object.keys(JSON.parse(localStorage.getItem('tprm_ans_'+pv.id)||'{}')).length;}catch(e){}
       var row=el('div',{style:{display:'flex',alignItems:'center',gap:'10px',padding:'10px 0',borderTop:'1px solid var(--brd)'}});
       row.append(el('div',{style:{flex:'1'}},el('div',{style:{fontWeight:'600',color:'var(--text)'}},pv.name),el('div',{style:{fontSize:'11px',color:'var(--mute)'}},ac>0?ac+' answered':'not started')));
+      var ihc=pfGetInherent(pv.id);var iset=Object.keys(ihc).filter(function(k){return ihc[k]>0;}).length;
+      row.append(el('div',{style:{fontSize:'11px',color:iset===vpil.length&&vpil.length?'var(--teal)':'var(--mute)',minWidth:'92px',textAlign:'right'}},'inherent '+iset+'/'+vpil.length));
+      row.append(el('button',{className:'btn',onClick:(function(x){return function(){INH_OPEN=(INH_OPEN===x.id?null:x.id);render();};})(pv)},'Inherent'));
       row.append(el('button',{className:'btn btn-t',onClick:(function(x){return function(){pfOpen(x.id,x.name,'vendor');};})(pv)},'Evaluate \u2192'));
       row.append(el('button',{className:'btn',style:{color:'var(--red)'},onClick:(function(x){return function(){pfRemoveProvider(x.id);};})(pv)},'\u2715'));
       pc.append(row);
+      if(INH_OPEN===pv.id){
+        var pan=el('div',{style:{padding:'10px 0 14px',borderTop:'1px dashed var(--brd)'}});
+        pan.append(el('div',{style:{fontSize:'11px',color:'var(--mute)',marginBottom:'8px'}},'Inherent risk per pillar for '+pv.name+' (1 = low exposure, 5 = high). Set here, not in the questionnaire:'));
+        var cfg=pfGetInherent(pv.id);
+        var grid=el('div',{style:{display:'grid',gridTemplateColumns:'1fr auto',gap:'6px 14px',maxWidth:'520px'}});
+        vpil.forEach(function(pl,idx){
+          grid.append(el('div',{style:{fontSize:'13px',color:'var(--text)',alignSelf:'center'}},pl.name));
+          var opts=['0','1','2','3','4','5'].map(function(v){return el('option',{value:v},v==='0'?'—':v);});
+          var sel=el('select',{style:{padding:'4px 8px',border:'1px solid var(--brd)',borderRadius:'6px'},onChange:(function(pid,i){return function(e){pfSetInherent(pid,i,e.target.value);};})(pv.id,idx)},...opts);
+          sel.value=String(cfg[idx]||0);
+          grid.append(sel);
+        });
+        pan.append(grid);
+        pc.append(pan);
+      }
     });
   }
   wrap.append(pc);
@@ -399,6 +421,7 @@ function saveEntitySnapshot(){
 }
 function goToReport(){
   try{if(typeof ANSWERS!=='undefined'&&Object.keys(ANSWERS).length>0)saveEntitySnapshot();}catch(e){}
+  try{if(ACTIVE_NODE&&ACTIVE_NODE!=='inst'){localStorage.setItem('fcma_inherent',localStorage.getItem('tprm_inh_'+ACTIVE_NODE)||'{}');}else{localStorage.removeItem('fcma_inherent');}}catch(e){}
   if(typeof ANSWERS!=='undefined'&&Object.keys(ANSWERS).length>0&&!window._answersSynced){window._answersSynced=true;sendAnswers();}
   window.location.href='fcma_report.html';
 }
