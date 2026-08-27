@@ -92,17 +92,16 @@ const DOMAIN_WEIGHTS=[1,1.2,1.1,1,0.9,0.9,0.8,1.1,1,1.2];
 const BRANCH_WEIGHTS={provider:0.6,entity:0.4};
 const PORTFOLIO_DATA=(function(){try{var pf=JSON.parse(localStorage.getItem('tprm_portfolio')||'null');var fw=JSON.parse(localStorage.getItem('tprm_fw_vendor')||'null');if(!pf||!fw||!fw.data||!pf.providers)return null;return {pf:pf,fw:fw};}catch(e){return null;}})();
 const IS_PORTFOLIO=!!(PORTFOLIO_DATA&&PORTFOLIO_DATA.pf.providers&&PORTFOLIO_DATA.pf.providers.length);
-function computeProviderRisk(fw, answers){
-  var data=fw.data; var inhPillar=data[0];
-  var inhComps=inhPillar?inhPillar.subs.reduce(function(a,x){return a.concat(x.comps);},[]):[];
-  var controlPillars=data.slice(1);
-  var domains=controlPillars.map(function(cp,i){
-    var inhComp=inhComps[i]; var inh=inhComp?(answers[inhComp.id]||0):0;
+function computeProviderRisk(fw, answers, inhCfg){
+  inhCfg=inhCfg||{};
+  var pillars=fw.data;
+  var domains=pillars.map(function(cp,i){
+    var inh=parseInt(inhCfg[i],10)||0;
     var cComps=cp.subs.reduce(function(a,x){return a.concat(x.comps);},[]);
     var scored=cComps.map(function(c){return answers[c.id];}).filter(function(v){return v>0;});
     var ctrl=scored.length?Math.round(scored.reduce(function(a,b){return a+b;},0)/scored.length):0;
     var res=(inh&&ctrl)?RESIDUAL_MATRIX[inh-1][ctrl-1]:0;
-    return {name:cp.name.replace(/^Control Effectiveness\s*[—-]\s*/,''),inh:inh,ctrl:ctrl,res:res};
+    return {name:cp.name,inh:inh,ctrl:ctrl,res:res,cov:scored.length,tot:cComps.length};
   });
   var overallMax=domains.reduce(function(m,d){return Math.max(m,d.res);},0);
   var wsum=0,w=0; domains.forEach(function(d,i){if(d.res>0){var wt=DOMAIN_WEIGHTS[i]||1;wsum+=d.res*wt;w+=wt;}});
@@ -111,7 +110,9 @@ function computeProviderRisk(fw, answers){
   var inhAvg=inhVals.length?parseFloat((inhVals.reduce(function(a,b){return a+b;},0)/inhVals.length).toFixed(2)):0;
   var weakest=null; domains.forEach(function(d){if(d.res>0&&(!weakest||d.res>weakest.res))weakest=d;});
   var coverage=domains.filter(function(d){return d.res>0;}).length;
-  return {domains:domains,overallMax:overallMax,weightedIndex:weightedIndex,inhAvg:inhAvg,weakest:weakest,coverage:coverage};
+  var ctrlVals=domains.map(function(d){return d.ctrl;}).filter(function(v){return v>0;});
+  var avgControl=ctrlVals.length?parseFloat((ctrlVals.reduce(function(a,b){return a+b;},0)/ctrlVals.length).toFixed(2)):0;
+  return {domains:domains,overallMax:overallMax,weightedIndex:weightedIndex,inhAvg:inhAvg,avgControl:avgControl,weakest:weakest,coverage:coverage};
 }
 function loadFCMAData() {
   try {
@@ -657,26 +658,17 @@ function PageHeatmap({ data, answers, scores }) {
 }
 
 function PageVendorRisk({ data, answers }) {
-  const inhPillar = data[0];
-  const inhComps = inhPillar ? inhPillar.subs.reduce((a,s)=>a.concat(s.comps),[]) : [];
-  const controlPillars = data.slice(1);
+  var inhCfg={}; try{inhCfg=JSON.parse(localStorage.getItem('fcma_inherent')||'{}');}catch(e){}
   const invColor = v => v>=5?'#ef4444':v>=4?'#f97316':v>=3?'#f59e0b':v>=2?'#84cc16':v>=1?'#22c55e':'#475569';
-  const rows = controlPillars.map((cp, i) => {
-    const inhComp = inhComps[i];
-    const inh = inhComp ? (answers[inhComp.id]||0) : 0;
-    const cComps = cp.subs.reduce((a,s)=>a.concat(s.comps),[]);
-    const scoredArr = cComps.map(c=>answers[c.id]).filter(v=>v>0);
-    const ctrl = scoredArr.length ? Math.round(scoredArr.reduce((a,b)=>a+b,0)/scoredArr.length) : 0;
-    const res = (inh&&ctrl) ? RESIDUAL_MATRIX[inh-1][ctrl-1] : 0;
-    return { domain: cp.name.replace(/^Control Effectiveness\s*[—-]\s*/,''), inh, ctrl, res, cov: scoredArr.length, tot: cComps.length };
-  });
-  const overall = rows.reduce((m,r)=>Math.max(m,r.res),0);
+  const risk = computeProviderRisk({data:data}, answers, inhCfg);
+  const rows = risk.domains.map(d=>({ domain:d.name, inh:d.inh, ctrl:d.ctrl, res:d.res, cov:d.cov, tot:d.tot }));
+  const overall = risk.overallMax;
   const oinfo = RES_INFO[overall];
   return (
     <div className="animate-fade space-y-6">
       <div className="mb-2">
         <h2 className="text-2xl font-extrabold text-white mb-1">Vendor Risk — Residual</h2>
-        <p className="text-sm text-slate-400 max-w-3xl">Residual risk per domain = matrix lookup of <b>inherent exposure</b> against <b>control effectiveness</b> (rounded average of the domain's controls). Scoring is inverted: 1 = best, 5 = worst. Overall residual = the highest domain, so one critical domain is not diluted.</p>
+        <p className="text-sm text-slate-400 max-w-3xl">Per <b>Pillar</b>: <b>Inherent Risk</b> is configured per provider (a fixed 1–5, set outside the questionnaire); <b>Control</b> is the rounded average of that Pillar's control answers; <b>Residual Risk</b> = matrix(Inherent, Control). Scoring is inverted: 1 = best, 5 = worst. The provider's Residual Risk is the highest Pillar — one critical Pillar is not diluted.</p>
       </div>
       <div className="rounded-2xl border p-6 flex flex-col md:flex-row md:items-center gap-6" style={{background: oinfo.color+'14', borderColor: oinfo.color+'55'}}>
         <div className="text-center md:border-r md:border-slate-700 md:pr-6">
@@ -692,11 +684,11 @@ function PageVendorRisk({ data, answers }) {
       <div className="bg-slate-900 rounded-2xl border border-slate-700 overflow-hidden">
         <table className="w-full text-sm">
           <thead><tr className="bg-slate-800 text-slate-300 text-xs uppercase tracking-wider">
-            <th className="text-left p-3">Domain</th>
-            <th className="text-center p-3">Inherent</th>
+            <th className="text-left p-3">Pillar</th>
+            <th className="text-center p-3">Inherent Risk</th>
             <th className="text-center p-3">Control</th>
-            <th className="text-center p-3">Residual</th>
-            <th className="text-center p-3">Coverage</th>
+            <th className="text-center p-3">Residual Risk</th>
+            <th className="text-center p-3">Answered</th>
           </tr></thead>
           <tbody>
             {rows.map((r,i)=>(
@@ -705,7 +697,7 @@ function PageVendorRisk({ data, answers }) {
                 <td className="text-center p-3"><span className="font-bold mono" style={{color:invColor(r.inh)}}>{r.inh||'\u2014'}</span></td>
                 <td className="text-center p-3"><span className="font-bold mono" style={{color:invColor(r.ctrl)}}>{r.ctrl||'\u2014'}</span></td>
                 <td className="text-center p-3"><span className="px-2 py-0.5 rounded-full text-xs font-bold mono" style={{color:RES_INFO[r.res].color,background:RES_INFO[r.res].color+'1f',border:'1px solid '+RES_INFO[r.res].color+'55'}}>{r.res? r.res+' \u00B7 '+RES_INFO[r.res].label : '\u2014'}</span></td>
-                <td className="text-center p-3 text-slate-500 mono text-xs">{r.cov}/{r.tot}</td>
+                <td className="text-center p-3 text-slate-500 mono text-xs">{r.cov}/{r.tot} <span className="text-slate-600">controls</span></td>
               </tr>
             ))}
           </tbody>
@@ -725,14 +717,15 @@ function PagePortfolio(){
   function branchTotal(res){if(!res)return 0;if(!entRisk)return res;return res*wp+entRisk*we;}
   var provs=(pf.providers||[]).map(function(pv){
     var ans={}; try{ans=JSON.parse(localStorage.getItem('tprm_ans_'+pv.id)||'{}');}catch(e){}
-    var r=computeProviderRisk(fw,ans);
+    var icfg={};try{icfg=JSON.parse(localStorage.getItem('tprm_inh_'+pv.id)||'{}');}catch(e){}
+    var r=computeProviderRisk(fw,ans,icfg);
     return Object.assign({},pv,r,{answered:Object.keys(ans).length});
   });
   var assessed=provs.filter(function(p){return p.answered>0;});
   var withRes=provs.filter(function(p){return p.overallMax>0;});
   var critCount=assessed.filter(function(p){return p.overallMax>=4;}).length;
   var avgIdx=assessed.length?parseFloat((assessed.reduce(function(a,p){return a+p.weightedIndex;},0)/assessed.length).toFixed(2)):0;
-  var domNames=fw.data.slice(1).map(function(cp){return cp.name.replace(/^Control Effectiveness\s*[—-]\s*/,'');});
+  var domNames=fw.data.map(function(cp){return cp.name;});
   var domAvgs=domNames.map(function(nm,i){
     var vals=withRes.map(function(p){return p.domains[i]&&p.domains[i].res;}).filter(function(v){return v>0;});
     return {name:nm,avg:vals.length?parseFloat((vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(2)):0,count:vals.length};
@@ -748,8 +741,9 @@ function PagePortfolio(){
   return (
     <div className="animate-fade space-y-6">
       <div className="mb-2">
-        <h2 className="text-2xl font-extrabold text-white mb-1">Portfolio Roll-up</h2>
-        <p className="text-sm text-slate-400 max-w-3xl">Consolidated third-party risk across <b>{assessed.length}</b> assessed provider{assessed.length===1?'':'s'} (of {provs.length}). Official residual per provider is the <b>worst domain</b> (weakest link); the weighted index is a secondary comparison metric.</p>
+        <div className="text-xs font-bold text-teal-400 uppercase tracking-wider mb-1">Portfolio Roll-up</div>
+        <h2 className="text-2xl font-extrabold text-white mb-1">{pf.instName||'Entity'}</h2>
+        <p className="text-sm text-slate-400 max-w-3xl">Consolidated third-party risk across <b>{assessed.length}</b> assessed provider{assessed.length===1?'':'s'} (of {provs.length}). <b>Residual Risk</b> per provider is the highest Pillar residual; <b>Weighted Residual Risk</b> is a secondary comparison metric.</p>
       </div>
       {entMat>0 && <div className="rounded-2xl border p-5 flex flex-wrap items-center gap-6" style={{background:RES_INFO[Math.round(entRisk)||1].color+'12',borderColor:RES_INFO[Math.round(entRisk)||1].color+'44'}}>
         <div className="text-center"><div className="text-4xl font-extrabold mono text-teal-400">{entMat}</div><div className="text-[10px] text-slate-400 uppercase tracking-wide mt-1">Program Maturity</div></div>
@@ -766,19 +760,20 @@ function PagePortfolio(){
             <span className="w-16 bg-slate-800/50 border border-slate-700 rounded px-2 py-1 text-slate-300 mono text-center inline-block">{100-pwPct}</span>
             <span className="text-slate-500">%</span>
           </div>
+          <div className="text-[11px] text-slate-500 mt-2">Live example — a provider at residual 4.0 → 4.0×{wp.toFixed(2)} + {entRisk}×{we.toFixed(2)} = <span className="text-teal-400 font-bold mono">{(4*wp+entRisk*we).toFixed(2)}</span></div>
         </div>
       </div>}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4 text-center"><div className="text-3xl font-extrabold text-white mono">{assessed.length}</div><div className="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Assessed</div></div>
-        <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4 text-center"><div className="text-3xl font-extrabold mono" style={{color:critCount>0?'#ef4444':'#22c55e'}}>{critCount}</div><div className="text-[11px] text-slate-400 uppercase tracking-wide mt-1">High / Critical</div></div>
-        <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4 text-center"><div className="text-3xl font-extrabold text-white mono">{avgIdx||'—'}</div><div className="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Avg Weighted Idx</div></div>
-        <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4 text-center"><div className="text-sm font-bold text-white leading-tight mt-1">{worstDomain?worstDomain.name:'—'}</div><div className="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Weakest Domain</div></div>
+        <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4 text-center"><div className="text-3xl font-extrabold mono" style={{color:critCount>0?'#ef4444':'#22c55e'}}>{critCount}</div><div className="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Residual 4–5</div></div>
+        <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4 text-center"><div className="text-3xl font-extrabold text-white mono">{avgIdx||'—'}</div><div className="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Avg Weighted Residual</div></div>
+        <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4 text-center"><div className="text-sm font-bold text-white leading-tight mt-1">{worstDomain?worstDomain.name:'—'}</div><div className="text-[11px] text-slate-400 uppercase tracking-wide mt-1">Weakest Pillar</div></div>
       </div>
-      {worstCell && <div className="rounded-xl border p-4" style={{background:RES_INFO[worstCell.res].color+'14',borderColor:RES_INFO[worstCell.res].color+'55'}}><span className="text-xs uppercase tracking-wide font-bold" style={{color:RES_INFO[worstCell.res].color}}>Worst cell · </span><span className="text-sm text-slate-200"><b>{worstCell.prov}</b> — {worstCell.domain} at residual {worstCell.res} ({RES_INFO[worstCell.res].label})</span></div>}
+      {worstCell && <div className="rounded-xl border p-4" style={{background:RES_INFO[worstCell.res].color+'14',borderColor:RES_INFO[worstCell.res].color+'55'}}><span className="text-xs uppercase tracking-wide font-bold" style={{color:RES_INFO[worstCell.res].color}}>Highest residual · </span><span className="text-sm text-slate-200"><b>{worstCell.prov}</b> — {worstCell.domain} at residual {worstCell.res} ({RES_INFO[worstCell.res].label})</span></div>}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4">
-          <h3 className="text-sm font-bold text-white mb-1">Criticality vs. Residual Risk</h3>
-          <p className="text-[11px] text-slate-500 mb-2">X: inherent criticality · Y: residual (max). Top-right = highest priority.</p>
+          <h3 className="text-sm font-bold text-white mb-1">Inherent Risk vs. Residual Risk</h3>
+          <p className="text-[11px] text-slate-500 mb-2">X: Inherent Risk · Y: Residual Risk.</p>
           <svg viewBox={`0 0 ${W} ${H}`} width="100%">
             <line x1={mL} y1={py(3)} x2={W-mR} y2={py(3)} stroke="#334155" strokeDasharray="4 4"/>
             <line x1={px(3)} y1={mT} x2={px(3)} y2={H-mB} stroke="#334155" strokeDasharray="4 4"/>
@@ -786,13 +781,13 @@ function PagePortfolio(){
             <line x1={mL} y1={H-mB} x2={W-mR} y2={H-mB} stroke="#475569"/>
             {[1,2,3,4,5].map(function(t){return (<text key={'x'+t} x={px(t)} y={H-mB+16} textAnchor="middle" fontSize="9" fill="#64748b">{t}</text>);})}
             {[1,2,3,4,5].map(function(t){return (<text key={'y'+t} x={mL-8} y={py(t)+3} textAnchor="end" fontSize="9" fill="#64748b">{t}</text>);})}
-            <text x={(mL+W-mR)/2} y={H-6} textAnchor="middle" fontSize="10" fill="#94a3b8">Inherent Criticality →</text>
-            <text x={16} y={(H)/2} textAnchor="middle" fontSize="10" fill="#94a3b8" transform={`rotate(-90 16 ${H/2})`}>Residual (max) →</text>
+            <text x={(mL+W-mR)/2} y={H-6} textAnchor="middle" fontSize="10" fill="#94a3b8">Inherent Risk →</text>
+            <text x={16} y={(H)/2} textAnchor="middle" fontSize="10" fill="#94a3b8" transform={`rotate(-90 16 ${H/2})`}>Residual Risk →</text>
             {sorted.map(function(p,i){var col=RES_INFO[p.overallMax||0].color;var jx=((i%3)-1)*7;return (<g key={p.id}><circle cx={px(p.inhAvg||1)+jx} cy={py(p.overallMax||1)} r="9" fill={col+'cc'} stroke={col} strokeWidth="1.5"><title>{p.name+' · inherent '+p.inhAvg+' · residual '+p.overallMax}</title></circle></g>);})}
           </svg>
         </div>
         <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4">
-          <h3 className="text-sm font-bold text-white mb-3">Portfolio Domain Averages</h3>
+          <h3 className="text-sm font-bold text-white mb-3">Portfolio Pillar Averages</h3>
           <div className="space-y-2">
             {domAvgs.map(function(d,i){var col=d.avg>=4?'#ef4444':d.avg>=3?'#f59e0b':d.avg>=2?'#84cc16':d.avg>=1?'#22c55e':'#475569';return (<div key={i} className="flex items-center gap-2"><span className="text-[11px] text-slate-300 w-40 truncate">{d.name}</span><div className="flex-1 bg-slate-800 rounded-full h-2.5 overflow-hidden"><div className="h-full rounded-full bar-fill" style={{width:((d.avg/5)*100)+'%',background:col}}/></div><span className="text-[11px] mono w-8 text-right" style={{color:col}}>{d.avg||'—'}</span></div>);})}
           </div>
@@ -803,27 +798,29 @@ function PagePortfolio(){
           <thead><tr className="bg-slate-800 text-slate-300 text-xs uppercase tracking-wider">
             <th className="text-left p-3">Provider</th>
             <th className="text-center p-3">Inherent</th>
-            <th className="text-center p-3">Residual (official)</th>
-            <th className="text-center p-3">Weighted idx</th>
+            <th className="text-center p-3">Control</th>
+            <th className="text-center p-3">Residual Risk</th>
+            <th className="text-center p-3">Weighted Residual Risk</th>
             <th className="text-center p-3">Branch total</th>
-            <th className="text-left p-3">Weakest domain</th>
-            <th className="text-center p-3">Coverage</th>
+            <th className="text-left p-3">Weakest pillar</th>
+            <th className="text-center p-3">Pillars</th>
           </tr></thead>
           <tbody>
             {sorted.map(function(p){return (<tr key={p.id} className="border-t border-slate-800">
               <td className="p-3 text-slate-200 font-medium">{p.name}</td>
               <td className="text-center p-3 mono text-slate-300">{p.inhAvg||(p.answered>0?<span className="text-amber-500 text-xs">in progress</span>:<span className="text-slate-600 text-xs">not started</span>)}</td>
+              <td className="text-center p-3 mono text-slate-300">{p.avgControl||'—'}</td>
               <td className="text-center p-3"><span className="px-2 py-0.5 rounded-full text-xs font-bold mono" style={{color:RES_INFO[p.overallMax].color,background:RES_INFO[p.overallMax].color+'1f',border:'1px solid '+RES_INFO[p.overallMax].color+'55'}}>{p.overallMax?p.overallMax+' · '+RES_INFO[p.overallMax].label:'—'}</span></td>
               <td className="text-center p-3 mono text-slate-400">{p.weightedIndex||'—'}</td>
               <td className="text-center p-3">{(function(){var btR=branchTotal(p.overallMax);var bt=Math.round(btR);return btR?(<span className="px-2 py-0.5 rounded-full text-xs font-bold mono" style={{color:RES_INFO[bt].color,background:RES_INFO[bt].color+'1f',border:'1px solid '+RES_INFO[bt].color+'55'}}>{btR.toFixed(1)+' · '+RES_INFO[bt].label}</span>):(<span className="text-slate-600">—</span>);})()}</td>
               <td className="p-3 text-slate-400 text-xs">{p.weakest?p.weakest.name+' ('+p.weakest.res+')':'—'}</td>
               <td className="text-center p-3 mono text-slate-500 text-xs">{p.coverage}/{domNames.length}</td>
             </tr>);})}
-            {provs.length===0 && <tr><td colSpan="7" className="p-6 text-center text-slate-500">No providers yet. Add and assess providers from the Portfolio screen.</td></tr>}
+            {provs.length===0 && <tr><td colSpan="8" className="p-6 text-center text-slate-500">No providers yet. Add and assess providers from the Portfolio screen.</td></tr>}
           </tbody>
         </table>
       </div>
-      <p className="text-[10px] text-slate-600 italic">Official residual = worst domain (weakest link), per CRA methodology. Weighted index uses domain weights (Cyber/AI 1.2, Privacy/Resilience 1.1, Financial/Concentration 0.9, Reputational 0.8) — editable in DOMAIN_WEIGHTS. Weights are a judgment default and should be validated before use with a client.</p>
+      <p className="text-[10px] text-slate-600 italic">Residual Risk = highest Pillar residual (weakest link), per methodology. Weighted Residual Risk uses domain weights (Cyber/AI 1.2, Privacy/Resilience 1.1, Financial/Concentration 0.9, Reputational 0.8) — editable in DOMAIN_WEIGHTS; a judgment default to validate before client use.</p>
     </div>
   );
 }
