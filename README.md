@@ -6,6 +6,7 @@
 cftg2699-oss/fcma-editor/
 ├── index.html            ← App principal (assessment, resultados, dashboard)
 ├── fcma-ai.js            ← Relleno con IA, reporte con IA y modelo de datos del reporte
+├── fcma-sim.js           ← Modo demo: IA simulada (sin API key), se usa solo si AI_URL está vacío
 ├── fcma-export.js        ← Descarga PDF (jsPDF) y PowerPoint (PptxGenJS)
 ├── fcma_es.md            ← Assessment en español (copia de FCMA_Assessment_Final_v2.md)
 ├── fcma_en.md            ← Assessment en inglés
@@ -32,6 +33,12 @@ El Apps Script de Google Sheets (registro y respuestas) **no** está en el repo;
 En `index.html` reemplaza la constante `SHEET_URL` con la URL del paso anterior.
 
 ## Paso 3: Servicio de IA (relleno y reporte con IA)
+
+> **Modo demo (sin API key):** si `AI_URL` está vacío (`const AI_URL='';`), la app usa `fcma-sim.js`, un motor
+> **simulado** que corre en el navegador. El relleno propone niveles por coincidencia de palabras entre el
+> contexto y los descriptores (solo donde hay evidencia; es una aproximación, no una IA real), y el reporte se
+> redacta con plantillas a partir de los cálculos reales. Todas las cifras, PDF y PPT son reales. Al pegar la URL
+> del servicio real en `AI_URL`, la app pasa a Claude sin cambiar nada más.
 
 La IA es real: la web llama a un Apps Script **separado** que guarda la API key y llama a Claude.
 La key nunca está en el repo ni en el navegador.

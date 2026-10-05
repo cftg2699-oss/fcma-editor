@@ -141,7 +141,10 @@
   const sleep = ms => new Promise(r => setTimeout(r, ms));
 
   async function callAI(task, payload, tries = 2) {
-    if (!aiUrl()) { const e = new Error('not_configured'); e.kind = 'cfg'; throw e; }
+    if (!aiUrl()) {
+      if (window.AIX_SIM) { try { return await window.AIX_SIM.run(task, Object.assign({ lang: LANG }, payload)); } catch (e) { e.fatal = true; throw e; } }
+      const e = new Error('not_configured'); e.kind = 'cfg'; throw e;
+    }
     let last;
     for (let a = 0; a < tries; a++) {
       try {
