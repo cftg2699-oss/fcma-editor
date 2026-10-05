@@ -5,6 +5,9 @@
 ```
 cftg2699-oss/fcma-editor/
 ├── index.html            ← App principal (assessment, resultados, dashboard)
+├── fcma_report.html      ← Reporte ejecutivo (se abre con "Results"): incluye pestaña ✨ AI Executive Report y botones ⬇ PDF / ⬇ PowerPoint
+├── fcma-config.js        ← Configuración compartida: AI_URL (URL del servicio de IA)
+├── fcma-bridge.js        ← Puente que da a la IA/exportación acceso al assessment desde fcma_report.html
 ├── fcma-ai.js            ← Relleno con IA, reporte con IA y modelo de datos del reporte
 ├── fcma-sim.js           ← Modo demo: IA simulada (sin API key), se usa solo si AI_URL está vacío
 ├── fcma-export.js        ← Descarga PDF (jsPDF) y PowerPoint (PptxGenJS)
@@ -57,7 +60,7 @@ La key nunca está en el repo ni en el navegador.
 
 4. **Deploy → New deployment → Web app** · Execute as: **Me** · Who has access: **Anyone**.
    Autoriza los permisos cuando los pida (necesita `UrlFetchApp`).
-5. Copia la URL `/exec` y pégala en `index.html`:
+5. Copia la URL `/exec` y pégala en `fcma-config.js` (lo leen `index.html` y `fcma_report.html`):
    ```js
    const AI_URL='https://script.google.com/macros/s/.../exec';
    ```
