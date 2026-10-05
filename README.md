@@ -140,6 +140,6 @@ Cada vez que un cliente ve los resultados o exporta:
 ## Cambiar idioma del contenido
 
 El sistema carga automáticamente el `.md` del idioma seleccionado:
-- ES → `fcma_es.md` (si falta, `fcma_en.md`)
+- ES → `fcma_es.md` (si falta, `fcma_en.md`)   
 - EN → `fcma_en.md`
 - PT → `fcma_pt.md` (si falta, `fcma_es.md`, luego `fcma_en.md`)
