@@ -157,6 +157,9 @@ textarea.inp{resize:vertical;line-height:1.5}
 </head>
 <body>
 <div id="app" class="app"></div>
+<script src="fcma-sim.js"></script>
+<script src="fcma-ai.js"></script>
+<script src="fcma-export.js"></script>
 <script>
 const $ = s => document.querySelector(s);
 const el = (tag, attrs, ...kids) => {
@@ -212,6 +215,8 @@ function checkEditorAuth(){
 }
 
 const SHEET_URL='https://script.google.com/macros/s/AKfycbwH3iTpHO9qrKsvxyyqpr_YwpRor3JRfKdgTcOxeZ7sTcd_GBvgyVzW2n7pBnwKXiic/exec';
+/* AI service (apps-script/AI.gs deployed as its own web app). Paste its /exec URL here. */
+const AI_URL='';
 function validateCode(code,callback){if(!code){callback(false,'');return;}fetch(SHEET_URL+'?action=validate&code='+encodeURIComponent(code)).then(r=>r.json()).then(data=>{if(data.valid){CODE_VALID=true;CODE_COMPANY=data.company||'';callback(true,data.company);}else{CODE_VALID=false;callback(false,'');}}).catch(()=>{CODE_VALID=true;callback(true,'');});}
 function postToSheets(payload){return fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)}).catch(e=>console.warn('Sheets:',e));}
 function sendRegistration(r){return postToSheets({type:'registration',accessCode:r.accessCode||ACCESS_CODE||'',company:r.company,contact:r.contact,email:r.email,role:r.role,country:r.country,sector:r.sector,lang:r.lang,ndaAccepted:r.ndaAccepted,ts:r.ts});}
@@ -230,8 +235,12 @@ var BASE_URL=window.location.href.replace(/\/[^\/]*$/,'/');
 function loadLangContent(lang,callback){
   if(!IS_CLIENT){if(callback)callback();return;}
   if(LOADED_LANG===lang){if(callback)callback();return;}
-  var mdFile=lang==='en'?'fcma_en.md':lang==='pt'?'fcma_pt.md':'fcma_es.md';
-  fetch(BASE_URL+mdFile).then(r=>{if(!r.ok)throw new Error(r.status);return r.text();}).then(text=>{importMD(text);LOADED_LANG=lang;if(callback)callback();}).catch(()=>{if(LOADED_LANG!=='es'){DATA=[];CORE=new Set(INIT_CORE_ARR);LOADED_LANG='es';}if(callback)callback();});
+  /* Try the language file first, then fall back (PT -> ES -> EN) instead of leaving the assessment empty. */
+  var chain=lang==='en'?['fcma_en.md']:lang==='pt'?['fcma_pt.md','fcma_es.md','fcma_en.md']:['fcma_es.md','fcma_en.md'];
+  (function next(i){
+    if(i>=chain.length){if(LOADED_LANG!=='es'){DATA=[];CORE=new Set(INIT_CORE_ARR);LOADED_LANG='es';}if(callback)callback();return;}
+    fetch(BASE_URL+chain[i]).then(r=>{if(!r.ok)throw new Error(r.status);return r.text();}).then(text=>{importMD(text);LOADED_LANG=lang;if(callback)callback();}).catch(()=>next(i+1));
+  })(0);
 }
 function switchLang(lng){LANG=lng;localStorage.setItem('fcma_lang',lng);if(IS_CLIENT){loadLangContent(lng,()=>render());}else{render();}}
 
@@ -263,7 +272,7 @@ function importMD(text){
   DATA=r.data;CORE=r.core;ACTIVE_P=DATA.length>0?0:null;ACTIVE_S=null;FW_TYPE=DATA.length?(/vendor|third[\s\-]?party|tprm/i.test(((META.framework||'')+' '+(META.assessmentName||'')+' '+(META.title||''))?'vendor':'generic')):null;if(DATA.length){FW_TYPE=/vendor|third[\s\-]?party|tprm/i.test(((META.framework||'')+' '+(META.assessmentName||'')+' '+(META.title||'')))?'vendor':'generic';}else{FW_TYPE=null;}if(FW_TYPE==='vendor'){try{localStorage.setItem('tprm_fw_inst',JSON.stringify({data:DATA,core:[...CORE],meta:META}));}catch(e){}pfInit();}AQ_STARTED=false;save();render();
 }
 function exportMD(){let md='# FINANCIAL CRIME MATURITY ASSESSMENT\n\n';DATA.forEach(p=>{md+=`# ${p.id}: ${p.name}\n\n`;if(p.desc)md+=`*${p.desc}*\n\n`;p.subs.forEach(s=>{md+=`## ${s.id} — ${s.name}\n\n`;s.comps.forEach(c=>{md+=`### ${CORE.has(c.id)?'🔷 CORE · ':''}${c.id} · ${c.name}\n\n`;md+='| Level | Descriptor |\n|:---:|:---|\n';c.L.forEach((l,i)=>{md+=`| **${i+1}** | ${l} |\n`});md+='\n';});});md+='---\n\n';});downloadFile(md,'FCMA_Assessment.md','text/markdown');}
-function exportJSON(){var p={version:'2.0',data:DATA,core:[...CORE],answers:ANSWERS};if(REG_DATA)p.registration=REG_DATA;downloadFile(JSON.stringify(p,null,2),'FCMA_Assessment.json','application/json');}
+function exportJSON(){var p={version:'2.0',data:DATA,core:[...CORE],answers:ANSWERS};if(window.AIX)p.ai=AIX.getMeta();if(REG_DATA)p.registration=REG_DATA;downloadFile(JSON.stringify(p,null,2),'FCMA_Assessment.json','application/json');}
 function downloadFile(content,name,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();URL.revokeObjectURL(a.href);}
 function getStats(){let tS=0,tC=0;DATA.forEach(p=>{tS+=p.subs.length;p.subs.forEach(s=>tC+=s.comps.length)});return{pilars:DATA.length,subs:tS,comps:tC,core:CORE.size};}
 
@@ -587,7 +596,7 @@ function renderAssess(main){
   if(AQ_PILAR===null){
     var psW=el('div',{className:'quiz-slide',style:{flex:'1',overflowY:'auto',padding:'32px 40px',maxWidth:'900px',margin:'0 auto',width:'100%'}});
     var psHdr=el('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'8px'}});
-    psHdr.append(el('div',null,el('h2',{style:{fontSize:'26px',fontWeight:'800',letterSpacing:'-0.5px',color:'var(--text)'}},t('selectPilar')),el('p',{style:{fontSize:'14px',color:'var(--dim)',marginTop:'6px',lineHeight:'1.6'}},t('selectPilarDesc'))),el('button',{className:'btn btn-t',style:{padding:'10px 20px',fontSize:'13px'},onClick:function(){goToReport();}},t('results')));
+    psHdr.append(el('div',null,el('h2',{style:{fontSize:'26px',fontWeight:'800',letterSpacing:'-0.5px',color:'var(--text)'}},t('selectPilar')),el('p',{style:{fontSize:'14px',color:'var(--dim)',marginTop:'6px',lineHeight:'1.6'}},t('selectPilarDesc'))),el('div',{style:{display:'flex',gap:'8px',flexWrap:'wrap',justifyContent:'flex-end'}},window.AIX?el('button',{className:'btn aix-btn-ai',style:{padding:'10px 20px',fontSize:'13px'},onClick:function(){AIX.openFill();}},AIX.T().fillBtn):null,el('button',{className:'btn btn-t',style:{padding:'10px 20px',fontSize:'13px'},onClick:function(){goToReport();}},t('results'))));
     psW.append(psHdr);
     var gAns=Object.keys(ANSWERS).length,gTot=questions.length,gPct=gTot>0?Math.round(gAns/gTot*100):0;
     psW.append(el('div',{style:{display:'flex',alignItems:'center',gap:'16px',padding:'16px 20px',background:'var(--wh)',borderRadius:'12px',border:'1px solid var(--brd)',marginBottom:'28px',boxShadow:'var(--sh1)'}},
@@ -640,6 +649,7 @@ function renderAssess(main){
   var rSvg='<svg width="42" height="42" viewBox="0 0 42 42"><circle cx="21" cy="21" r="'+ringR+'" fill="none" stroke="'+pClr+'22" stroke-width="3"/><circle cx="21" cy="21" r="'+ringR+'" fill="none" stroke="'+pClr+'" stroke-width="3" stroke-dasharray="'+ringC+'" stroke-dashoffset="'+ringOff+'" stroke-linecap="round" transform="rotate(-90 21 21)"/><text x="21" y="25" text-anchor="middle" font-size="10" font-weight="800" fill="'+pClr+'">'+pilarAnswered+'/'+pilarQuestions.length+'</text></svg>';
   pilarRow.append(el('div',{innerHTML:rSvg}));
   pilarRow.append(el('button',{className:'btn',style:{padding:'8px 16px',fontSize:'12px'},onClick:()=>{AQ_PILAR=null;render();}},t('backToPilars')));
+  if(window.AIX)pilarRow.append(el('button',{className:'btn aix-btn-ai',style:{padding:'8px 16px',fontSize:'12px'},onClick:()=>{AIX.openFill();}},AIX.T().fillBtn));
   pilarRow.append(el('button',{className:'btn btn-t',style:{padding:'8px 16px',fontSize:'12px'},onClick:()=>{goToReport();}},t('results')));
   top.append(pilarRow);
   var gPct2=(AQ_IDX+1)/pilarTotalQ*100;
@@ -657,6 +667,7 @@ function renderAssess(main){
   timerBar.append(el('div',{className:'auto-timer',id:'auto-timer-fill',style:{width:'0%'}}));
   qa.append(timerBar);
 
+  if(curAns&&window.AIX){var _aiN=AIX.noteFor(c.id,curAns);if(_aiN){_aiN.style.marginTop='0';_aiN.style.marginBottom='16px';qa.append(_aiN);}}
   /* Level cards — LIGHT theme */
   [0,1,2,3,4].forEach(li=>{
     var lv=c.L[li]||'';var isSel=curAns===li+1;
@@ -677,7 +688,7 @@ function renderAssess(main){
     card2.onmouseenter=()=>{desc.classList.add('open');if(!isSel){card2.style.boxShadow='var(--sh2)';card2.style.borderColor=CLR[li];}};
     card2.onmouseleave=()=>{if(!isSel){desc.classList.remove('open');card2.style.boxShadow='';card2.style.borderColor=CLR_BRD[li];}};
     card2.onclick=()=>{
-      if(AQ_ADVANCE_TIMER)clearTimeout(AQ_ADVANCE_TIMER);ANSWERS[c.id]=li+1;save();render();
+      if(AQ_ADVANCE_TIMER)clearTimeout(AQ_ADVANCE_TIMER);if(window.AIX)AIX.onManual(c.id,li+1);ANSWERS[c.id]=li+1;save();render();
       var te=document.getElementById('auto-timer'),fe=document.getElementById('auto-timer-fill');
       if(te&&fe){te.style.opacity='1';fe.style.transition='width 0.9s linear';requestAnimationFrame(()=>fe.style.width='100%');}
       AQ_ADVANCE_TIMER=setTimeout(()=>{AQ_ADVANCE_TIMER=null;if(AQ_IDX<pilarTotalQ-1){AQ_IDX++;render();}else{AQ_PILAR=null;render();}},1000);
@@ -685,7 +696,7 @@ function renderAssess(main){
     qa.append(card2);
   });
 
-  if(curAns){qa.append(el('div',{style:{marginTop:'10px',textAlign:'center',fontSize:'13px',color:'var(--mute)'}},el('span',null,'✓ Level '+curAns+' selected — '),el('button',{style:{background:'none',border:'none',color:'var(--teal)',cursor:'pointer',fontFamily:'var(--f)',fontSize:'13px',textDecoration:'underline'},onClick:()=>{if(AQ_ADVANCE_TIMER){clearTimeout(AQ_ADVANCE_TIMER);AQ_ADVANCE_TIMER=null;}delete ANSWERS[c.id];save();render();}},t('undo'))));}
+  if(curAns){qa.append(el('div',{style:{marginTop:'10px',textAlign:'center',fontSize:'13px',color:'var(--mute)'}},el('span',null,'✓ Level '+curAns+' selected — '),el('button',{style:{background:'none',border:'none',color:'var(--teal)',cursor:'pointer',fontFamily:'var(--f)',fontSize:'13px',textDecoration:'underline'},onClick:()=>{if(AQ_ADVANCE_TIMER){clearTimeout(AQ_ADVANCE_TIMER);AQ_ADVANCE_TIMER=null;}if(window.AIX)AIX.onClear(c.id);delete ANSWERS[c.id];save();render();}},t('undo'))));}
   wrap.append(qa);
 
   var nav=el('div',{className:'quiz-nav'});
@@ -768,8 +779,10 @@ function renderResults(main) {
       descPt:'Programa de classe mundial com controles adaptativos em tempo real e convergência total interfuncional.' }
   ];
   function getMaturity(s) {
-    for (var i = 0; i < MATURITY.length; i++) {
-      if (s >= MATURITY[i].min && s <= MATURITY[i].max) return MATURITY[i];
+    /* Match on the lower bound only. The old min/max pairs left gaps (e.g. 2.495 matched nothing
+       and fell back to "Non-Existent"). */
+    for (var i = MATURITY.length - 1; i >= 0; i--) {
+      if (s >= MATURITY[i].min) return MATURITY[i];
     }
     return MATURITY[0];
   }
@@ -815,6 +828,7 @@ function renderResults(main) {
       badge: gaps.length > 0 ? String(gaps.length) : null },
     { id:'distribution', icon:'≡', label: LANG==='es'?'Distribución':LANG==='pt'?'Distribuição':'Distribution' }
   ];
+  if (window.AIX) SECTIONS.push({ id:'report', icon:'✨', label: AIX.T().tab });
 
   // ── root layout ──
   var root = el('div', { style: {
@@ -885,10 +899,20 @@ function renderResults(main) {
       padding:'7px 8px', gap:'4px' },
       onClick: function() { AQ_STARTED=false; AQ_VIEW='quiz'; render(); }
     }, '⌂ ' + (LANG==='es'?'Inicio':LANG==='pt'?'Início':'Home')),
-    el('button', { className:'btn btn-t', style:{ width:'100%', justifyContent:'center', fontSize:'11px',
+    ...(window.AIX ? [
+      el('button', { className:'btn btn-t', style:{ width:'100%', justifyContent:'center', fontSize:'11px',
+        padding:'7px 8px', fontWeight:'700', gap:'4px' },
+        onClick: function() { AIX.exportPDF(); }
+      }, '↓ PDF'),
+      el('button', { className:'btn btn-t', style:{ width:'100%', justifyContent:'center', fontSize:'11px',
+        padding:'7px 8px', fontWeight:'700', gap:'4px' },
+        onClick: function() { AIX.exportPPT(); }
+      }, '↓ PowerPoint')
+    ] : []),
+    el('button', { className:'btn', style:{ width:'100%', justifyContent:'center', fontSize:'11px',
       padding:'7px 8px', fontWeight:'700', gap:'4px' },
       onClick: function() { sendAnswers(); exportJSON(); }
-    }, '↓ ' + (LANG==='es'?'Exportar':LANG==='pt'?'Exportar':'Export'))
+    }, '↓ ' + (LANG==='es'?'Exportar datos':LANG==='pt'?'Exportar dados':'Export data'))
   );
 
   root.append(sidebar);
@@ -1535,6 +1559,10 @@ function renderResults(main) {
   // ══════════════════════════════════════════════════════
   // SECTION: MATURITY DISTRIBUTION
   // ══════════════════════════════════════════════════════
+  else if (DASHBOARD_VIEW === 'report' && window.AIX) {
+    AIX.renderReportSection(content, function() { renderResults(main); });
+  }
+
   else if (DASHBOARD_VIEW === 'distribution') {
     content.append(sectionTitle(
       LANG==='es'?'Distribución de Madurez':LANG==='pt'?'Distribuição de Maturidade':'Maturity Distribution',
