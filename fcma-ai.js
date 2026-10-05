@@ -8,13 +8,13 @@
   const S = {
     es: {
       fillBtn: '✨ Rellenar con IA', fillTitle: 'Pre-evaluación con IA', fillSub: 'Describe la institución o sube sus documentos. La IA propone un nivel por componente con su justificación; tú revisas y aplicas.',
-      ctxLabel: 'Contexto de la institución', ctxPh: 'Ej.: Banco mediano con 1,2 M de clientes, canales web y móvil, motor transaccional con reglas propias, equipo de fraude de 6 personas, comité mensual de fraude, sin modelos de ML…',
+      ctxLabel: 'Contexto de la institución', ctxPh: tp => 'Describe la organización con el mayor detalle posible: tamaño y sector, sistemas y canales, equipos, herramientas, políticas y controles que ya existen, y lo que todavía no tienen.' + (tp ? '\n\nPuedes cubrir temas como: ' + tp + '.' : ''),
       upload: '📎 Adjuntar documentos (PDF, TXT, MD, CSV)', chars: 'caracteres', onlyEmpty: 'Solo componentes sin responder', scope: 'Alcance', scopeAll: 'Todos los componentes', scopeCore: 'Solo Core',
       analyze: 'Analizar con IA', analyzing: 'Analizando…', cancel: 'Cancelar', close: 'Cerrar', tooShort: 'Agrega más contexto (mínimo ~40 caracteres) para que la IA pueda evaluar.', nothing: 'No hay componentes por completar con esa configuración.',
       jobsTitle: 'Progreso por pilar', jobWait: 'En cola', jobRun: 'Analizando', jobOk: 'Listo', jobErr: 'Error', retry: 'Reintentar fallidos',
       review: 'Revisión de propuestas', summary: (n, ne, lo) => `${n} propuestas · ${ne} sin evidencia · ${lo} con confianza baja`, filterAll: 'Todas', fHigh: 'Alta', fMed: 'Media', fLow: 'Baja', fNone: 'Sin evidencia',
       conf: { high: 'Confianza alta', medium: 'Confianza media', low: 'Confianza baja' }, basis: { stated: 'Declarado', inferred: 'Inferido', no_evidence: 'Sin evidencia' },
-      applySel: n => `Aplicar ${n} seleccionadas`, applyOk: 'Aplicar alta y media', selAll: 'Seleccionar todas', selNone: 'Ninguna', applied: n => `${n} respuestas aplicadas`, noLevel: '— sin nivel —',
+      applySel: n => `Aplicar ${n} seleccionadas`, applyOk: 'Aplicar alta y media', selAll: 'Seleccionar todas', selNone: 'Ninguna', bulkLbl: n => `${n} sin evidencia: asignar el mismo nivel a todas`, bulkBtn: 'Asignar', bulkPick: '— elige nivel —', selHint: n => `${n} sin nivel no se pueden marcar: asígnales un nivel (arriba, a todas a la vez, o una por una).`, applied: n => `${n} respuestas aplicadas`, noLevel: '— sin nivel —',
       aiNote: (c, b) => `✨ Sugerido por IA · ${c} · ${b}`, aiNoteOk: 'confirmado por ti',
       errNotConfigured: 'El servicio de IA aún no está configurado.', errGeneric: 'No se pudo completar la solicitud de IA.', errLimit: 'Se alcanzó el límite de uso de IA. Inténtalo más tarde.', errBusy: 'El servicio de IA está ocupado. Inténtalo de nuevo en un momento.', errPdf: 'No se pudo leer el PDF.',
       tab: 'Reporte IA', repTitle: 'Reporte ejecutivo', repSub: 'Narrativa y plan de acción generados por IA a partir de tus resultados. Todas las cifras provienen del cálculo del assessment.',
@@ -24,18 +24,18 @@
       roadmap: 'Hoja de ruta', h: { '0-90': '0–90 días', '90-180': '3–6 meses', '180-365': '6–12 meses' }, effort: 'Esfuerzo', impact: 'Impacto', lvl: { low: 'Bajo', medium: 'Medio', high: 'Alto' }, nextSteps: 'Próximos pasos',
       exposure: 'Exposición residual', score: 'Score', answered: 'respondidas', notAssessed: 'No evaluado', aiShare: (a, c) => `${a}% de las respuestas fueron pre-llenadas con IA${a ? ` (${c}% confirmadas por el evaluador)` : ''}.`,
       exportNoAI: 'No se pudo generar la narrativa con IA. ¿Exportar solo con los datos calculados?', exporting: 'Preparando archivo…', gaps: 'Brechas críticas', completion: 'Completitud', globalScore: 'Score global', maturity: 'Nivel de madurez',
-      matDesc: ['Sin estructura formal. Las decisiones son reactivas. Exposición regulatoria y financiera significativa.', 'Controles básicos informales. El programa responde a incidentes en lugar de prevenirlos.', 'Procesos documentados y repetibles. Gobernanza establecida. Brechas en ML y coordinación interfuncional.', 'Impulsado por métricas y gestión proactiva. Detección con ML. Mejora continua establecida.', 'Programa de clase mundial con controles adaptativos en tiempo real y convergencia interfuncional total.'],
+      matDesc: ['Sin estructura formal. Las decisiones son reactivas. Exposición regulatoria y financiera significativa.', 'Controles básicos informales. El programa responde a incidentes en lugar de prevenirlos.', 'Procesos documentados y repetibles. Gobernanza establecida. Brechas en automatización y coordinación interfuncional.', 'Impulsado por métricas y gestión proactiva. Monitoreo automatizado y basado en datos. Mejora continua establecida.', 'Programa de clase mundial con controles adaptativos en tiempo real y convergencia interfuncional total.'],
       matLbl: ['Inexistente', 'Reactivo', 'Definido', 'Gestionado', 'Optimizado']
     },
     en: {
       fillBtn: '✨ Fill with AI', fillTitle: 'AI pre-assessment', fillSub: 'Describe the institution or upload its documents. The AI proposes a level per component with its rationale; you review and apply.',
-      ctxLabel: 'Institution context', ctxPh: 'E.g.: Mid-size bank with 1.2M customers, web and mobile channels, in-house rules engine, 6-person fraud team, monthly fraud committee, no ML models…',
+      ctxLabel: 'Institution context', ctxPh: tp => 'Describe the organization in as much detail as you can: size and sector, systems and channels, teams, tools, policies and controls already in place, and what is still missing.' + (tp ? '\n\nYou can cover topics such as: ' + tp + '.' : ''),
       upload: '📎 Attach documents (PDF, TXT, MD, CSV)', chars: 'characters', onlyEmpty: 'Only unanswered components', scope: 'Scope', scopeAll: 'All components', scopeCore: 'Core only',
       analyze: 'Analyze with AI', analyzing: 'Analyzing…', cancel: 'Cancel', close: 'Close', tooShort: 'Add more context (at least ~40 characters) so the AI can assess.', nothing: 'There are no components left to fill with this setup.',
       jobsTitle: 'Progress by pillar', jobWait: 'Queued', jobRun: 'Analyzing', jobOk: 'Done', jobErr: 'Error', retry: 'Retry failed',
       review: 'Review proposals', summary: (n, ne, lo) => `${n} proposals · ${ne} without evidence · ${lo} low confidence`, filterAll: 'All', fHigh: 'High', fMed: 'Medium', fLow: 'Low', fNone: 'No evidence',
       conf: { high: 'High confidence', medium: 'Medium confidence', low: 'Low confidence' }, basis: { stated: 'Stated', inferred: 'Inferred', no_evidence: 'No evidence' },
-      applySel: n => `Apply ${n} selected`, applyOk: 'Apply high & medium', selAll: 'Select all', selNone: 'None', applied: n => `${n} answers applied`, noLevel: '— no level —',
+      applySel: n => `Apply ${n} selected`, applyOk: 'Apply high & medium', selAll: 'Select all', selNone: 'None', bulkLbl: n => `${n} with no evidence: set the same level for all`, bulkBtn: 'Set', bulkPick: '— pick a level —', selHint: n => `${n} without a level cannot be ticked: give them a level (above, all at once, or one by one).`, applied: n => `${n} answers applied`, noLevel: '— no level —',
       aiNote: (c, b) => `✨ AI suggested · ${c} · ${b}`, aiNoteOk: 'confirmed by you',
       errNotConfigured: 'The AI service is not configured yet.', errGeneric: 'The AI request could not be completed.', errLimit: 'AI usage limit reached. Please try again later.', errBusy: 'The AI service is busy. Try again in a moment.', errPdf: 'Could not read the PDF.',
       tab: 'AI Report', repTitle: 'Executive report', repSub: 'Narrative and action plan generated by AI from your results. All figures come from the assessment calculation.',
@@ -45,18 +45,18 @@
       roadmap: 'Roadmap', h: { '0-90': '0–90 days', '90-180': '3–6 months', '180-365': '6–12 months' }, effort: 'Effort', impact: 'Impact', lvl: { low: 'Low', medium: 'Medium', high: 'High' }, nextSteps: 'Next steps',
       exposure: 'Residual exposure', score: 'Score', answered: 'answered', notAssessed: 'Not assessed', aiShare: (a, c) => `${a}% of answers were pre-filled with AI${a ? ` (${c}% confirmed by the assessor)` : ''}.`,
       exportNoAI: 'The AI narrative could not be generated. Export with the calculated data only?', exporting: 'Preparing file…', gaps: 'Critical gaps', completion: 'Completion', globalScore: 'Global score', maturity: 'Maturity level',
-      matDesc: ['No formal fraud program structure. Decisions are reactive and ad hoc. Significant regulatory and financial exposure.', 'Basic controls exist but informal and undocumented. Program responds to incidents rather than preventing them.', 'Core processes documented and repeatable. Governance in place. Gaps remain in ML detection and cross-functional integration.', 'Metrics-driven and proactively managed. Detection includes ML models. Continuous improvement established.', 'Best-in-class program with real-time adaptive controls, full cross-functional convergence, continuous optimization.'],
+      matDesc: ['No formal program structure. Decisions are reactive and ad hoc. Significant regulatory and financial exposure.', 'Basic controls exist but informal and undocumented. Program responds to incidents rather than preventing them.', 'Core processes documented and repeatable. Governance in place. Gaps remain in automation and cross-functional integration.', 'Metrics-driven and proactively managed. Monitoring is automated and data-driven. Continuous improvement established.', 'Best-in-class program with real-time adaptive controls, full cross-functional convergence, continuous optimization.'],
       matLbl: ['Non-Existent', 'Reactive', 'Defined', 'Managed', 'Optimized']
     },
     pt: {
       fillBtn: '✨ Preencher com IA', fillTitle: 'Pré-avaliação com IA', fillSub: 'Descreva a instituição ou envie seus documentos. A IA propõe um nível por componente com a justificativa; você revisa e aplica.',
-      ctxLabel: 'Contexto da instituição', ctxPh: 'Ex.: Banco de médio porte com 1,2 mi de clientes, canais web e mobile, motor de regras próprio, equipe de fraude de 6 pessoas, comitê mensal de fraude, sem modelos de ML…',
+      ctxLabel: 'Contexto da instituição', ctxPh: tp => 'Descreva a organização com o máximo de detalhe: porte e setor, sistemas e canais, equipes, ferramentas, políticas e controles existentes e o que ainda falta.' + (tp ? '\n\nVocê pode abordar temas como: ' + tp + '.' : ''),
       upload: '📎 Anexar documentos (PDF, TXT, MD, CSV)', chars: 'caracteres', onlyEmpty: 'Somente componentes sem resposta', scope: 'Escopo', scopeAll: 'Todos os componentes', scopeCore: 'Somente Core',
       analyze: 'Analisar com IA', analyzing: 'Analisando…', cancel: 'Cancelar', close: 'Fechar', tooShort: 'Adicione mais contexto (mínimo ~40 caracteres) para a IA avaliar.', nothing: 'Não há componentes a preencher com essa configuração.',
       jobsTitle: 'Progresso por pilar', jobWait: 'Na fila', jobRun: 'Analisando', jobOk: 'Pronto', jobErr: 'Erro', retry: 'Repetir falhas',
       review: 'Revisão das propostas', summary: (n, ne, lo) => `${n} propostas · ${ne} sem evidência · ${lo} com confiança baixa`, filterAll: 'Todas', fHigh: 'Alta', fMed: 'Média', fLow: 'Baixa', fNone: 'Sem evidência',
       conf: { high: 'Confiança alta', medium: 'Confiança média', low: 'Confiança baixa' }, basis: { stated: 'Declarado', inferred: 'Inferido', no_evidence: 'Sem evidência' },
-      applySel: n => `Aplicar ${n} selecionadas`, applyOk: 'Aplicar alta e média', selAll: 'Selecionar todas', selNone: 'Nenhuma', applied: n => `${n} respostas aplicadas`, noLevel: '— sem nível —',
+      applySel: n => `Aplicar ${n} selecionadas`, applyOk: 'Aplicar alta e média', selAll: 'Selecionar todas', selNone: 'Nenhuma', bulkLbl: n => `${n} sem evidência: definir o mesmo nível para todas`, bulkBtn: 'Definir', bulkPick: '— escolha o nível —', selHint: n => `${n} sem nível não podem ser marcadas: atribua um nível (acima, todas de uma vez, ou uma a uma).`, applied: n => `${n} respostas aplicadas`, noLevel: '— sem nível —',
       aiNote: (c, b) => `✨ Sugerido por IA · ${c} · ${b}`, aiNoteOk: 'confirmado por você',
       errNotConfigured: 'O serviço de IA ainda não está configurado.', errGeneric: 'Não foi possível concluir a solicitação de IA.', errLimit: 'Limite de uso de IA atingido. Tente mais tarde.', errBusy: 'O serviço de IA está ocupado. Tente novamente em instantes.', errPdf: 'Não foi possível ler o PDF.',
       tab: 'Relatório IA', repTitle: 'Relatório executivo', repSub: 'Narrativa e plano de ação gerados por IA a partir dos seus resultados. Todos os números vêm do cálculo do assessment.',
@@ -66,7 +66,7 @@
       roadmap: 'Roadmap', h: { '0-90': '0–90 dias', '90-180': '3–6 meses', '180-365': '6–12 meses' }, effort: 'Esforço', impact: 'Impacto', lvl: { low: 'Baixo', medium: 'Médio', high: 'Alto' }, nextSteps: 'Próximos passos',
       exposure: 'Exposição residual', score: 'Score', answered: 'respondidas', notAssessed: 'Não avaliado', aiShare: (a, c) => `${a}% das respostas foram pré-preenchidas com IA${a ? ` (${c}% confirmadas pelo avaliador)` : ''}.`,
       exportNoAI: 'Não foi possível gerar a narrativa com IA. Exportar apenas com os dados calculados?', exporting: 'Preparando arquivo…', gaps: 'Lacunas críticas', completion: 'Completude', globalScore: 'Score global', maturity: 'Nível de maturidade',
-      matDesc: ['Sem estrutura formal. Decisões reativas. Exposição regulatória e financeira significativa.', 'Controles básicos informais. Programa responde a incidentes em vez de preveni-los.', 'Processos documentados e repetíveis. Governança estabelecida. Lacunas em ML e integração interfuncional.', 'Orientado por métricas e gestão proativa. Detecção com ML. Melhoria contínua estabelecida.', 'Programa de classe mundial com controles adaptativos em tempo real e convergência total interfuncional.'],
+      matDesc: ['Sem estrutura formal. Decisões reativas. Exposição regulatória e financeira significativa.', 'Controles básicos informais. Programa responde a incidentes em vez de preveni-los.', 'Processos documentados e repetíveis. Governança estabelecida. Lacunas em automação e integração interfuncional.', 'Orientado por métricas e gestão proativa. Monitoramento automatizado e baseado em dados. Melhoria contínua estabelecida.', 'Programa de classe mundial com controles adaptativos em tempo real e convergência total interfuncional.'],
       matLbl: ['Inexistente', 'Reativo', 'Definido', 'Gerenciado', 'Otimizado']
     }
   };
@@ -282,9 +282,11 @@
     else paintFillReview(bd, ft);
   }
 
+  const topicsHint = () => (typeof DATA !== 'undefined' ? DATA : []).slice(0, 4).map(p => String(p.name || '').replace(/\s*[\(—–-].*$/, '').trim()).filter(Boolean).map(x => x.length > 44 ? x.slice(0, 43) + '…' : x).join('; ');
+
   function paintFillInput(bd, ft) {
     const t = T();
-    const ta = el('textarea', { className: 'aix-ta', placeholder: t.ctxPh });
+    const ta = el('textarea', { className: 'aix-ta', placeholder: t.ctxPh(topicsHint()) });
     ta.value = FILL.ctx;
     const counter = el('span', { style: { fontSize: '11px', color: 'var(--mute)', fontFamily: 'var(--fm)' } });
     const upd = () => { const n = fullContext().length; counter.textContent = n.toLocaleString() + ' / ' + CAP.toLocaleString() + ' ' + t.chars; counter.style.color = n >= CAP ? 'var(--red)' : 'var(--mute)'; };
@@ -369,7 +371,7 @@
         const job = queue.shift();
         job.state = 'run'; if (fillOv) paintFill();
         try {
-          const data = await callAI('fill', { context: FILL.ctxSent, components: job.comps.map(c => ({ id: c.id, name: c.name, levels: c.L })) });
+          const data = await callAI('fill', { framework: (META && (META.title || META.assessmentName)) || '', context: FILL.ctxSent, components: job.comps.map(c => ({ id: c.id, name: c.name, levels: c.L })) });
           (data.results || []).forEach(r => { FILL.items[r.id] = Object.assign({}, r, { keep: r.level != null && r.confidence !== 'low' }); });
           job.state = 'ok';
         } catch (e) {
@@ -398,6 +400,16 @@
     bd.append(el('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '14px' } },
       el('div', { style: { fontSize: '13px', color: 'var(--dim)', flex: '1', minWidth: '220px' } }, t.summary(list.length - ne, ne, lo)),
       ...[['all', t.filterAll], ['high', t.fHigh], ['medium', t.fMed], ['low', t.fLow], ['none', t.fNone]].map(([k, lab]) => el('span', { className: 'aix-chip' + (FILL.filter === k ? ' on' : ''), style: { cursor: 'pointer' }, onClick: () => { FILL.filter = k; paintFill(); } }, lab))));
+    if (ne) {
+      const bsel = el('select', { className: 'inp', style: { padding: '6px 8px', fontSize: '12px', width: '230px', flex: 'none' } }, el('option', { value: '' }, t.bulkPick), ...[1, 2, 3, 4, 5].map(n => el('option', { value: String(n) }, n + ' · ' + getLBL()[n - 1])));
+      const bbtn = el('button', { className: 'btn', onClick: () => {
+        const lv = parseInt(bsel.value, 10); if (!(lv >= 1 && lv <= 5)) return;
+        list.forEach(x => { if (x.level == null) { x.level = lv; x.keep = true; x.edited = true; } });
+        paintFill();
+      } }, t.bulkBtn);
+      bd.append(el('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '14px', padding: '10px 14px', background: 'var(--bg)', border: '1px solid var(--brd)', borderRadius: '10px' } },
+        el('div', { style: { fontSize: '12px', color: 'var(--dim)', flex: '1', minWidth: '200px' } }, t.bulkLbl(ne)), bsel, bbtn));
+    }
     const pass = x => FILL.filter === 'all' || (FILL.filter === 'none' ? x.level == null : x.level != null && x.confidence === FILL.filter);
     const lbl = getLBL();
     DATA.forEach(p => {
@@ -428,6 +440,7 @@
     const paintFooter = () => { const n = Object.values(FILL.items).filter(x => x.keep && x.level != null).length; applyBtn.textContent = t.applySel(n); applyBtn.disabled = !n; };
     applyBtn.onclick = () => applyFill();
     paintFooter();
+    if (ne) ft.append(el('div', { style: { flexBasis: '100%', fontSize: '11px', color: 'var(--mute)', marginBottom: '4px' } }, t.selHint(ne)));
     ft.append(el('button', { className: 'btn', onClick: () => { Object.values(FILL.items).forEach(x => { x.keep = x.level != null; }); paintFill(); } }, t.selAll),
       el('button', { className: 'btn', onClick: () => { Object.values(FILL.items).forEach(x => { x.keep = false; }); paintFill(); } }, t.selNone),
       el('button', { className: 'btn', onClick: () => { Object.values(FILL.items).forEach(x => { x.keep = x.level != null && x.confidence !== 'low'; }); paintFill(); } }, t.applyOk),
