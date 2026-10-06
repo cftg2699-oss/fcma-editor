@@ -8,7 +8,7 @@
     + 'with that this from have been which their they them into such also than then these those over under about through between during using used '
     + 'para como esta esse essa isso quando onde porque mais tambem sobre entre desde ate cada todo toda todos todas com uma uns umas dos das nos nas '
     + 'tiene tienen cuenta cuentan existe existen nivel proceso procesos').split(/\s+/));
-  const GENERIC = new Set(['fraude','fraud','banco','bank','estrat','strate','docume','organi','instit','proces','gestio','manage','contro','riesgo','risk','equipo','sistem','tiempo','nivel','existe','empres','compan','client','custom','servic','produc','canale','channe','aproba','approv','revisa','review','anual','annual','report','regula','tiempo','real']);
+  const GENERIC = new Set(['fraude','fraud','banco','bank','estrat','strate','docume','organi','instit','proces','gestio','manage','contro','riesgo','risk','equipo','sistem','tiempo','nivel','existe','empres','compan','client','custom','servic','produc','canale','channe','exists','exist','aproba','approv','revisa','review','anual','annual','report','regula','tiempo','real']);
   const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   const stem = w => w.slice(0, 6);
   function toks(s, keepGeneric) {
@@ -72,28 +72,56 @@
   };
   const tx = lang => TX[lang] || TX.es;
 
+
+  /* Si el contexto viene organizado por secciones ("P4 — DETECTION ...", "PILLAR 3: ..."), el motor solo usa la
+     sección que corresponde al pilar que está evaluando; así el texto de otros pilares no genera coincidencias falsas.
+     Si no hay secciones reconocibles, usa todo el contexto. */
+  const HEAD = /^\s*(?:pilar|pillar|p)?\s*\d+\s*[—–:.\-]\s*(.{3,120})$/i;
+  function sectionsOf(text) {
+    const lines = String(text || '').split(/\r?\n/); const secs = []; let cur = { title: '', body: [] };
+    lines.forEach(l => {
+      const m = l.match(HEAD);
+      if (m && l.trim().length < 130 && !/[a-z]{3,}\s+[a-z]{3,}\s+[a-z]{3,}.*[a-z]\.$/.test(l)) { secs.push(cur); cur = { title: m[1], body: [] }; }
+      else if (/^\s*PART\s+[A-Z]\b/i.test(l)) { secs.push(cur); cur = { title: '', body: [] }; }
+      else cur.body.push(l);
+    });
+    secs.push(cur);
+    return secs.filter(x => x.title).map(x => ({ stems: new Set(toks(x.title, true).keys()), text: x.body.join('\n') }));
+  }
+  function evidenceFor(context, pillar) {
+    if (!pillar || !pillar.name) return context;
+    const secs = sectionsOf(context); if (secs.length < 2) return context;
+    const pn = new Set(toks(pillar.name, true).keys()); let best = null, bs = 0;
+    secs.forEach(s => { let n = 0; s.stems.forEach(k => { if (pn.has(k)) n++; }); if (n > bs) { bs = n; best = s; } });
+    return best && bs >= 2 ? best.text : context;
+  }
+
   /* ───────── relleno ───────── */
   function fill(req) {
     const t = tx(req.lang);
     const NEG = /\b(no (tiene|tenemos|existe|hay|cuenta|contamos)|sin |carece|inexistente|ninguno|manual|informal|ad hoc|not have|no formal|lack|nao tem|nao existe)\b/;
-    const pos = String(req.context || '').split(/[.\n;]+/).filter(x => !NEG.test(norm(x))).join('. ');
+    const pos = String(evidenceFor(req.context, req.pillar) || '').split(/[.\n;]+/).filter(x => !NEG.test(norm(x))).join('. ');
     const ctx = toks(pos);
+    const negText = String(evidenceFor(req.context, req.pillar) || '').split(/[.\n;]+/).filter(x => NEG.test(norm(x))).join('. ');
+    const ctxNeg = toks(negText);
     const results = (req.components || []).map(c => {
       const nameT = toks(c.name);
       const lv = (c.levels || []).map(toks);
       const freq = new Map(); lv.forEach(m => m.forEach((_, k) => freq.set(k, (freq.get(k) || 0) + 1)));
       const nameHits = [...nameT.keys()].filter(k => ctx.has(k));
-      const d = lv.map(m => [...m.keys()].filter(k => ctx.has(k) && (freq.get(k) || 0) <= 2));
-      let best = -1, mx = 0;
-      d.forEach((h, i) => { if (h.length > mx) { mx = h.length; best = i; } });
+      const d = lv.map((m, i) => [...m.keys()].filter(k => (i === 0 ? ctxNeg : ctx).has(k) && (freq.get(k) || 0) <= 2));
+      /* Puntaje normalizado por el largo del descriptor: evita que los niveles altos (descriptores más largos)
+         ganen solo por acumular coincidencias casuales. Empates -> nivel más bajo (conservador). */
+      let best = -1, mx = 0, bestScore = 0;
+      d.forEach((h, i) => { const sc = h.length / Math.sqrt(Math.max(4, lv[i].size)); if (h.length >= 2 && sc > bestScore + 1e-9) { bestScore = sc; best = i; mx = h.length; } });
       const evidence = nameHits.length * 2 + mx;
       const solid = mx >= 2;
       if (!solid) return { id: c.id, level: null, confidence: 'low', basis: 'no_evidence', rationale: '' };
       if (mx >= 1) {
-        const words = d[best].slice(0, 3).map(k => ctx.get(k)).join(', ');
+        const words = d[best].map(k => ctx.get(k)).sort((a, b) => b.length - a.length).slice(0, 3).join(', ');
         const basis = mx >= 2 ? 'stated' : 'inferred';
         const conf = mx >= 3 ? 'high' : 'medium';
-        const lvl = best === 4 && mx < 3 ? 3 : (best === 3 && mx < 2 ? 3 : best + 1);
+        const lvl = best === 4 && mx < 4 ? 3 : (best === 3 && mx < 3 ? 3 : best + 1);
         return { id: c.id, level: lvl, confidence: lvl !== best + 1 ? 'medium' : conf, basis, rationale: t.rat(words, lvl, clip(c.levels[lvl - 1], 14)) };
       }
       return { id: c.id, level: null, confidence: 'low', basis: 'no_evidence', rationale: '' };

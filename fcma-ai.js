@@ -371,7 +371,7 @@
         const job = queue.shift();
         job.state = 'run'; if (fillOv) paintFill();
         try {
-          const data = await callAI('fill', { framework: (META && (META.title || META.assessmentName)) || '', context: FILL.ctxSent, components: job.comps.map(c => ({ id: c.id, name: c.name, levels: c.L })) });
+          const data = await callAI('fill', { pillar: { id: job.pid, name: job.name }, framework: (META && (META.title || META.assessmentName)) || '', context: FILL.ctxSent, components: job.comps.map(c => ({ id: c.id, name: c.name, levels: c.L })) });
           (data.results || []).forEach(r => { FILL.items[r.id] = Object.assign({}, r, { keep: r.level != null && r.confidence !== 'low' }); });
           job.state = 'ok';
         } catch (e) {
