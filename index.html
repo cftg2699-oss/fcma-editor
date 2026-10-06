@@ -160,6 +160,8 @@ textarea.inp{resize:vertical;line-height:1.5}
 <script src="fcma-config.js"></script>
 <script src="fcma-sim.js"></script>
 <script src="fcma-ai.js"></script>
+<script src="fcma-derive.js"></script>
+<script src="fcma-derive-ui.js"></script>
 <script src="fcma-export.js"></script>
 <script>
 const $ = s => document.querySelector(s);
@@ -344,6 +346,7 @@ function renderWelcome(main){
   var inp=el('input',{type:'file',id:'wimport',accept:'.md',style:{display:'none'},onChange:function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){importMD(ev.target.result);};r.readAsText(f);e.target.value='';}});
   card.append(inp);
   card.append(el('button',{className:'btn btn-t',style:{padding:'16px 44px',fontSize:'16px',fontWeight:'700',borderRadius:'12px',boxShadow:'0 4px 14px rgba(5,150,105,0.25)'},onClick:function(){document.getElementById('wimport').click();}},'Load framework'));
+  if(window.DERIVE_UI){card.append(el('div',{style:{marginTop:'26px',paddingTop:'22px',borderTop:'1px solid var(--brd)'}},el('div',{style:{fontSize:'13px',color:'var(--dim)',lineHeight:'1.6',marginBottom:'12px'}},DERIVE_UI.caption()),el('button',{className:'btn',style:{padding:'12px 28px',fontSize:'14px',fontWeight:'700',borderRadius:'10px'},onClick:function(){DERIVE_UI.open();}},'\ud83e\uddec '+DERIVE_UI.label())));}
   wrap.append(card);main.append(wrap);
 }
 function renderSetup(main){

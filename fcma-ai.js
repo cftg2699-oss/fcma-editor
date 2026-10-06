@@ -634,5 +634,5 @@
     if (m.aiAssisted) content.append(el('div', { style: { fontSize: '11.5px', color: 'var(--mute)', marginTop: '6px' } }, t.aiShare(m.aiAssistedPct, m.aiConfirmedPct)));
   }
 
-  window.AIX = { parseCompleted, S, T, band, bandIdx, scoreColor, buildModel, serverModel, getReport, isStale, ensureReport, generateReport, openFill, noteFor, onManual, onClear, getMeta, renderReportSection, busy, toast, levelName, configured: () => !!aiUrl() };
+  window.AIX = { readFileText, parseCompleted, S, T, band, bandIdx, scoreColor, buildModel, serverModel, getReport, isStale, ensureReport, generateReport, openFill, noteFor, onManual, onClear, getMeta, renderReportSection, busy, toast, levelName, configured: () => !!aiUrl() };
 })();
