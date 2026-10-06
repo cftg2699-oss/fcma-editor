@@ -331,7 +331,7 @@ function renderPortfolio(main){
   wrap.append(dash);
   main.append(wrap);
 }
-function resetFlow(){HISTORY_VIEW=false;FW_TYPE=null;DATA=[];CORE=new Set();META={};ANSWERS={};ACTIVE_NODE=null;AQ_STARTED=false;try{localStorage.removeItem('tprm_active_node');localStorage.removeItem('tprm_fw_inst');}catch(e){}render();}
+function resetFlow(){HISTORY_VIEW=false;FW_TYPE=null;DATA=[];CORE=new Set();META={};ANSWERS={};ACTIVE_NODE=null;AQ_STARTED=false;save();try{localStorage.removeItem('tprm_active_node');localStorage.removeItem('tprm_fw_inst');}catch(e){}render();}
 function pfSetInherent(pid,idx,val){var cfg={};try{cfg=JSON.parse(localStorage.getItem('tprm_inh_'+pid)||'{}');}catch(e){}cfg[idx]=parseInt(val,10)||0;try{localStorage.setItem('tprm_inh_'+pid,JSON.stringify(cfg));}catch(e){}}
 function pfGetInherent(pid){try{return JSON.parse(localStorage.getItem('tprm_inh_'+pid)||'{}');}catch(e){return {};}}
 function renderWelcome(main){
