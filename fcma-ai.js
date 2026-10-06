@@ -13,7 +13,8 @@
       analyze: 'Analizar con IA', analyzing: 'Analizando…', cancel: 'Cancelar', close: 'Cerrar', tooShort: 'Agrega más contexto (mínimo ~40 caracteres) para que la IA pueda evaluar.', nothing: 'No hay componentes por completar con esa configuración.',
       jobsTitle: 'Progreso por pilar', jobWait: 'En cola', jobRun: 'Analizando', jobOk: 'Listo', jobErr: 'Error', retry: 'Reintentar fallidos',
       review: 'Revisión de propuestas', summary: (n, ne, lo) => `${n} propuestas · ${ne} sin evidencia · ${lo} con confianza baja`, filterAll: 'Todas', fHigh: 'Alta', fMed: 'Media', fLow: 'Baja', fNone: 'Sin evidencia',
-      conf: { high: 'Confianza alta', medium: 'Confianza media', low: 'Confianza baja' }, basis: { stated: 'Declarado', inferred: 'Inferido', no_evidence: 'Sin evidencia' },
+      conf: { high: 'Confianza alta', medium: 'Confianza media', low: 'Confianza baja' }, basis: { stated: 'Declarado', inferred: 'Inferido', no_evidence: 'Sin evidencia', imported: 'Importado del documento' },
+      importFound: n => '✓ ' + n + ' calificaciones por componente detectadas en el documento; se importan directo y el resto lo analiza la IA.', importHint: 'Si ya tienes un assessment hecho (PDF, CSV, TXT o MD con el ID del componente y su nivel 1–5), adjúntalo: sus calificaciones se cargan directamente, sin interpretación.', importRat: (f, x) => 'Importado de «' + f + '»: ' + x,
       applySel: n => `Aplicar ${n} seleccionadas`, applyOk: 'Aplicar alta y media', selAll: 'Seleccionar todas', selNone: 'Ninguna', bulkLbl: n => `${n} sin evidencia: asignar el mismo nivel a todas`, bulkBtn: 'Asignar', bulkPick: '— elige nivel —', selHint: n => `${n} sin nivel no se pueden marcar: asígnales un nivel (arriba, a todas a la vez, o una por una).`, applied: n => `${n} respuestas aplicadas`, noLevel: '— sin nivel —',
       aiNote: (c, b) => `✨ Sugerido por IA · ${c} · ${b}`, aiNoteOk: 'confirmado por ti',
       errNotConfigured: 'El servicio de IA aún no está configurado.', errGeneric: 'No se pudo completar la solicitud de IA.', errLimit: 'Se alcanzó el límite de uso de IA. Inténtalo más tarde.', errBusy: 'El servicio de IA está ocupado. Inténtalo de nuevo en un momento.', errPdf: 'No se pudo leer el PDF.',
@@ -34,7 +35,8 @@
       analyze: 'Analyze with AI', analyzing: 'Analyzing…', cancel: 'Cancel', close: 'Close', tooShort: 'Add more context (at least ~40 characters) so the AI can assess.', nothing: 'There are no components left to fill with this setup.',
       jobsTitle: 'Progress by pillar', jobWait: 'Queued', jobRun: 'Analyzing', jobOk: 'Done', jobErr: 'Error', retry: 'Retry failed',
       review: 'Review proposals', summary: (n, ne, lo) => `${n} proposals · ${ne} without evidence · ${lo} low confidence`, filterAll: 'All', fHigh: 'High', fMed: 'Medium', fLow: 'Low', fNone: 'No evidence',
-      conf: { high: 'High confidence', medium: 'Medium confidence', low: 'Low confidence' }, basis: { stated: 'Stated', inferred: 'Inferred', no_evidence: 'No evidence' },
+      conf: { high: 'High confidence', medium: 'Medium confidence', low: 'Low confidence' }, basis: { stated: 'Stated', inferred: 'Inferred', no_evidence: 'No evidence', imported: 'Imported from document' },
+      importFound: n => '✓ ' + n + ' component ratings detected in the document; they are imported directly and the rest is analyzed by the AI.', importHint: 'Already have a completed assessment (PDF, CSV, TXT or MD with the component ID and its 1–5 level)? Attach it: its ratings load directly, with no interpretation.', importRat: (f, x) => 'Imported from "' + f + '": ' + x,
       applySel: n => `Apply ${n} selected`, applyOk: 'Apply high & medium', selAll: 'Select all', selNone: 'None', bulkLbl: n => `${n} with no evidence: set the same level for all`, bulkBtn: 'Set', bulkPick: '— pick a level —', selHint: n => `${n} without a level cannot be ticked: give them a level (above, all at once, or one by one).`, applied: n => `${n} answers applied`, noLevel: '— no level —',
       aiNote: (c, b) => `✨ AI suggested · ${c} · ${b}`, aiNoteOk: 'confirmed by you',
       errNotConfigured: 'The AI service is not configured yet.', errGeneric: 'The AI request could not be completed.', errLimit: 'AI usage limit reached. Please try again later.', errBusy: 'The AI service is busy. Try again in a moment.', errPdf: 'Could not read the PDF.',
@@ -55,7 +57,8 @@
       analyze: 'Analisar com IA', analyzing: 'Analisando…', cancel: 'Cancelar', close: 'Fechar', tooShort: 'Adicione mais contexto (mínimo ~40 caracteres) para a IA avaliar.', nothing: 'Não há componentes a preencher com essa configuração.',
       jobsTitle: 'Progresso por pilar', jobWait: 'Na fila', jobRun: 'Analisando', jobOk: 'Pronto', jobErr: 'Erro', retry: 'Repetir falhas',
       review: 'Revisão das propostas', summary: (n, ne, lo) => `${n} propostas · ${ne} sem evidência · ${lo} com confiança baixa`, filterAll: 'Todas', fHigh: 'Alta', fMed: 'Média', fLow: 'Baixa', fNone: 'Sem evidência',
-      conf: { high: 'Confiança alta', medium: 'Confiança média', low: 'Confiança baixa' }, basis: { stated: 'Declarado', inferred: 'Inferido', no_evidence: 'Sem evidência' },
+      conf: { high: 'Confiança alta', medium: 'Confiança média', low: 'Confiança baixa' }, basis: { stated: 'Declarado', inferred: 'Inferido', no_evidence: 'Sem evidência', imported: 'Importado do documento' },
+      importFound: n => '✓ ' + n + ' classificações por componente detectadas no documento; são importadas diretamente e o restante é analisado pela IA.', importHint: 'Já tem um assessment concluído (PDF, CSV, TXT ou MD com o ID do componente e o nível 1–5)? Anexe-o: as classificações são carregadas diretamente, sem interpretação.', importRat: (f, x) => 'Importado de «' + f + '»: ' + x,
       applySel: n => `Aplicar ${n} selecionadas`, applyOk: 'Aplicar alta e média', selAll: 'Selecionar todas', selNone: 'Nenhuma', bulkLbl: n => `${n} sem evidência: definir o mesmo nível para todas`, bulkBtn: 'Definir', bulkPick: '— escolha o nível —', selHint: n => `${n} sem nível não podem ser marcadas: atribua um nível (acima, todas de uma vez, ou uma a uma).`, applied: n => `${n} respostas aplicadas`, noLevel: '— sem nível —',
       aiNote: (c, b) => `✨ Sugerido por IA · ${c} · ${b}`, aiNoteOk: 'confirmado por você',
       errNotConfigured: 'O serviço de IA ainda não está configurado.', errGeneric: 'Não foi possível concluir a solicitação de IA.', errLimit: 'Limite de uso de IA atingido. Tente mais tarde.', errBusy: 'O serviço de IA está ocupado. Tente novamente em instantes.', errPdf: 'Não foi possível ler o PDF.',
@@ -218,11 +221,58 @@
       for (let i = 1; i <= Math.min(doc.numPages, 60); i++) {
         const pg = await doc.getPage(i);
         const tc = await pg.getTextContent();
-        out += tc.items.map(x => x.str).join(' ') + '\n';
+        /* reconstruye las líneas por coordenada Y para que una fila de tabla quede en una sola línea */
+        const rows = [];
+        tc.items.forEach(x => { if (!x.str || !x.str.trim()) return; const y = x.transform[5], xx = x.transform[4]; let r = rows.find(q => Math.abs(q.y - y) < 2.5); if (!r) { r = { y, parts: [] }; rows.push(r); } r.parts.push([xx, x.str]); });
+        rows.sort((a, b) => b.y - a.y).forEach(r => { out += r.parts.sort((a, b) => a[0] - b[0]).map(q => q[1]).join(' ') + '\n'; });
       }
       return out;
     }
     return await f.text();
+  }
+
+
+  /* ───────────── importación de un assessment ya completado (ingeniería inversa) ───────────── */
+  const LBL_WORDS = [['non-existent', 'nonexistent', 'inexistente', 'no existe'], ['informal', 'reactive', 'reactivo', 'reativo'], ['defined', 'definido'], ['managed', 'gestionado', 'gerenciado'], ['optimized', 'optimised', 'optimizado', 'otimizado']];
+  function levelFromText(rest) {
+    const r = rest.toLowerCase();
+    let m = r.match(/(?:level|nivel|nível|lvl)\s*[:=]?\s*([1-5])\b/) || r.match(/(?:^|[\s|;,(])l\s*([1-5])\b/);
+    if (m) return { level: +m[1], strength: 3 };
+    const wordsRe = LBL_WORDS.map(a => a.join('|')).join('|');
+    m = r.match(new RegExp('(?:^|[^\\d.])([1-5])\\s*(?:/\\s*5)?\\s*[-–—:)]?\\s*(' + wordsRe + ')'));
+    if (m) return { level: +m[1], strength: 3 };
+    m = r.match(/(?:^|[\s|;,(])([1-5])(?![\d.%])(?=$|[\s|;,)])/);
+    if (m) return { level: +m[1], strength: 1 + (/[|;,]/.test(r) ? 1 : 0) };
+    const hits = []; LBL_WORDS.forEach((a, i) => { if (a.some(w => new RegExp('\\b' + w + '\\b').test(r))) hits.push(i + 1); });
+    if (hits.length === 1) return { level: hits[0], strength: 2 };
+    return null;
+  }
+  function parseCompleted(files, data) {
+    const comps = {}; (data || []).forEach(p => p.subs.forEach(s => s.comps.forEach(c => { comps[c.id] = c; })));
+    const out = {};
+    const norm = x => String(x || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    (files || []).forEach(f => {
+      const lines = String(f.full || f.text || '').split(/\r?\n/);
+      lines.forEach((ln, i) => {
+        const ids = []; const re = /(?<![\d.])(\d{1,2}\.\d{1,2}\.\d{1,2})(?![\d.])/g; let m;
+        while ((m = re.exec(ln))) if (comps[m[1]]) ids.push({ id: m[1], end: m.index + m[0].length });
+        if (ids.length !== 1) return;                       /* una sola referencia por fila; si no, es un índice o texto corrido */
+        const { id, end } = ids[0]; const c = comps[id];
+        let rest = ln.slice(end); const nm = norm(c.name);
+        const at = norm(rest).indexOf(nm);
+        if (nm && at >= 0) rest = norm(rest).slice(0, at) + ' ' + norm(rest).slice(at + nm.length);
+        /* los IDs se repiten entre frameworks (1.1.1 existe en Fraude y en Cyber): se exige que el nombre del componente aparezca en la fila */
+        const words = nm.split(/[^a-z0-9áéíóúñãõç]+/).filter(w => w.length >= 4);
+        const hay = norm(ln + ' ' + (lines[i + 1] || '')); const okName = !words.length || words.filter(w => hay.indexOf(w) >= 0).length / words.length >= 0.5;
+        if (!okName) return;
+        let lv = levelFromText(rest);
+        if (!lv && i + 1 < lines.length && !/(?<![\d.])\d{1,2}\.\d{1,2}\.\d{1,2}(?![\d.])/.test(lines[i + 1])) lv = levelFromText(lines[i + 1]);
+        if (!lv) return;
+        const snip = rest.replace(/^[\s|;,:–—-]+/, '').replace(/\s+/g, ' ').trim().slice(0, 170);
+        if (!out[id] || lv.strength > out[id].strength) out[id] = { level: lv.level, strength: lv.strength, file: f.name, snip };
+      });
+    });
+    return out;
   }
 
   /* ───────────── AI-assisted fill ───────────── */
@@ -296,7 +346,7 @@
     const filesBox = el('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '12px 0' } });
     const paintFiles = () => {
       filesBox.innerHTML = '';
-      FILL.files.forEach((f, i) => filesBox.append(el('span', { className: 'aix-chip on' }, '📄 ' + f.name + ' · ' + Math.round(f.text.length / 1000) + 'k ', el('span', { style: { cursor: 'pointer', marginLeft: '4px' }, onClick: () => { FILL.files.splice(i, 1); paintFiles(); upd(); } }, '✕'))));
+      FILL.files.forEach((f, i) => filesBox.append(el('span', { className: 'aix-chip on' }, '📄 ' + f.name + ' · ' + Math.round(f.text.length / 1000) + 'k ', el('span', { style: { cursor: 'pointer', marginLeft: '4px' }, onClick: () => { FILL.files.splice(i, 1); paintFiles(); upd(); if (typeof updImp === 'function') updImp(); } }, '✕'))));
     };
     paintFiles();
     const fileIn = el('input', { type: 'file', accept: '.pdf,.txt,.md,.csv,.json', multiple: '', style: { display: 'none' } });
@@ -304,12 +354,15 @@
       for (const f of Array.from(fileIn.files)) {
         try {
           const text = (await readFileText(f)).replace(/\s+\n/g, '\n').trim();
-          if (text) FILL.files.push({ name: f.name, text: text.slice(0, 40000) });
+          if (text) FILL.files.push({ name: f.name, text: text.slice(0, 40000), full: text.slice(0, 600000) }); /* 'full' solo se usa para importar calificaciones ya hechas */
         } catch (e) { toast(t.errPdf + ' ' + f.name); }
       }
-      fileIn.value = ''; paintFiles(); upd();
+      fileIn.value = ''; paintFiles(); upd(); updImp();
     });
-    bd.append(el('div', { style: { display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' } }, el('button', { className: 'btn', onClick: () => fileIn.click() }, t.upload), fileIn, counter), filesBox);
+    const impNote = el('div', { style: { fontSize: '12px', fontWeight: '700', color: 'var(--teal)', margin: '4px 0 0' } });
+    const updImp = () => { const n = Object.keys(parseCompleted(FILL.files, DATA)).length; impNote.textContent = n ? t.importFound(n) : ''; };
+    bd.append(el('div', { style: { display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' } }, el('button', { className: 'btn', onClick: () => fileIn.click() }, t.upload), fileIn, counter), el('div', { style: { fontSize: '11.5px', color: 'var(--mute)', marginTop: '6px', lineHeight: '1.5' } }, t.importHint), filesBox, impNote);
+    updImp();
 
     const optRow = el('div', { style: { display: 'flex', gap: '22px', flexWrap: 'wrap', alignItems: 'center', padding: '14px 16px', background: 'var(--bg)', border: '1px solid var(--brd)', borderRadius: '10px' } });
     const cb = el('input', { type: 'checkbox' }); cb.checked = FILL.onlyEmpty; cb.addEventListener('change', () => { FILL.onlyEmpty = cb.checked; updTargets(); });
@@ -353,16 +406,24 @@
   async function startFill() {
     const t = T();
     const ctx = fullContext();
-    if (ctx.replace(/^(Organization|Sector|Country):.*\n?/gm, '').trim().length < 40) { FILL.err = t.tooShort; paintFill(); return; }
+    const imp = parseCompleted(FILL.files, DATA);
+    const impIds = Object.keys(imp);
+    if (!impIds.length && ctx.replace(/^(Organization|Sector|Country):.*\n?/gm, '').trim().length < 40) { FILL.err = t.tooShort; paintFill(); return; }
     const tg = fillTargets();
     if (!tg.length) { FILL.err = t.nothing; paintFill(); return; }
     lsSet(kCtx(), { text: FILL.ctx });
     FILL.jobs = []; FILL.items = {}; FILL.filter = 'all';
+    /* calificaciones ya hechas en el documento: se cargan tal cual, sin pasar por la IA */
+    const rest = [];
+    tg.forEach(x => { const r = imp[x.c.id]; if (r) FILL.items[x.c.id] = { id: x.c.id, level: r.level, confidence: 'high', basis: 'imported', rationale: t.importRat(r.file, r.snip || ('L' + r.level)), keep: true }; else rest.push(x); });
+    FILL.ctxSent = ctx;
+    if (!rest.length) { FILL.phase = 'review'; paintFill(); return; }
+    if (ctx.replace(/^(Organization|Sector|Country):.*\n?/gm, '').trim().length < 40) { FILL.phase = 'review'; paintFill(); return; }
     DATA.forEach(p => {
-      const cs = tg.filter(x => x.p.id === p.id).map(x => x.c);
+      const cs = rest.filter(x => x.p.id === p.id).map(x => x.c);
       for (let i = 0; i < cs.length; i += 12) FILL.jobs.push({ pid: p.id, name: p.name, n: cs.slice(i, i + 12).length, comps: cs.slice(i, i + 12), state: 'wait' });
     });
-    FILL.ctxSent = ctx; FILL.phase = 'running'; paintFill();
+    FILL.phase = 'running'; paintFill();
     await runJobs(FILL.jobs);
   }
   async function retryFailed() { const j = FILL.jobs.filter(x => x.state === 'err'); j.forEach(x => { x.state = 'wait'; x.err = ''; }); FILL.err = ''; await runJobs(j); }
@@ -573,5 +634,5 @@
     if (m.aiAssisted) content.append(el('div', { style: { fontSize: '11.5px', color: 'var(--mute)', marginTop: '6px' } }, t.aiShare(m.aiAssistedPct, m.aiConfirmedPct)));
   }
 
-  window.AIX = { S, T, band, bandIdx, scoreColor, buildModel, serverModel, getReport, isStale, ensureReport, generateReport, openFill, noteFor, onManual, onClear, getMeta, renderReportSection, busy, toast, levelName, configured: () => !!aiUrl() };
+  window.AIX = { parseCompleted, S, T, band, bandIdx, scoreColor, buildModel, serverModel, getReport, isStale, ensureReport, generateReport, openFill, noteFor, onManual, onClear, getMeta, renderReportSection, busy, toast, levelName, configured: () => !!aiUrl() };
 })();
