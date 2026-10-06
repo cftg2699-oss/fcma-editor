@@ -332,7 +332,11 @@
   function paintFillRunning(bd, ft) {
     const t = T();
     bd.append(el('div', { className: 'aix-h' }, t.jobsTitle));
-    FILL.jobs.forEach(j => {
+    /* Un renglón por pilar: los lotes de 12 componentes se agrupan para no mostrar el mismo pilar repetido. */
+    const groups = []; FILL.jobs.forEach(x => { let g = groups.find(q => q.pid === x.pid); if (!g) { g = { pid: x.pid, name: x.name, n: 0, jobs: [] }; groups.push(g); } g.n += x.n; g.jobs.push(x); });
+    groups.forEach(g => {
+      const sts = g.jobs.map(x => x.state);
+      const j = { pid: g.pid, name: g.name, n: g.n, err: (g.jobs.find(x => x.err) || {}).err, state: sts.includes('err') ? 'err' : sts.every(x => x === 'ok') ? 'ok' : sts.every(x => x === 'wait') ? 'wait' : 'run' };
       const st = j.state === 'ok' ? el('span', { style: { color: 'var(--teal)', fontWeight: '700' } }, '✓ ' + t.jobOk) : j.state === 'err' ? el('span', { style: { color: 'var(--red)', fontWeight: '700' }, title: j.err || '' }, '⚠ ' + t.jobErr) : j.state === 'run' ? el('span', { style: { display: 'flex', gap: '8px', alignItems: 'center', color: 'var(--dim)' } }, el('span', { className: 'aix-spin' }), t.jobRun) : el('span', { style: { color: 'var(--mute)' } }, t.jobWait);
       bd.append(el('div', { style: { display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', border: '1px solid var(--brd)', borderRadius: '9px', marginBottom: '8px', fontSize: '13px' } },
         el('span', { style: { fontFamily: 'var(--fm)', fontWeight: '700', color: 'var(--teal)', minWidth: '30px' } }, j.pid), el('span', { style: { flex: '1' } }, j.name + ' · ' + j.n), st));
