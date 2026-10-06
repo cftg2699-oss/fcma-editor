@@ -269,7 +269,7 @@ function parseMD(text){
 }
 function importMD(text){
   const r=parseMD(text);META=r.meta;try{localStorage.setItem('fcma_meta',JSON.stringify(META));}catch(e){}
-  DATA=r.data;CORE=r.core;ACTIVE_P=DATA.length>0?0:null;ACTIVE_S=null;FW_TYPE=DATA.length?(/vendor|third[\s\-]?party|tprm/i.test(((META.framework||'')+' '+(META.assessmentName||'')+' '+(META.title||''))?'vendor':'generic')):null;if(DATA.length){FW_TYPE=/vendor|third[\s\-]?party|tprm/i.test(((META.framework||'')+' '+(META.assessmentName||'')+' '+(META.title||'')))?'vendor':'generic';}else{FW_TYPE=null;}if(FW_TYPE==='vendor'){try{localStorage.setItem('tprm_fw_inst',JSON.stringify({data:DATA,core:[...CORE],meta:META}));}catch(e){}pfInit();}AQ_STARTED=false;save();render();
+  DATA=r.data;CORE=r.core;ACTIVE_P=DATA.length>0?0:null;ACTIVE_S=null;FW_TYPE=DATA.length?(/vendor|third[\s\-]?party|tprm/i.test(((META.framework||'')+' '+(META.assessmentName||'')+' '+(META.title||''))?'vendor':'generic')):null;if(DATA.length){FW_TYPE=/vendor|third[\s\-]?party|tprm/i.test(((META.framework||'')+' '+(META.assessmentName||'')+' '+(META.title||'')))?'vendor':'generic';}else{FW_TYPE=null;}if(FW_TYPE==='vendor'){try{localStorage.setItem('tprm_fw_inst',JSON.stringify({data:DATA,core:[...CORE],meta:META}));}catch(e){}pfInit();}else{try{localStorage.removeItem('tprm_fw_inst');localStorage.removeItem('tprm_active_node');}catch(e){}ACTIVE_NODE=null;}AQ_STARTED=false;save();render();
 }
 function exportMD(){let md='# FINANCIAL CRIME MATURITY ASSESSMENT\n\n';DATA.forEach(p=>{md+=`# ${p.id}: ${p.name}\n\n`;if(p.desc)md+=`*${p.desc}*\n\n`;p.subs.forEach(s=>{md+=`## ${s.id} — ${s.name}\n\n`;s.comps.forEach(c=>{md+=`### ${CORE.has(c.id)?'🔷 CORE · ':''}${c.id} · ${c.name}\n\n`;md+='| Level | Descriptor |\n|:---:|:---|\n';c.L.forEach((l,i)=>{md+=`| **${i+1}** | ${l} |\n`});md+='\n';});});md+='---\n\n';});downloadFile(md,'FCMA_Assessment.md','text/markdown');}
 function exportJSON(){var p={version:'2.0',data:DATA,core:[...CORE],answers:ANSWERS};if(window.AIX)p.ai=AIX.getMeta();if(REG_DATA)p.registration=REG_DATA;downloadFile(JSON.stringify(p,null,2),'FCMA_Assessment.json','application/json');}
@@ -331,7 +331,7 @@ function renderPortfolio(main){
   wrap.append(dash);
   main.append(wrap);
 }
-function resetFlow(){HISTORY_VIEW=false;FW_TYPE=null;DATA=[];CORE=new Set();META={};ANSWERS={};ACTIVE_NODE=null;AQ_STARTED=false;try{localStorage.removeItem('tprm_active_node');}catch(e){}render();}
+function resetFlow(){HISTORY_VIEW=false;FW_TYPE=null;DATA=[];CORE=new Set();META={};ANSWERS={};ACTIVE_NODE=null;AQ_STARTED=false;try{localStorage.removeItem('tprm_active_node');localStorage.removeItem('tprm_fw_inst');}catch(e){}render();}
 function pfSetInherent(pid,idx,val){var cfg={};try{cfg=JSON.parse(localStorage.getItem('tprm_inh_'+pid)||'{}');}catch(e){}cfg[idx]=parseInt(val,10)||0;try{localStorage.setItem('tprm_inh_'+pid,JSON.stringify(cfg));}catch(e){}}
 function pfGetInherent(pid){try{return JSON.parse(localStorage.getItem('tprm_inh_'+pid)||'{}');}catch(e){return {};}}
 function renderWelcome(main){
@@ -1752,8 +1752,13 @@ if(IS_CLIENT){
 }else{
   load();
   ACTIVE_NODE=null;try{localStorage.removeItem('tprm_active_node');}catch(e){}
-  if(localStorage.getItem('tprm_fw_inst')){FW_TYPE='vendor';try{var _fi=JSON.parse(localStorage.getItem('tprm_fw_inst'));DATA=_fi.data;CORE=new Set(_fi.core||[]);META=_fi.meta||{};}catch(e){}}
-  else if(DATA&&DATA.length){FW_TYPE=/vendor|third[\s\-]?party|tprm/i.test(((META.framework||'')+' '+(META.assessmentName||'')+' '+(META.title||'')))?'vendor':'generic';}
+  /* Restaurar el META del assessment cargado (antes no se leía) y decidir el modo por lo que está cargado,
+     no por un framework de vendor que haya quedado guardado de una sesión anterior. */
+  try{var _sm=JSON.parse(localStorage.getItem('fcma_meta')||'null');if(_sm&&typeof _sm==='object')META=_sm;}catch(e){}
+  var _hasD=!!(DATA&&DATA.length),_isV=_hasD&&/vendor|third[\s\-]?party|tprm/i.test(((META.framework||'')+' '+(META.assessmentName||'')+' '+(META.title||'')));
+  var _storedV=localStorage.getItem('tprm_fw_inst');
+  if(_storedV&&(_isV||!_hasD)){FW_TYPE='vendor';try{var _fi=JSON.parse(_storedV);DATA=_fi.data;CORE=new Set(_fi.core||[]);META=_fi.meta||{};}catch(e){}}
+  else if(_hasD){FW_TYPE=_isV?'vendor':'generic';}
   render();
 }
 
