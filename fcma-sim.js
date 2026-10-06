@@ -90,7 +90,15 @@
   }
   function evidenceFor(context, pillar) {
     if (!pillar || !pillar.name) return context;
-    const secs = sectionsOf(context); if (secs.length < 2) return context;
+    const secs = sectionsOf(context);
+    if (secs.length < 2) {
+      /* Texto corrido sin encabezados: se eligen los 2 párrafos que más se parecen al pilar y sus componentes. */
+      const paras = String(context || '').split(/\n\s*\n/).map(x => x.trim()).filter(x => x.length > 60);
+      if (paras.length < 4) return context;
+      const q = new Set(toks(pillar.name + ' ' + (pillar.compNames || ''), true).keys());
+      const scored = paras.map((x, i) => { let n = 0; toks(x, true).forEach((_, k) => { if (q.has(k)) n++; }); return { i, n }; }).sort((a, b) => b.n - a.n);
+      return scored.slice(0, 2).sort((a, b) => a.i - b.i).map(x => paras[x.i]).join('\n\n');
+    }
     const pn = new Set(toks(pillar.name, true).keys()); let best = null, bs = 0;
     secs.forEach(s => { let n = 0; s.stems.forEach(k => { if (pn.has(k)) n++; }); if (n > bs) { bs = n; best = s; } });
     return best && bs >= 2 ? best.text : context;
@@ -100,9 +108,10 @@
   function fill(req) {
     const t = tx(req.lang);
     const NEG = /\b(no (tiene|tenemos|existe|hay|cuenta|contamos)|sin |carece|inexistente|ninguno|manual|informal|ad hoc|not have|no formal|lack|nao tem|nao existe)\b/;
-    const pos = String(evidenceFor(req.context, req.pillar) || '').split(/[.\n;]+/).filter(x => !NEG.test(norm(x))).join('. ');
+    const _pl = req.pillar ? Object.assign({}, req.pillar, { compNames: (req.components || []).map(c => c.name).join(' ') }) : req.pillar;
+    const pos = String(evidenceFor(req.context, _pl) || '').split(/[.\n;]+/).filter(x => !NEG.test(norm(x))).join('. ');
     const ctx = toks(pos);
-    const negText = String(evidenceFor(req.context, req.pillar) || '').split(/[.\n;]+/).filter(x => NEG.test(norm(x))).join('. ');
+    const negText = String(evidenceFor(req.context, _pl) || '').split(/[.\n;]+/).filter(x => NEG.test(norm(x))).join('. ');
     const ctxNeg = toks(negText);
     const results = (req.components || []).map(c => {
       const nameT = toks(c.name);
