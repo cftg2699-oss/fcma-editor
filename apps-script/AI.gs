@@ -59,6 +59,7 @@ function doPost(e) {
 function taskFill_(req) {
   var lang = langOf_(req.lang);
   var context = String(req.context || '').slice(0, AI_DEFAULTS.maxContextChars);
+  var framework = String(req.framework || '').replace(/["<>\n\r]/g, ' ').slice(0, 120).trim();
   if (context.trim().length < 40) throw err_(400, 'Context too short');
   var comps = Array.isArray(req.components) ? req.components.slice(0, AI_DEFAULTS.maxComponentsPerCall) : [];
   if (!comps.length) throw err_(400, 'No components');
@@ -74,7 +75,7 @@ function taskFill_(req) {
   }).join('\n\n');
 
   var system =
-    'You are a senior financial-crime and fraud-prevention maturity assessor. ' +
+    'You are a senior risk and control maturity assessor' + (framework ? ' for the framework "' + framework + '"' : '') + ' (for example fraud, AML, cybersecurity or third-party risk). ' +
     'You receive ORGANIZATION CONTEXT (free text written by the client, possibly incomplete, in any language) ' +
     'and assessment COMPONENTS, each with five maturity level descriptors (L1 lowest ... L5 highest).\n' +
     'For each component choose the level best supported by the evidence in the context.\n' +
@@ -139,7 +140,7 @@ function taskReport_(req) {
   };
   var ctx = String(req.profile || '').slice(0, 6000);
   var common =
-    'You are a senior financial-crime advisor writing a board-level maturity report in ' + LANG_NAMES[lang] + '. ' +
+    'You are a senior risk and control advisor writing a board-level maturity report for the framework "' + facts.framework + '" in ' + LANG_NAMES[lang] + '. ' +
     'Tone: executive, direct, specific; no filler, no marketing language.\n' +
     'Hard rules:\n' +
     '- Every number you mention must come from FACTS. Never invent statistics, loss amounts, fines, benchmarks, or peer comparisons.\n' +
@@ -170,7 +171,7 @@ function taskReport_(req) {
   gaps.forEach(function (g) { gapIds[g.id] = true; });
 
   var system2 = common +
-    'Schema: {"findings":[{"id":"component id from GAPS","title":"max 12 words","risk":"max 35 words: why it matters for fraud/financial-crime exposure",' +
+    'Schema: {"findings":[{"id":"component id from GAPS","title":"max 12 words","risk":"max 35 words: why it matters for risk exposure",' +
     '"recommendation":"max 40 words: concrete action to reach next_level"}],' +
     '"roadmap":[{"horizon":"0-90|90-180|180-365","initiative":"max 14 words","rationale":"max 30 words","components":["ids from GAPS"],' +
     '"effort":"low|medium|high","impact":"low|medium|high"}],' +

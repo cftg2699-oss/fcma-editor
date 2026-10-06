@@ -39,7 +39,8 @@ En `index.html` reemplaza la constante `SHEET_URL` con la URL del paso anterior.
 
 > **Modo demo (sin API key):** si `AI_URL` está vacío (`const AI_URL='';`), la app usa `fcma-sim.js`, un motor
 > **simulado** que corre en el navegador. El relleno propone niveles por coincidencia de palabras entre el
-> contexto y los descriptores (solo donde hay evidencia; es una aproximación, no una IA real), y el reporte se
+> contexto y los descriptores (solo donde hay evidencia; es una aproximación, no una IA real). Si el contexto viene
+> dividido en secciones por pilar ("P4 — DETECTION…"), usa solo la sección del pilar que evalúa, y el reporte se
 > redacta con plantillas a partir de los cálculos reales. Todas las cifras, PDF y PPT son reales. Al pegar la URL
 > del servicio real en `AI_URL`, la app pasa a Claude sin cambiar nada más.
 
