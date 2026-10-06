@@ -1,0 +1,176 @@
+ID,Component,Level,Label
+0.1.1,"Existence of a documented strategy",2,Informal
+0.1.2,"Articulation of strategic objectives",5,Optimized
+0.1.3,"Strategy time horizon",5,Optimized
+0.2.1,"Explicit risk acceptance",5,Optimized
+0.2.2,"Documented security vs. friction trade-off",4,Managed
+0.2.3,"Investment prioritization criteria",4,Managed
+0.3.1,"Fraud–business strategy linkage",4,Managed
+0.3.2,"Participation in launch decisions",4,Managed
+0.3.3,"Fraud consideration in digital growth",4,Managed
+1.1.1,"Policy existence and scope",4,Managed
+1.1.2,"Quantified risk appetite",4,Managed
+1.1.3,"Tolerances and limits by product/channel",4,Managed
+1.1.4,"Policy review process",5,Optimized
+1.1.5,"Alignment with ERM and operational risk",1,Non-existent
+1.2.1,"Position in the organizational chart",4,Managed
+1.2.2,"3LoD roles and responsibilities",3,Defined
+1.2.3,"Fraud Committee",3,Defined
+1.2.4,"Committee composition",4,Managed
+1.2.5,"Board escalation mechanism",4,Managed
+1.2.6,"Cross-organizational SLAs",3,Defined
+1.2.7,"Escalation protocols (internal vs. external fraud)",3,Defined
+1.2.8,"Designated Fraud Officer",4,Managed
+1.3.1,"Frequency and depth of Board reporting",4,Managed
+1.3.2,"Board understanding of fraud risk",5,Optimized
+1.3.3,"Participation in risk appetite decisions",4,Managed
+1.3.4,"Responsible C-suite executive",5,Optimized
+1.4.1,"Code of ethics and fraud",2,Informal
+1.4.2,"Employee awareness program",4,Managed
+1.4.3,"Role-specific specialized training",3,Defined
+1.4.4,"Whistleblower channel",4,Managed
+1.4.5,"Tone from the top",4,Managed
+1.4.6,"Anti-fraud culture measurement",4,Managed
+1.5.1,"Regulatory requirements mapping",4,Managed
+1.5.2,"Regulatory change monitoring",4,Managed
+1.5.3,"Regulatory findings history and remediation",4,Managed
+2.1.1,"Fraud scheme inventory",3,Defined
+2.1.2,"Emerging threat identification process",2,Informal
+2.1.3,"Inventory coverage",3,Defined
+2.1.4,"Update frequency",3,Defined
+2.2.1,"Formal documented methodology",2,Informal
+2.2.2,"Assessment granularity",3,Defined
+2.2.3,"Business line participation",3,Defined
+2.2.4,"Likelihood and impact rating criteria",3,Defined
+2.3.1,"Control assessment process",3,Defined
+2.3.2,"Control-to-scheme mapping",4,Managed
+2.3.3,"Control effectiveness testing",3,Defined
+2.4.1,"Residual risk calculation",4,Managed
+2.4.2,"Formal acceptance of residual risks",4,Managed
+2.5.1,"Fraud intelligence function",3,Defined
+2.5.2,"Integration of intelligence with detection",4,Managed
+2.5.3,"Intelligence sources (internal and external)",4,Managed
+2.5.4,"Intelligence report production",4,Managed
+3.1.1,"Journey mapping with vulnerability points",5,Optimized
+3.1.2,"Control coverage by journey stage",5,Optimized
+3.1.3,"Embedded vs. bolt-on controls",3,Defined
+3.1.4,"Gap analysis of digital vs. in-person journeys",5,Optimized
+3.2.1,"Identity theft prevention program",4,Managed
+3.2.2,"Synthetic identity detection",5,Optimized
+3.2.3,"Device validation at digital onboarding",3,Defined
+3.2.4,"Enhanced due diligence for high-risk customers",4,Managed
+3.2.5,"Internal and shared blacklists (consortia)",4,Managed
+3.2.6,"Sanctions list screening (OFAC)",5,Optimized
+3.3.1,"Authentication methods by channel",4,Managed
+3.3.2,"Risk-based adaptive authentication",5,Optimized
+3.3.3,"ATO protection",4,Managed
+3.3.4,"Security/friction balance in authentication",4,Managed
+3.4.1,"Transaction limits",5,Optimized
+3.4.2,"Real-time payment controls (PIX/instant)",4,Managed
+3.4.3,"Preventive business rules",3,Defined
+3.4.4,"Exception and control override process",3,Defined
+3.5.1,"Coercion indicator detection",5,Optimized
+3.5.2,"Proactive customer education",4,Managed
+3.5.3,"Confirmation of Payee (CoP) protocol",4,Managed
+3.6.1,"Segregation of duties",4,Managed
+3.6.2,"Employee activity monitoring",4,Managed
+3.6.3,"Dual authorization for sensitive operations",5,Optimized
+3.6.4,"Background checks for high-risk positions",5,Optimized
+3.7.1,"Fraud due diligence on vendors",4,Managed
+3.7.2,"Contractual controls with third parties",5,Optimized
+3.7.3,"Third-party originated fraud monitoring",2,Informal
+4.1.1,"Coverage by channels and products",5,Optimized
+4.1.2,"Rule inventory and documentation",4,Managed
+4.1.3,"Threshold calibration",4,Managed
+4.1.4,"Rule set governance",4,Managed
+4.1.5,"Rule performance",3,Defined
+4.2.1,"ML model existence and scope",5,Optimized
+4.2.2,"Independent model validation",4,Managed
+4.2.3,"Champion/challenger",3,Defined
+4.2.4,"Production performance monitoring",5,Optimized
+4.2.5,"Model types and techniques used",4,Managed
+4.2.6,"Model explainability and interpretability",4,Managed
+4.2.7,"Model development process",4,Managed
+4.3.1,"Real-time capability",3,Defined
+4.3.2,"Complementary batch processes",4,Managed
+4.3.3,"Decisioning architecture",4,Managed
+4.4.1,"Triage process",4,Managed
+4.4.2,"Customer impact of false positives",5,Optimized
+4.4.3,"Analysis team productivity",2,Informal
+4.4.4,"Disposition categorization and feedback",4,Managed
+4.5.1,"Unified customer view",5,Optimized
+4.5.2,"Cross-channel event correlation",5,Optimized
+4.6.1,"Graph analysis capability",5,Optimized
+4.6.2,"Graph visualization tools",5,Optimized
+5.1.1,"Case management tool",3,Defined
+5.1.2,"Workflow by case type",2,Informal
+5.1.3,"Case assignment (automatic vs. manual)",3,Defined
+5.2.1,"Formal documented methodology",3,Defined
+5.2.2,"Investigator competence",4,Managed
+5.2.3,"Evidence handling and preservation protocols",2,Informal
+5.2.4,"Case escalation and classification criteria",2,Informal
+5.3.1,"Recovery process",3,Defined
+5.3.2,"Loss accounting",3,Defined
+5.3.3,"Write-off decisions",4,Managed
+5.4.1,"Customer notification protocols",4,Managed
+5.4.2,"Re-issuance and restitution process",3,Defined
+5.4.3,"Customer liability limitation policies",3,Defined
+5.5.1,"Fraud-related SAR process",4,Managed
+5.5.2,"Currency Transaction Reports (CTRs)",3,Defined
+5.5.3,"Payment network reporting",4,Managed
+5.6.1,"Post-mortem process",4,Managed
+5.6.2,"Feedback to detection",4,Managed
+5.7.1,"Dispute resolution procedures",4,Managed
+6.1.1,"Input data quality",3,Defined
+6.1.2,"Documented data lineage",3,Defined
+6.1.3,"Fraud data governance",3,Defined
+6.1.4,"Data quality remediation processes",3,Defined
+6.2.1,"Fraud data repository",3,Defined
+6.2.2,"Data enrichment",3,Defined
+6.2.3,"Cross-channel and cross-system integration",3,Defined
+6.2.4,"Real-time vs. batch data availability",3,Defined
+6.3.1,"Model inventory",4,Managed
+6.3.2,"Model risk tiering",4,Managed
+6.3.3,"Standardized development process",3,Defined
+6.3.4,"Continuous production model monitoring",4,Managed
+6.3.5,"Model retirement/replacement process",3,Defined
+6.4.1,"Tool inventory",2,Informal
+6.4.2,"Vendor concentration risk",2,Informal
+6.4.3,"Technology vendor contract and SLA management",4,Managed
+6.5.1,"Scalability capacity",3,Defined
+6.5.2,"Availability and disaster recovery",4,Managed
+6.5.3,"Production performance monitoring (latency, throughput)",2,Informal
+6.6.1,"New technology evaluation process",2,Informal
+6.6.2,"PCI and encryption",3,Defined
+6.6.3,"Technology trend tracking",3,Defined
+7.1.1,"Defined metrics set",3,Defined
+7.1.2,"Translation of risk into monetary terms",2,Informal
+7.1.3,"Fraud operational KPIs",2,Informal
+7.1.4,"Fraud financial KPIs",4,Managed
+7.1.5,"Customer and experience KPIs",4,Managed
+7.1.6,"Cross-functional KPIs",1,Non-existent
+7.2.1,"Reporting frequency and format",4,Managed
+7.2.2,"Report content and quality",4,Managed
+7.2.3,"Significant incident reporting",3,Defined
+7.3.1,"Internal audit scope",4,Managed
+7.3.2,"External audits or independent reviews",2,Informal
+7.3.3,"Findings tracking and remediation",3,Defined
+7.4.1,"Peer group benchmarking",3,Defined
+7.4.2,"Internal benchmark (own trend over time)",3,Defined
+7.4.3,"Industry survey and data participation",4,Managed
+7.5.1,"Multi-year roadmap",4,Managed
+7.5.2,"Change management and evolution communication",3,Defined
+8.1.1,"Current operating model",3,Defined
+8.1.2,"Fraud-cyber intelligence sharing",2,Informal
+8.1.3,"Shared use cases and joint operations",3,Defined
+8.2.1,"Alert and data sharing",2,Informal
+8.2.2,"Shared typologies and data sharing",4,Managed
+8.2.3,"Joint financial crime committee",3,Defined
+8.3.1,"Legal framework for fraud action",3,Defined
+8.3.2,"Compliance review of the fraud program",4,Managed
+8.4.1,"Fraud by design in product development",3,Defined
+8.4.2,"IT SLAs for fraud engine support",3,Defined
+8.4.3,"Fraud participation in new technology evaluation",2,Informal
+8.5.1,"Consortium participation",1,Non-existent
+8.5.2,"Law enforcement relationship",1,Non-existent
+8.5.3,"Active contribution vs. passive intelligence consumption",2,Informal
