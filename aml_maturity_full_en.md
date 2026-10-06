@@ -1,3 +1,9 @@
+<!-- title: AML Maturity Assessment -->
+<!-- assessmentName: AML Maturity Assessment (AMA) -->
+<!-- framework: AMA -->
+<!-- frameworkShort: AMA v0.1 -->
+<!-- version: 0.1 -->
+
 # AML Maturity Assessment (AMA) — v0.1 · Pillars 1–11
 
 *Anti-money laundering / counter-terrorist financing program maturity model for world-class banking. This is a **maturity assessment of the AML program**, not an inherent/residual risk assessment. Skeleton anchored in the FFIEC BSA/AML Examination Manual and FinCEN/BSA requirements (US government works, public domain); original synthesis informed conceptually by the FATF 40 Recommendations and FATF effectiveness outcomes, Wolfsberg Group guidance, Basel AML principles, and LATAM references (SARLAFT/SAGRILAFT — SFC Colombia, CNBV PLD/FT Mexico, BCB Circular 3.978 Brazil, UAFE Ecuador, GAFILAT). 1–5 scale where Level 5 represents frontier practice — effectiveness and outcomes, not checkbox compliance. All descriptors are original wording; sources are cited as "informed by," without reproducing their text.*

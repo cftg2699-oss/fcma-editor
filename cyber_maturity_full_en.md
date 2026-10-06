@@ -1,3 +1,9 @@
+<!-- title: Cyber Maturity Assessment -->
+<!-- assessmentName: Cyber Maturity Assessment (CMA) -->
+<!-- framework: CMA -->
+<!-- frameworkShort: CMA v0.2 -->
+<!-- version: 0.2 -->
+
 # Cyber Maturity Assessment (CMA) — v0.2 · Pillars 1–11
 
 *Cybersecurity maturity model for world-class banking. Skeleton anchored in NIST CSF 2.0 (public domain); original synthesis informed by ISO 27001/27002, FFIEC, NYDFS Part 500, DORA, MITRE ATT&CK, and LATAM references (SFC Colombia, CNBV Mexico, BCB/CMN Brazil, SB Ecuador). 1–5 scale where Level 5 represents frontier practice, not merely "optimized." All descriptors are original wording; sources are cited as "informed by," without reproducing their text.*
