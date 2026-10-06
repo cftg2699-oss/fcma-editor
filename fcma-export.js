@@ -90,11 +90,7 @@
     font('normal', 10.5, [203, 213, 225]);
     const sub = [m.org.contact && (m.org.contact + (m.org.role ? ', ' + m.org.role : '')), [m.org.sector, m.org.country].filter(Boolean).join(' | '), fmtDate(m.date, m.lang)].filter(Boolean);
     sub.forEach((ln, i) => doc.text(clean(ln), 24, cy0 + 6 + i * 6));
-    const rcx = W - 52, rcy = H - 82; const col = hex(m.maturity.color);
-    ring(rcx, rcy, 24, m.total, col, 3.2, [51, 65, 85]);
-    font('bold', 30, [255, 255, 255]); doc.text(fmtScore(m.total), rcx, rcy + 3, { align: 'center' });
-    font('normal', 8.5, MUTE); doc.text('/ 5.0', rcx, rcy + 10, { align: 'center' });
-    font('bold', 11, col); doc.text(clean(m.maturity.label), rcx, rcy + 33, { align: 'center' });
+    const col = hex(m.maturity.color); /* la calificación va en la página 2, no en la portada (documento confidencial) */
     font('normal', 8, MUTE); doc.text(clean(x.conf), 24, H - 16, { charSpace: 1.2 });
 
     /* ── page 2: executive summary ── */
@@ -268,10 +264,6 @@
       sl.addText(t.repTitle, { x: 0.9, y: 3.85, w: 8, h: 0.5, fontFace: F, fontSize: 20, color: MUTE, margin: 0 });
       if (m.org.company) { sl.addText(x.prepared.toUpperCase(), { x: 0.9, y: 5.05, w: 6, h: 0.3, fontFace: F, fontSize: 10, color: MUTE, charSpacing: 2, margin: 0 }); sl.addText(m.org.company, { x: 0.9, y: 5.35, w: 8, h: 0.55, fontFace: F, fontSize: 26, bold: true, color: 'FFFFFF', margin: 0 }); }
       sl.addText([m.org.contact && (m.org.contact + (m.org.role ? ', ' + m.org.role : '')), fmtDate(m.date, m.lang)].filter(Boolean).join('   |   '), { x: 0.9, y: 6.0, w: 8, h: 0.35, fontFace: F, fontSize: 13, color: 'CBD5E1', margin: 0 });
-      sl.addShape(pptx.ShapeType.ellipse, { x: 9.55, y: 2.35, w: 3.0, h: 3.0, fill: { color: INK }, line: { color: mc, width: 9 } });
-      sl.addText(fmtScore(m.total), { x: 9.55, y: 3.0, w: 3.0, h: 1.0, fontFace: F, fontSize: 56, bold: true, color: 'FFFFFF', align: 'center', margin: 0 });
-      sl.addText('/ 5.0', { x: 9.55, y: 3.95, w: 3.0, h: 0.4, fontFace: F, fontSize: 14, color: MUTE, align: 'center', margin: 0 });
-      sl.addText(m.maturity.label, { x: 9.2, y: 5.55, w: 3.7, h: 0.5, fontFace: F, fontSize: 20, bold: true, color: mc, align: 'center', margin: 0 });
       sl.addText(x.conf, { x: 0.9, y: 7.0, w: 4, h: 0.3, fontFace: F, fontSize: 9, color: MUTE, charSpacing: 3, margin: 0 }); }
 
     /* 2 executive summary */
