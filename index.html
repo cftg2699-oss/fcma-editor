@@ -414,12 +414,12 @@ function saveEntitySnapshot(){
   if(!entity)return;
   var vals=[];for(var k in ANSWERS){if(ANSWERS[k]>0)vals.push(ANSWERS[k]);}
   if(!vals.length)return;
-  var avg=vals.reduce(function(a,b){return a+b;},0)/vals.length;
+  var avg=getScores()._total||vals.reduce(function(a,b){return a+b;},0)/vals.length; /* mismo score global que el reporte: promedio de pilares */
   var lvlNames=['','Non-existent','Reactive','Defined','Managed','Optimized'];
   var level=lvlNames[Math.round(avg)]||('Score '+avg.toFixed(1));
-  var area=(META.assessmentName||META.title||'Assessment');
+  var area=(META.assessmentName||META.title||('Assessment \u00b7 '+((DATA[0]&&DATA[0].name)||'')));
   var fwShort=(META.frameworkShort||'');
-  var key=entity+'|'+area+'|'+fwShort;
+  var key=entity+'|'+area+'|'+fwShort+'|'+DATA.length+'|'+((DATA[0]&&DATA[0].name)||'');
   var snapId='snap_'+(hashStr(key)>>>0).toString(36);
   try{localStorage.setItem('cra_snap_'+snapId,JSON.stringify({data:DATA,core:[...CORE],meta:META,answers:ANSWERS,reg:REG_DATA}));}catch(e){}
   var reg=regGet();if(!reg[entity])reg[entity]=[];
@@ -449,7 +449,7 @@ function renderHistory(main){
   entities.forEach(function(ent){
     var list=reg[ent].slice().sort(function(a,b){return new Date(b.date)-new Date(a.date);});
     var card=el('div',{style:{background:'var(--card)',border:'1px solid var(--brd)',borderRadius:'14px',padding:'18px',marginBottom:'16px'}});
-    card.append(el('div',{style:{fontSize:'17px',fontWeight:'800',color:'var(--text)',marginBottom:'6px'}},ent));
+    card.append(el('div',{style:{display:'flex',alignItems:'center',gap:'10px',marginBottom:'6px'}},el('div',{style:{flex:'1',fontSize:'17px',fontWeight:'800',color:'var(--text)'}},ent),list.length>1?el('button',{className:'btn btn-t',style:{fontSize:'12px',padding:'6px 12px'},onClick:function(){window.location.href='fcma_erm.html?entity='+encodeURIComponent(ent);}},'ERM roll-up \u2192'):null));
     card.append(el('div',{style:{fontSize:'12px',color:'var(--mute)',marginBottom:'12px'}},list.length+' assessment'+(list.length===1?'':'s')));
     card.append(el('div',{style:{display:'flex',gap:'10px',fontSize:'11px',fontWeight:'700',color:'var(--mute)',textTransform:'uppercase',letterSpacing:'0.5px',paddingBottom:'8px',borderBottom:'1px solid var(--brd)'}},el('span',{style:{flex:'2'}},'Area'),el('span',{style:{flex:'1'}},'Date'),el('span',{style:{flex:'1'}},'Level'),el('span',{style:{width:'96px'}},'')));
     list.forEach(function(a){

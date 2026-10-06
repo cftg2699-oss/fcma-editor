@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RiskAtlas · ERM Roll-up</title>
+<style>
+:root{--bg:#f8fafc;--card:#fff;--ink:#0f172a;--dim:#475569;--mute:#94a3b8;--brd:#e2e8f0;--teal:#059669;--tealL:#10b981;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,"Segoe UI",Inter,Roboto,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 16px 60px}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.top h1{margin:0;font-size:22px;letter-spacing:-.3px}
+.sub{color:var(--dim);font-size:13px}
+.sp{flex:1}
+.btn{white-space:nowrap;border:1px solid var(--brd);background:#fff;border-radius:8px;padding:8px 14px;font-weight:600;font-size:13px;cursor:pointer;color:var(--ink);text-decoration:none;display:inline-block}
+.btn:hover{background:#f1f5f9}.btn.t{background:var(--teal);border-color:var(--teal);color:#fff}
+select{border:1px solid var(--brd);border-radius:8px;padding:8px 10px;font-size:13px;background:#fff}
+.card{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:18px;margin-bottom:16px}
+.h{font-size:11px;font-weight:800;color:var(--mute);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
+.hero{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;flex:1;min-width:260px}
+.kpi{background:var(--bg);border:1px solid var(--brd);border-radius:10px;padding:12px;text-align:center}
+.kpi b{display:block;font-size:22px}.kpi span{font-size:10px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.6px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--mute);text-align:left;padding:8px 6px;border-bottom:1px solid var(--brd)}
+td{padding:10px 6px;border-bottom:1px solid var(--brd);vertical-align:middle}
+.pill{white-space:nowrap;display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700}
+.bar{height:10px;background:#e2e8f0;border-radius:6px;overflow:hidden;min-width:120px}.bar i{display:block;height:100%}
+.warn{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:16px}
+.note{background:#f0f9ff;border:1px solid #bae6fd;color:#075985;border-radius:10px;padding:10px 14px;font-size:12.5px;margin-top:12px}
+.empty{text-align:center;color:var(--dim);padding:40px 16px}
+input[type=number]{width:62px;border:1px solid var(--brd);border-radius:6px;padding:5px;font-size:13px;text-align:center}
+.conf{font-size:11px;color:var(--mute);text-align:center;margin-top:24px;letter-spacing:1.5px}
+@media print{.noprint{display:none!important}body{background:#fff}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+(function () {
+  var LANG = (function () { try { return localStorage.getItem('fcma_lang') || 'en'; } catch (e) { return 'en'; } })();
+  var S = {
+    en: { title: 'ERM Roll-up', sub: 'Parent assessment: consolidates the child assessments of one institution into a single enterprise risk view.', back: '← Back to tool', print: 'Print / Save PDF', entity: 'Institution', score: 'ERM maturity index', maturity: 'Maturity level', children: 'Child assessments', gaps: 'Critical gaps', cov: 'Coverage', asof: 'Data as-of', child: 'Assessment', date: 'Date', age: 'Age', comp: 'Completion', sc: 'Score', lvl: 'Level', w: 'Weight', inc: 'Include', days: 'days', stale: 'Stale', fresh: 'Current', open: 'Open report →', weakest: 'Weakest pillars across all assessments', pillar: 'Pillar', from: 'Assessment', none: 'No child assessments yet. Complete an assessment for this institution and press Results; it is saved automatically here.', residual: 'Risk-direction assessments (scale inverted: 5 = worst). Shown for context and excluded from the maturity index.', avgctl: 'Average answer', spread: 'Assessment dates span {n} days (oldest {o}, newest {w}).', spreadWarn: 'Assessments were performed at different dates. Treat the index as a consolidated view, not a point-in-time measurement; re-assess items marked Stale.', staleRule: 'Stale = older than {n} days.', method: 'Method: each child score is the mean of its assessed pillars (mean of answered components per pillar). ERM index = weighted mean of the included children. Critical gap = component answered 1 or 2.', lv: ['Non-existent', 'Reactive', 'Defined', 'Managed', 'Optimized'], reassess: 'Re-assess', conf: 'CONFIDENTIAL', pillars: 'pillars', assessed: 'assessed' },
+    es: { title: 'Consolidado ERM', sub: 'Assessment padre: consolida los assessments hijos de una institución en una sola vista de riesgo empresarial.', back: '← Volver a la herramienta', print: 'Imprimir / Guardar PDF', entity: 'Institución', score: 'Índice de madurez ERM', maturity: 'Nivel de madurez', children: 'Assessments hijos', gaps: 'Brechas críticas', cov: 'Cobertura', asof: 'Datos al', child: 'Assessment', date: 'Fecha', age: 'Antigüedad', comp: 'Avance', sc: 'Score', lvl: 'Nivel', w: 'Peso', inc: 'Incluir', days: 'días', stale: 'Desactualizado', fresh: 'Vigente', open: 'Abrir reporte →', weakest: 'Pilares más débiles entre todos los assessments', pillar: 'Pilar', from: 'Assessment', none: 'Aún no hay assessments hijos. Completa un assessment de esta institución y pulsa Results; se guarda aquí automáticamente.', residual: 'Assessments con dirección de riesgo (escala invertida: 5 = peor). Se muestran como contexto y no entran al índice de madurez.', avgctl: 'Respuesta promedio', spread: 'Las fechas de los assessments abarcan {n} días (más antiguo {o}, más reciente {w}).', spreadWarn: 'Los assessments se hicieron en fechas distintas. Lee el índice como vista consolidada, no como medición de un instante; vuelve a evaluar los marcados como Desactualizado.', staleRule: 'Desactualizado = con más de {n} días.', method: 'Método: el score de cada hijo es el promedio de sus pilares evaluados (promedio de componentes respondidos por pilar). Índice ERM = promedio ponderado de los hijos incluidos. Brecha crítica = componente respondido con 1 o 2.', lv: ['Inexistente', 'Reactivo', 'Definido', 'Gestionado', 'Optimizado'], reassess: 'Re-evaluar', conf: 'CONFIDENCIAL', pillars: 'pilares', assessed: 'evaluados' },
+    pt: { title: 'Consolidado ERM', sub: 'Assessment pai: consolida os assessments filhos de uma instituição em uma única visão de risco empresarial.', back: '← Voltar à ferramenta', print: 'Imprimir / Salvar PDF', entity: 'Instituição', score: 'Índice de maturidade ERM', maturity: 'Nível de maturidade', children: 'Assessments filhos', gaps: 'Lacunas críticas', cov: 'Cobertura', asof: 'Dados em', child: 'Assessment', date: 'Data', age: 'Idade', comp: 'Progresso', sc: 'Score', lvl: 'Nível', w: 'Peso', inc: 'Incluir', days: 'dias', stale: 'Desatualizado', fresh: 'Vigente', open: 'Abrir relatório →', weakest: 'Pilares mais fracos entre todos os assessments', pillar: 'Pilar', from: 'Assessment', none: 'Ainda não há assessments filhos. Conclua um assessment desta instituição e pressione Results; ele é salvo aqui automaticamente.', residual: 'Assessments com direção de risco (escala invertida: 5 = pior). Exibidos como contexto e fora do índice de maturidade.', avgctl: 'Resposta média', spread: 'As datas dos assessments abrangem {n} dias (mais antigo {o}, mais recente {w}).', spreadWarn: 'Os assessments foram feitos em datas diferentes. Leia o índice como visão consolidada, não como medição de um instante; reavalie os marcados como Desatualizado.', staleRule: 'Desatualizado = mais de {n} dias.', method: 'Método: o score de cada filho é a média dos pilares avaliados (média dos componentes respondidos por pilar). Índice ERM = média ponderada dos filhos incluídos. Lacuna crítica = componente respondido com 1 ou 2.', lv: ['Inexistente', 'Reativo', 'Definido', 'Gerenciado', 'Otimizado'], reassess: 'Reavaliar', conf: 'CONFIDENCIAL', pillars: 'pilares', assessed: 'avaliados' }
+  };
+  var T = S[LANG] || S.en;
+  var STALE_DAYS = 180;
+  var BANDS = [0, 1.5, 2.5, 3.5, 4.25], COLORS = ['#ef4444', '#f97316', '#f59e0b', '#3b82f6', '#22c55e'];
+  function bandIdx(s) { s = Math.round(s * 100) / 100; var k = 0; BANDS.forEach(function (b, i) { if (s >= b) k = i; }); return k; }
+  function rd(k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function fmtDate(iso) { try { return new Date(iso).toLocaleDateString(LANG === 'es' ? 'es-EC' : LANG === 'pt' ? 'pt-BR' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return iso; } }
+  function n2(x) { return (Math.round(x * 100) / 100).toFixed(2); }
+
+  /* ── cálculo por snapshot (mismas reglas que la herramienta) ── */
+  function evalSnap(snap) {
+    var data = snap.data || [], ans = snap.answers || {}, pillars = [], tot = 0, answered = 0, gaps = 0, sum = 0, cnt = 0;
+    data.forEach(function (p) {
+      var s = 0, c = 0, n = 0, g = 0;
+      p.subs.forEach(function (sb) { sb.comps.forEach(function (k) { n++; tot++; var v = ans[k.id]; if (v) { s += v; c++; answered++; if (v <= 2) g++; } }); });
+      gaps += g;
+      var sc = c ? s / c : 0; if (sc > 0) { sum += sc; cnt++; }
+      pillars.push({ id: p.id, name: p.name, score: sc, answered: c, total: n, gaps: g });
+    });
+    var avgAns = answered ? Object.keys(ans).reduce(function (a, k) { return a + (ans[k] > 0 ? ans[k] : 0); }, 0) / answered : 0;
+    return { pillars: pillars, score: cnt ? sum / cnt : 0, assessed: cnt, answered: answered, total: tot, completion: tot ? Math.round(answered / tot * 100) : 0, gaps: gaps, avgAns: avgAns };
+  }
+
+  var reg = rd('cra_entities', {});
+  var entities = Object.keys(reg).filter(function (e) { return reg[e] && reg[e].length; });
+  var qs = new URLSearchParams(location.search);
+  var current = qs.get('entity') || (rd('fcma_reg', null) || {}).company || '';
+  if (entities.indexOf(current) < 0) current = entities.slice().sort(function (a, b) { return reg[b].length - reg[a].length; })[0] || '';
+  var app = document.getElementById('app');
+
+  function render() {
+    var weights = rd('erm_weights_' + current, {});
+    var kids = (reg[current] || []).slice().sort(function (a, b) { return new Date(a.date) - new Date(b.date); }).map(function (r) {
+      var snap = rd('cra_snap_' + r.snapId, null); if (!snap) return null;
+      var ev = evalSnap(snap), w = weights[r.snapId] || {};
+      return { r: r, snap: snap, ev: ev, inverted: !!r.inverted, w: w.w != null ? w.w : 1, inc: w.inc !== false, age: Math.max(0, Math.round((Date.now() - new Date(r.date)) / 86400000)) };
+    }).filter(Boolean);
+    var mat = kids.filter(function (k) { return !k.inverted; }), inv = kids.filter(function (k) { return k.inverted; });
+    var use = mat.filter(function (k) { return k.inc && k.w > 0 && k.ev.score > 0; });
+    var wsum = use.reduce(function (a, k) { return a + k.w; }, 0);
+    var erm = wsum ? use.reduce(function (a, k) { return a + k.ev.score * k.w; }, 0) / wsum : 0;
+    var bi = bandIdx(erm), col = erm ? COLORS[bi] : '#94a3b8';
+    var gaps = use.reduce(function (a, k) { return a + k.ev.gaps; }, 0);
+    var dates = kids.map(function (k) { return new Date(k.r.date); });
+    var minD = dates.length ? new Date(Math.min.apply(null, dates)) : null, maxD = dates.length ? new Date(Math.max.apply(null, dates)) : null;
+    var spread = minD ? Math.round((maxD - minD) / 86400000) : 0;
+    var anyStale = kids.some(function (k) { return k.age > STALE_DAYS; });
+
+    var h = '<div class="top noprint"><a class="btn" href="index.html">' + T.back + '</a><div class="sp"></div>' +
+      (entities.length > 1 ? '<span class="sub">' + T.entity + ':</span><select id="ent">' + entities.map(function (e) { return '<option' + (e === current ? ' selected' : '') + '>' + esc(e) + '</option>'; }).join('') + '</select>' : '') +
+      '<button class="btn t" onclick="window.print()">' + T.print + '</button></div>';
+    h += '<div style="margin-bottom:16px"><div class="sub" style="font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--teal)">RiskAtlas · ' + T.title + '</div><h1 style="margin:2px 0 4px;font-size:26px;letter-spacing:-.4px">' + esc(current || T.title) + '</h1><div class="sub">' + T.sub + '</div></div>';
+
+    if (!kids.length) { app.innerHTML = h + '<div class="card empty">' + T.none + '</div>'; bind(); return; }
+
+    h += '<div class="card"><div class="hero"><div style="text-align:center;min-width:170px">' + ring(erm, col) +
+      '<div style="font-weight:800;color:' + col + ';margin-top:6px">' + (erm ? T.lv[bi] : '—') + '</div><div class="sub" style="font-size:11px">' + T.score + '</div></div>' +
+      '<div class="kpis"><div class="kpi"><b>' + use.length + '/' + kids.length + '</b><span>' + T.children + '</span></div>' +
+      '<div class="kpi"><b style="color:' + (gaps ? '#ef4444' : '#22c55e') + '">' + gaps + '</b><span>' + T.gaps + '</span></div>' +
+      '<div class="kpi"><b>' + (maxD ? fmtDate(maxD) : '—') + '</b><span>' + T.asof + '</span></div></div></div></div>';
+
+    if (kids.length > 1 && (spread > 30 || anyStale)) {
+      h += '<div class="warn">⚠ ' + T.spread.replace('{n}', spread).replace('{o}', fmtDate(minD)).replace('{w}', fmtDate(maxD)) + ' ' + T.spreadWarn + ' <span style="opacity:.8">' + T.staleRule.replace('{n}', STALE_DAYS) + '</span></div>';
+    }
+
+    h += '<div class="card"><div class="h">' + T.children + '</div><table><thead><tr><th class="noprint">' + T.inc + '</th><th>' + T.child + '</th><th>' + T.date + '</th><th>' + T.comp + '</th><th>' + T.sc + '</th><th style="min-width:130px"></th><th>' + T.lvl + '</th><th>' + T.gaps + '</th><th class="noprint">' + T.w + '</th><th class="noprint"></th></tr></thead><tbody>';
+    mat.forEach(function (k) {
+      var b = bandIdx(k.ev.score), c = COLORS[b], st = k.age > STALE_DAYS;
+      h += '<tr style="' + (k.inc ? '' : 'opacity:.45') + '"><td class="noprint"><input type="checkbox" data-inc="' + k.r.snapId + '"' + (k.inc ? ' checked' : '') + '></td>' +
+        '<td><b>' + esc(k.r.area) + '</b><div class="sub" style="font-size:11px">' + esc(k.r.framework || '') + ' · ' + k.ev.assessed + ' ' + T.pillars + '</div></td>' +
+        '<td>' + fmtDate(k.r.date) + '<div><span class="pill" style="background:' + (st ? '#fef3c7;color:#92400e' : '#dcfce7;color:#166534') + '">' + (st ? T.stale : T.fresh) + ' · ' + k.age + ' ' + T.days + '</span></div></td>' +
+        '<td>' + k.ev.completion + '%</td><td><b style="color:' + c + ';font-size:16px">' + n2(k.ev.score) + '</b></td>' +
+        '<td><div class="bar"><i style="width:' + Math.min(100, k.ev.score / 5 * 100) + '%;background:' + c + '"></i></div></td>' +
+        '<td><span class="pill" style="background:' + c + '22;color:' + c + '">' + T.lv[b] + '</span></td><td>' + k.ev.gaps + '</td>' +
+        '<td class="noprint"><input type="number" min="0" max="10" step="0.5" value="' + k.w + '" data-w="' + k.r.snapId + '"></td>' +
+        '<td class="noprint"><a class="btn" href="#" data-open="' + k.r.snapId + '">' + T.open + '</a></td></tr>';
+    });
+    h += '</tbody></table>';
+    if (inv.length) {
+      h += '<div class="h" style="margin-top:20px">' + T.residual + '</div><table><tbody>' + inv.map(function (k) {
+        return '<tr><td><b>' + esc(k.r.area) + '</b></td><td>' + fmtDate(k.r.date) + '</td><td>' + T.avgctl + ': <b>' + n2(k.ev.avgAns) + '</b></td><td>' + k.ev.completion + '%</td><td class="noprint"><a class="btn" href="#" data-open="' + k.r.snapId + '">' + T.open + '</a></td></tr>';
+      }).join('') + '</tbody></table>';
+    }
+    h += '</div>';
+
+    var weak = []; use.forEach(function (k) { k.ev.pillars.forEach(function (p) { if (p.score > 0) weak.push({ a: k.r.area, p: p }); }); });
+    weak.sort(function (x, y) { return x.p.score - y.p.score; }); weak = weak.slice(0, 8);
+    if (weak.length) {
+      h += '<div class="card"><div class="h">' + T.weakest + '</div><table><thead><tr><th>' + T.from + '</th><th>' + T.pillar + '</th><th>' + T.sc + '</th><th></th><th>' + T.gaps + '</th></tr></thead><tbody>' + weak.map(function (x) {
+        var c = COLORS[bandIdx(x.p.score)];
+        return '<tr><td>' + esc(x.a) + '</td><td><b>' + esc(x.p.id) + '</b> ' + esc(x.p.name) + '</td><td><b style="color:' + c + '">' + n2(x.p.score) + '</b></td><td><div class="bar"><i style="width:' + x.p.score / 5 * 100 + '%;background:' + c + '"></i></div></td><td>' + x.p.gaps + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+    }
+    h += '<div class="note">' + T.method + '</div><div class="conf">' + T.conf + '</div>';
+    app.innerHTML = h; bind();
+
+    function bind() {
+      var sel = document.getElementById('ent'); if (sel) sel.onchange = function () { current = sel.value; render(); };
+      [].forEach.call(document.querySelectorAll('[data-inc]'), function (i) { i.onchange = function () { setW(i.getAttribute('data-inc'), { inc: i.checked }); }; });
+      [].forEach.call(document.querySelectorAll('[data-w]'), function (i) { i.onchange = function () { setW(i.getAttribute('data-w'), { w: Math.max(0, parseFloat(i.value) || 0) }); }; });
+      [].forEach.call(document.querySelectorAll('[data-open]'), function (a) { a.onclick = function (e) { e.preventDefault(); openSnap(a.getAttribute('data-open')); }; });
+    }
+  }
+  function bind() { }
+  function setW(id, patch) { var w = rd('erm_weights_' + current, {}); w[id] = Object.assign(w[id] || {}, patch); try { localStorage.setItem('erm_weights_' + current, JSON.stringify(w)); } catch (e) { } render(); }
+  function openSnap(id) {
+    var snap = rd('cra_snap_' + id, null); if (!snap) return;
+    try { localStorage.setItem('fcma_data', JSON.stringify(snap.data)); localStorage.setItem('fcma_answers', JSON.stringify(snap.answers)); localStorage.setItem('fcma_core', JSON.stringify(snap.core || [])); localStorage.setItem('fcma_meta', JSON.stringify(snap.meta || {})); if (snap.reg) localStorage.setItem('fcma_reg', JSON.stringify(snap.reg)); } catch (e) { }
+    location.href = 'fcma_report.html';
+  }
+  function ring(score, col) {
+    var r = 58, c = 2 * Math.PI * r, p = Math.min(1, score / 5);
+    return '<svg width="150" height="150" viewBox="0 0 150 150"><circle cx="75" cy="75" r="' + r + '" fill="none" stroke="#e2e8f0" stroke-width="12"/><circle cx="75" cy="75" r="' + r + '" fill="none" stroke="' + col + '" stroke-width="12" stroke-linecap="round" stroke-dasharray="' + (c * p) + ' ' + c + '" transform="rotate(-90 75 75)"/><text x="75" y="78" text-anchor="middle" font-size="34" font-weight="800" fill="#0f172a">' + (score ? n2(score) : '—') + '</text><text x="75" y="98" text-anchor="middle" font-size="11" fill="#94a3b8">/ 5.00</text></svg>';
+  }
+  render();
+})();
+</script>
+</body>
+</html>

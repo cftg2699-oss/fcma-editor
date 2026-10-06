@@ -1,3 +1,8 @@
+<!-- title: Financial Crime Maturity Assessment -->
+<!-- assessmentName: Fraud Maturity Assessment (FCMA) -->
+<!-- framework: FCMA -->
+<!-- frameworkShort: FCMA -->
+
 # P0: Fraud Strategy
 
 *Strategic layer that assesses whether the bank has an articulated vision of how to compete against fraud, where to accept losses, and how to balance security with customer experience.*
