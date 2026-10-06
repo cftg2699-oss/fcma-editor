@@ -89,7 +89,8 @@ function levelBadge(s) {
 
 // ── DATA LOADER ────────────────────────────────────────────
 const FMETA=(function(){var d={assessmentName:'Financial Crime Maturity Assessment',frameworkShort:'FCMA\u2122 v2.0',org:'Continental Risk Advisor',framework:'FCMA\u2122',version:'',scoreDirection:null};try{var m=JSON.parse(localStorage.getItem('fcma_meta')||'null')||{};return{assessmentName:m.assessmentName||m.title||d.assessmentName,frameworkShort:m.frameworkShort||d.frameworkShort,org:m.org||d.org,framework:m.framework||d.framework,version:m.version||d.version,scoreDirection:m.scoreDirection||null};}catch(e){return d;}})();
-const TOOL={name:'RiskAtlas',version:'1.0'};
+const AI_REPORT_ENABLED=(typeof AI_URL!=='undefined'&&!!AI_URL); /* Informe con IA: solo con conexión real (AI_URL en fcma-config.js) */
+const TOOL={name:'RiskAtlas',version:'2.0'};
 const RESIDUAL_MATRIX=[[1,1,2,2,3],[1,2,2,3,3],[2,2,3,3,4],[2,3,3,4,5],[3,3,4,5,5]];
 const RES_INFO={0:{label:'\u2014',color:'#475569',auth:'Not yet computed'},1:{label:'Very Low',color:'#22c55e',auth:'Business unit management'},2:{label:'Low',color:'#84cc16',auth:'Business unit management'},3:{label:'Moderate',color:'#f59e0b',auth:'Business unit + TPRM office sign-off'},4:{label:'High',color:'#f97316',auth:'Senior management approval; documented risk acceptance'},5:{label:'Critical',color:'#ef4444',auth:'Senior management + board approval'}};
 const IS_SCORECARD=/INVERTED/i.test(FMETA.scoreDirection||'');
@@ -1283,7 +1284,7 @@ function App() {
                 <span>←</span>
                 <span className="flex-1">Back to Assessment</span>
               </a>
-              {NAV.filter(n => (n.id!=='vendorrisk' || IS_SCORECARD) && (n.id!=='portfolio' || IS_PORTFOLIO)).map(n => {
+              {NAV.filter(n => (n.id!=='vendorrisk' || IS_SCORECARD) && (n.id!=='portfolio' || IS_PORTFOLIO) && (n.id!=='aireport' || AI_REPORT_ENABLED)).map(n => {
                 const isActive = page === n.id || (n.id === 'overview' && page === 'pillar');
                 return (
                   <button key={n.id}
@@ -1332,7 +1333,7 @@ function App() {
           {page === 'roadmap' && <PageRoadmap data={data} answers={answers} scores={scores}/>}
           {page === 'threats' && <PageThreats answers={answers}/>}
           {page === 'initiatives' && <PageInitiatives data={data} answers={answers} core={core}/>}
-          {page === 'aireport' && <PageAIReport/>}
+          {page === 'aireport' && AI_REPORT_ENABLED && <PageAIReport/>}
           {page === 'vendorrisk' && <PageVendorRisk data={data} answers={answers}/>}
           {page === 'portfolio' && <PagePortfolio/>}
         </main>

@@ -172,8 +172,8 @@
     assessed.forEach(p => { pc[p.id] = clip(t.pc(bandName(p.score), p, +(4 - p.score).toFixed(2)), 40); });
     const strengths = sorted.filter(p => p.score >= 3.0).slice(0, 3).map(p => ({ pillar: p.id, text: t.str(p, p.answered, p.total) }));
     return {
-      headline: clip(t.head(org || 'La organización', m.total.toFixed(2), m.maturity), 22),
-      executive_summary: t.p1(org || 'La organización', m.total.toFixed(2), m.maturity, m.answered, m.totalQ, m.completionPct, e) + '\n\n' + t.p2(hi, lo, m.gapCount, m.pillars.length - assessed.length),
+      headline: clip(t.head(org || ({ en: 'The organization', pt: 'A organização' }[req.lang] || 'La organización'), m.total.toFixed(2), m.maturity), 22),
+      executive_summary: t.p1(org || ({ en: 'The organization', pt: 'A organização' }[req.lang] || 'La organización'), m.total.toFixed(2), m.maturity, m.answered, m.totalQ, m.completionPct, e) + '\n\n' + t.p2(hi, lo, m.gapCount, m.pillars.length - assessed.length),
       strengths, pillar_commentary: pc
     };
   }
